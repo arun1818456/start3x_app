@@ -10,7 +10,18 @@ class AdminDashboardController extends GetxController with BaseClass {
   }
 
   void logout() {
-    storage.remove(LocalKeys.userData);
-    Get.offAllNamed(AppRoutes.loginScreen);
+    CommonDialogs().showCustomDialog(
+      Get.context!,
+      title: "Logout Confirmation",
+      description:
+          "Are you sure you want to logout? All local storage data will be cleared.",
+      yesButtonText: "Logout",
+      noButtonText: "Cancel",
+      onTapYes: () async {
+        await storage.erase();
+        Get.offAllNamed(AppRoutes.loginScreen);
+        showMySnackBar("Logged out successfully", success: true);
+      },
+    );
   }
 }

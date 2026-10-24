@@ -8,7 +8,7 @@ class HomeScreen extends StatelessWidget {
     final controller = Get.put(HomeController());
     return Scaffold(
       backgroundColor: AppColors.whiteColor,
-      drawer: const SideMenuBar(),
+      drawer:  SideMenuBar(),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),

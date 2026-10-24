@@ -3,20 +3,16 @@ class UserDataModel {
   String? name;
   String? email;
   String? token;
-  String? profileUrl;
   String? createdAt;
-  String? userName;
-  String? passkey;
+  String? role;
 
   UserDataModel({
     this.id,
     this.name,
     this.email,
     this.token,
-    this.profileUrl,
     this.createdAt,
-    this.userName,
-    this.passkey,
+    this.role,
   });
 
   UserDataModel.fromJson(Map<String, dynamic> json) {
@@ -24,10 +20,8 @@ class UserDataModel {
     name = json['name'];
     email = json['email'];
     token = json['token'];
-    profileUrl = json['profileUrl'];
     createdAt = json['createdAt'];
-    userName = json['userName'];
-    passkey = json['passkey'];
+    role = json['role'];
   }
 
   Map<String, dynamic> toJson() {
@@ -36,10 +30,8 @@ class UserDataModel {
     data['name'] = name;
     data['email'] = email;
     data['token'] = token;
-    data['profileUrl'] = profileUrl;
     data['createdAt'] = createdAt;
-    data['userName'] = userName;
-    data['passkey'] = passkey;
+    data['role'] = role;
     return data;
   }
 }

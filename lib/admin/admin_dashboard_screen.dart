@@ -15,17 +15,26 @@ class AdminDashboardScreen extends StatelessWidget {
             // --- Header Bar ---
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 18),
+              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
               color: Colors.grey.shade100,
-              child: const Center(
-                child: Text(
-                  'Admin Dashboard',
-                  style: TextStyle(
-                    fontSize: 26,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.primaryBlue,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const SizedBox(width: 40),
+                  const Text(
+                    'Admin Dashboard',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.primaryBlue,
+                    ),
                   ),
-                ),
+                  IconButton(
+                    icon: const Icon(Icons.logout_rounded, color: Colors.red),
+                    onPressed: controller.logout,
+                    tooltip: 'Logout',
+                  ),
+                ],
               ),
             ),
 

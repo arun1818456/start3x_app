@@ -1,7 +1,7 @@
 import 'package:start3x_app/exports.dart';
 
 class SideMenuBar extends StatelessWidget with BaseClass {
-  const SideMenuBar({super.key});
+  SideMenuBar({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -132,7 +132,19 @@ class SideMenuBar extends StatelessWidget with BaseClass {
                 ),
                 onTap: () {
                   Get.back();
-                  showMySnackBar('User logged out successfully', success: true);
+                  CommonDialogs().showCustomDialog(
+                    Get.context!,
+                    title: "Logout Confirmation",
+                    description:
+                        "Are you sure you want to logout? All local storage data will be cleared.",
+                    yesButtonText: "Logout",
+                    noButtonText: "Cancel",
+                    onTapYes: () async {
+                      await storage.erase();
+                      Get.offAllNamed(AppRoutes.loginScreen);
+                      showMySnackBar("Logged out successfully", success: true);
+                    },
+                  );
                 },
               ),
             ),
