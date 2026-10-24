@@ -1,7 +1,7 @@
 import 'package:start3x_app/exports.dart';
 
 class AppPages {
-  static const init = AppRoutes.loginScreen;
+  static const init = AppRoutes.splashRoute;
 
   static final routes = [
     GetPage(

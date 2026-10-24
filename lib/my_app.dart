@@ -1,3 +1,4 @@
+import 'package:start3x_app/app/routes/pages.dart';
 import 'package:start3x_app/exports.dart';
 
 class MyApp extends StatelessWidget {

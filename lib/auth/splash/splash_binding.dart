@@ -1,5 +1,4 @@
-import 'package:get/get.dart';
-import 'package:start3x_app/app/screens/splash/splash_controller.dart';
+import 'package:start3x_app/exports.dart';
 
 class SplashBinding extends Bindings {
   @override

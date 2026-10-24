@@ -20,10 +20,6 @@ export 'package:start3x_app/app/models/lead_response_model.dart';
 export 'package:start3x_app/app/models/to_do_item_model.dart';
 export 'package:start3x_app/app/models/user_model.dart';
 
-// App Routes
-export 'package:start3x_app/app/routes/pages.dart';
-export 'package:start3x_app/app/routes/routes.dart';
-
 // App Screens & Controllers
 export 'package:start3x_app/admin/access_control/access_control_controller.dart';
 export 'package:start3x_app/admin/access_control/access_control_screen.dart';
@@ -35,6 +31,9 @@ export 'package:start3x_app/admin/clients/clients_controller.dart';
 export 'package:start3x_app/admin/clients/clients_screen.dart';
 export 'package:start3x_app/auth/login/login_controller.dart';
 export 'package:start3x_app/auth/login/login_screen.dart';
+export 'package:start3x_app/auth/splash/splash_controller.dart';
+export 'package:start3x_app/auth/splash/splash_binding.dart';
+export 'package:start3x_app/auth/splash/splash_screen.dart';
 export 'package:start3x_app/app/screens/bottom_bar/bottom_bar.dart';
 export 'package:start3x_app/app/screens/bottom_bar/bottom_controller.dart';
 export 'package:start3x_app/app/screens/group/group_controller.dart';
@@ -49,11 +48,11 @@ export 'package:start3x_app/app/screens/home/home_controller.dart';
 export 'package:start3x_app/app/screens/home/home_screen.dart';
 export 'package:start3x_app/app/screens/insights/insights_controller.dart';
 export 'package:start3x_app/app/screens/insights/insights_screen.dart';
-export 'package:start3x_app/app/screens/splash/splash_binding.dart';
-export 'package:start3x_app/app/screens/splash/splash_controller.dart';
-export 'package:start3x_app/app/screens/splash/splash_screen.dart';
 export 'package:start3x_app/app/screens/to_do/task_controller.dart';
 export 'package:start3x_app/app/screens/to_do/to_do_screen.dart';
+
+// App Routes
+export 'package:start3x_app/app/routes/routes.dart';
 
 // App Widgets
 export 'package:start3x_app/app/widgets/button.dart';
