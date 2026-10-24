@@ -1,7 +1,7 @@
 import 'package:start3x_app/exports.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class ClientDetailController extends GetxController {
+class ClientDetailController extends GetxController with BaseClass {
   late ClientModel client;
 
   var selectedTab = 0.obs; // 0: Assign Lead, 1: Profile
@@ -41,7 +41,7 @@ class ClientDetailController extends GetxController {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
       }
     } catch (e) {
-      Get.snackbar('Error', 'Could not launch dialer for $cleanPhone');
+      showMySnackBar('Could not launch dialer for $cleanPhone', error: true);
     }
   }
 
@@ -56,7 +56,7 @@ class ClientDetailController extends GetxController {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
       }
     } catch (e) {
-      Get.snackbar('Error', 'Could not open WhatsApp for $cleanPhone');
+      showMySnackBar('Could not open WhatsApp for $cleanPhone', error: true);
     }
   }
 
@@ -119,15 +119,13 @@ class ClientDetailController extends GetxController {
 
   void submitAssignLead() {
     if (nameController.text.trim().isEmpty) {
-      Get.snackbar('Alert', 'Please enter Name',
-          snackPosition: SnackPosition.BOTTOM);
+      showMySnackBar('Please enter Name', alert: true);
       return;
     }
 
-    Get.snackbar(
-      'Success',
+    showMySnackBar(
       'Lead assigned to ${client.name} successfully!',
-      snackPosition: SnackPosition.BOTTOM,
+      success: true,
     );
 
     // Clear form after submission

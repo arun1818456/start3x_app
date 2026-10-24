@@ -9,12 +9,10 @@ class LoginController extends GetxController with BaseClass {
     final password = passwordController.text.trim();
 
     if (email.isEmpty) {
-      Get.snackbar('Alert', 'Please enter email',
-          snackPosition: SnackPosition.BOTTOM);
+      showMySnackBar('Please enter email', alert: true);
       return;
     } else if (password.isEmpty) {
-      Get.snackbar('Alert', 'Please enter password',
-          snackPosition: SnackPosition.BOTTOM);
+      showMySnackBar('Please enter password', alert: true);
       return;
     }
 
@@ -106,11 +104,7 @@ class LoginController extends GetxController with BaseClass {
                   buttonHeight: 50,
                   onPressed: () async {
                     if (passkeyController.text.trim().isEmpty) {
-                      Get.snackbar(
-                        'Alert',
-                        'Please enter passkey',
-                        snackPosition: SnackPosition.BOTTOM,
-                      );
+                      showMySnackBar('Please enter passkey', alert: true);
                       return;
                     }
 
@@ -128,13 +122,12 @@ class LoginController extends GetxController with BaseClass {
 
                       Get.back(); // Close Dialog
                       Get.offAllNamed(AppRoutes.mainScreen);
-                      Get.snackbar(
-                        'Success',
+                      showMySnackBar(
                         'Passkey verified! Account created successfully',
-                        snackPosition: SnackPosition.BOTTOM,
+                        success: true,
                       );
                     } catch (error) {
-                      Get.snackbar('Error', error.toString());
+                      showMySnackBar(error.toString(), error: true);
                     }
                   },
                 ),

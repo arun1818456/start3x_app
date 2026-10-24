@@ -1,6 +1,6 @@
 import 'package:start3x_app/exports.dart';
 
-class SideMenuBar extends StatelessWidget {
+class SideMenuBar extends StatelessWidget with BaseClass {
   const SideMenuBar({super.key});
 
   @override
@@ -132,7 +132,7 @@ class SideMenuBar extends StatelessWidget {
                 ),
                 onTap: () {
                   Get.back();
-                  Get.snackbar('Logout', 'User logged out successfully');
+                  showMySnackBar('User logged out successfully', success: true);
                 },
               ),
             ),

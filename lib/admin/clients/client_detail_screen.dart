@@ -66,8 +66,7 @@ class ClientDetailScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 onSelected: (value) {
-                  Get.snackbar('Option', value,
-                      snackPosition: SnackPosition.BOTTOM);
+                  controller.showMySnackBar('Option: $value', alert: true);
                 },
                 itemBuilder: (context) => [
                   const PopupMenuItem(

@@ -1,6 +1,6 @@
 import 'package:start3x_app/exports.dart';
 
-class CallResponseController extends GetxController {
+class CallResponseController extends GetxController with BaseClass {
   late LeadModel lead;
   var selectedOutcomeIndex = (-1).obs; // Initially nothing is selected (-1)
 
@@ -33,11 +33,9 @@ class CallResponseController extends GetxController {
 
   void onSaveOutcome() {
     if (selectedOutcomeIndex.value == -1) {
-      if (Get.isSnackbarOpen) return;
-      Get.snackbar(
-        'Please select option',
+      showMySnackBar(
         'Select an outcome for this call to proceed',
-        snackPosition: SnackPosition.BOTTOM,
+        alert: true,
       );
       return;
     }

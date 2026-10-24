@@ -16,7 +16,7 @@ class AccessClientModel {
   });
 }
 
-class AccessControlController extends GetxController {
+class AccessControlController extends GetxController with BaseClass {
   var generatedPasskey = '000000000000'.obs;
   var searchQuery = ''.obs;
 
@@ -66,31 +66,22 @@ class AccessControlController extends GetxController {
 
     clients.add(newClient);
 
-    Get.snackbar(
-      'Passkey Generated',
-      'New Passkey: $newPasskey',
-      snackPosition: SnackPosition.BOTTOM,
-    );
+    showMySnackBar('New Passkey: $newPasskey', success: true);
   }
 
   void copyPasskeyToClipboard() {
     if (generatedPasskey.value != '000000000000') {
       Clipboard.setData(ClipboardData(text: generatedPasskey.value));
-      Get.snackbar(
-        'Copied',
-        'Passkey copied to clipboard!',
-        snackPosition: SnackPosition.BOTTOM,
-      );
+      showMySnackBar('Passkey copied to clipboard!', success: true);
     }
   }
 
   void removeClient(AccessClientModel client) {
     clients.remove(client);
     _updateRanks();
-    Get.snackbar(
-      'Removed',
+    showMySnackBar(
       'Client ${client.rank} removed from access control',
-      snackPosition: SnackPosition.BOTTOM,
+      alert: true,
     );
   }
 

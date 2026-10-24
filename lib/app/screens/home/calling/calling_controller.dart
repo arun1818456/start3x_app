@@ -1,7 +1,7 @@
 import 'package:start3x_app/exports.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class CallingController extends GetxController {
+class CallingController extends GetxController with BaseClass {
   late LeadModel lead;
 
   final List<String> outcomes = [
@@ -40,8 +40,7 @@ class CallingController extends GetxController {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
       }
     } catch (e) {
-      if (Get.isSnackbarOpen) return;
-      Get.snackbar('Error', 'Could not launch dialer for $cleanPhone');
+      showMySnackBar('Could not launch dialer for $cleanPhone', error: true);
     }
 
     Get.toNamed(AppRoutes.callResponseScreen, arguments: lead);
@@ -58,8 +57,7 @@ class CallingController extends GetxController {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
       }
     } catch (e) {
-      if (Get.isSnackbarOpen) return;
-      Get.snackbar('Error', 'Could not open WhatsApp for $cleanPhone');
+      showMySnackBar('Could not open WhatsApp for $cleanPhone', error: true);
     }
   }
 
@@ -327,8 +325,7 @@ class CallingController extends GetxController {
                     onPressed: () {
                       lead.responses.removeAt(index);
                       Get.back();
-                      if (Get.isSnackbarOpen) return;
-                      Get.snackbar('Deleted', 'Response removed');
+                      showMySnackBar('Response removed', alert: true);
                     },
                     icon: const Icon(Icons.delete_outline_rounded,
                         color: Colors.red, size: 28),
@@ -357,8 +354,7 @@ class CallingController extends GetxController {
                         lead.responses[index] = updatedResponse;
                         Get.back();
 
-                        if (Get.isSnackbarOpen) return;
-                        Get.snackbar('Updated', 'Response updated successfully');
+                        showMySnackBar('Response updated successfully', success: true);
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primaryBlue,

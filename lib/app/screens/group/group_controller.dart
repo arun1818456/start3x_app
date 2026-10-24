@@ -1,6 +1,6 @@
 import 'package:start3x_app/exports.dart';
 
-class GroupController extends GetxController {
+class GroupController extends GetxController with BaseClass {
   final nameController = TextEditingController(text: 'Your Name');
   final messageController = TextEditingController();
   final leadNumController = TextEditingController();
@@ -27,13 +27,8 @@ class GroupController extends GetxController {
   }
 
   void postMessage() {
-    if (Get.isSnackbarOpen) return;
     if (messageController.text.trim().isEmpty) {
-      Get.snackbar(
-        'Empty Message',
-        'Please enter text before posting',
-        snackPosition: SnackPosition.BOTTOM,
-      );
+      showMySnackBar('Please enter text before posting', alert: true);
       return;
     }
 

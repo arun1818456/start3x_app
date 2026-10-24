@@ -81,8 +81,7 @@ class CallingScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 onSelected: (value) {
-                  if (Get.isSnackbarOpen) return;
-                  Get.snackbar('Option', value);
+                  controller.showMySnackBar('Option: $value', alert: true);
                 },
                 itemBuilder: (context) => [
                   const PopupMenuItem(value: 'Edit Lead', child: Text('Edit Lead')),

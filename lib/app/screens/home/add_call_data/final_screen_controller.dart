@@ -1,6 +1,6 @@
 import 'package:start3x_app/exports.dart';
 
-class FinalScreenController extends GetxController {
+class FinalScreenController extends GetxController with BaseClass {
   final textController = TextEditingController();
   late LeadModel lead;
   String selectedOutcome = 'Got a meeting';
@@ -131,12 +131,7 @@ class FinalScreenController extends GetxController {
 
     lead.responses.insert(0, newResponse);
 
-    if (Get.isSnackbarOpen) return;
-    Get.snackbar(
-      'Saved Successfully',
-      'Response added for ${lead.name}',
-      snackPosition: SnackPosition.BOTTOM,
-    );
+    showMySnackBar('Response added for ${lead.name}', success: true);
 
     Get.until((route) => route.settings.name == AppRoutes.callingScreen || route.isFirst);
   }
