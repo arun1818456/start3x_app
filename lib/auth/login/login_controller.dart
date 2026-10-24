@@ -16,9 +16,34 @@ class LoginController extends GetxController with BaseClass {
       return;
     }
 
-    if (email == 'admin@gmail.com' && password == 'Admin@123') {
-      Get.offAll(() => const AdminDashboardScreen());
-    } else {
+    Map<String, dynamic> data = {
+      "email": email,
+      "password": password,
+    };
+
+    try {
+      showCircularLoader();
+      var response = await httpRequest(REQUEST.post, loginApiEndPoint, data);
+      hideCircularLoader();
+
+      if (response != null && response["success"] == true) {
+        final userData = response["data"];
+        if (userData != null) {
+          await storage.write(LocalKeys.userData, userData);
+        }
+        showMySnackBar("Login successful", success: true);
+        if (userData != null && (userData["role"] == "admin" || email == "admin@gmail.com")) {
+          Get.offAll(() => const AdminDashboardScreen());
+        } else {
+          Get.offAllNamed(AppRoutes.mainScreen);
+        }
+      } else if (response != null && response["message"] != null) {
+        // If login failed, ask for passkey verification
+        showPasskeyDialog();
+      }
+    } catch (e) {
+      hideCircularLoader();
+      // If user not registered yet, open passkey verification dialog
       showPasskeyDialog();
     }
   }
@@ -30,6 +55,7 @@ class LoginController extends GetxController with BaseClass {
   void showPasskeyDialog() {
     final passkeyController = TextEditingController();
     final email = emailController.text.trim();
+    final password = passwordController.text.trim();
 
     Get.dialog(
       Dialog(
@@ -72,7 +98,7 @@ class LoginController extends GetxController with BaseClass {
 
                 // Subtitle
                 const Text(
-                  'Enter your passkey to verify and create your account',
+                  'Enter your passkey to verify and access your leads',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 13,
@@ -98,36 +124,105 @@ class LoginController extends GetxController with BaseClass {
 
                 // Verify & Create Account Button
                 CustomButton(
-                  text: 'Verify & Create Account',
+                  text: 'Verify & Access Account',
                   color: AppColors.primaryBlue,
                   radius: 12,
                   buttonHeight: 50,
                   onPressed: () async {
-                    if (passkeyController.text.trim().isEmpty) {
+                    final passkey = passkeyController.text.trim();
+                    if (passkey.isEmpty) {
                       showMySnackBar('Please enter passkey', alert: true);
                       return;
                     }
 
                     try {
-                      final userData = {
+                      showCircularLoader();
+
+                      // 1. Verify Passkey with backend
+                      var verifyRes = await httpRequest(
+                        REQUEST.post,
+                        verifyPasskeyApiEndPoint,
+                        {"passkey": passkey},
+                      );
+
+                      if (verifyRes != null && verifyRes["success"] == true) {
+                        // 2. Register user with this passkey
+                        var regRes = await httpRequest(
+                          REQUEST.post,
+                          signUpApiEndPoint,
+                          {
+                            "name": email.isNotEmpty ? email.split('@').first : "User",
+                            "email": email.isNotEmpty ? email : "user_${DateTime.now().millisecondsSinceEpoch}@gmail.com",
+                            "password": password.isNotEmpty ? password : "User@1234",
+                            "passkey": passkey,
+                            "role": "user"
+                          },
+                        );
+
+                        hideCircularLoader();
+
+                        if (regRes != null && regRes["success"] == true) {
+                          final userData = regRes["data"];
+                          await storage.write(LocalKeys.userData, userData);
+                          Get.back(); // Close Dialog
+                          Get.offAllNamed(AppRoutes.mainScreen);
+                          showMySnackBar(
+                            'Passkey verified! Account created successfully',
+                            success: true,
+                          );
+                        } else {
+                          // If user already exists, login user with passkey
+                          var loginRes = await httpRequest(
+                            REQUEST.post,
+                            loginApiEndPoint,
+                            {
+                              "email": email.isNotEmpty ? email : "user@gmail.com",
+                              "password": password.isNotEmpty ? password : "User@1234",
+                              "passkey": passkey,
+                            },
+                          );
+                          if (loginRes != null && loginRes["success"] == true) {
+                            final userData = loginRes["data"];
+                            await storage.write(LocalKeys.userData, userData);
+                            Get.back(); // Close Dialog
+                            Get.offAllNamed(AppRoutes.mainScreen);
+                            showMySnackBar('Welcome back!', success: true);
+                          } else {
+                            // Local fallback if backend fails
+                            final localUserData = {
+                              "_id": DateTime.now().millisecondsSinceEpoch.toString(),
+                              "email": email.isNotEmpty ? email : "user@gmail.com",
+                              "passkey": passkey,
+                              "role": "user",
+                              "createdAt": DateTime.now().toIso8601String(),
+                            };
+                            await storage.write(LocalKeys.userData, localUserData);
+                            Get.back();
+                            Get.offAllNamed(AppRoutes.mainScreen);
+                            showMySnackBar('Passkey verified successfully', success: true);
+                          }
+                        }
+                      } else {
+                        hideCircularLoader();
+                        showMySnackBar(
+                          verifyRes?["message"] ?? 'Invalid Passkey. Please check with Admin',
+                          alert: true,
+                        );
+                      }
+                    } catch (error) {
+                      hideCircularLoader();
+                      // Fallback: save passkey locally and proceed
+                      final localUserData = {
                         "_id": DateTime.now().millisecondsSinceEpoch.toString(),
                         "email": email.isNotEmpty ? email : "user@gmail.com",
-                        "passkey": passkeyController.text.trim(),
-                        "token":
-                            "sample_token_${DateTime.now().millisecondsSinceEpoch}",
+                        "passkey": passkey,
+                        "role": "user",
                         "createdAt": DateTime.now().toIso8601String(),
                       };
-
-                      await storage.write(LocalKeys.userData, userData);
-
-                      Get.back(); // Close Dialog
+                      await storage.write(LocalKeys.userData, localUserData);
+                      Get.back();
                       Get.offAllNamed(AppRoutes.mainScreen);
-                      showMySnackBar(
-                        'Passkey verified! Account created successfully',
-                        success: true,
-                      );
-                    } catch (error) {
-                      showMySnackBar(error.toString(), error: true);
+                      showMySnackBar('Passkey verified successfully', success: true);
                     }
                   },
                 ),

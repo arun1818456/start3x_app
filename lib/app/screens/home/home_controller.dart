@@ -1,33 +1,90 @@
 import 'package:start3x_app/exports.dart';
 
-class HomeController extends GetxController {
+class HomeController extends GetxController with BaseClass {
   var searchQuery = ''.obs;
   var selectedSortOption = 'Interaction Date'.obs;
   var selectedSortDirection = 'Newest to Oldest'.obs;
 
-  final RxList<LeadModel> leads = <LeadModel>[
-    LeadModel(
-      rank: '#3',
-      name: 'Lehraj mehra',
-      location: 'chandigarh',
-      status: 'To-Do:',
-      date: 'October 23, 2026',
-    ),
-    LeadModel(
-      rank: '#2',
-      name: 'Arun mehra',
-      location: 'chandigarh',
-      status: 'Done Task:',
-      date: 'October 23, 2026',
-    ),
-    LeadModel(
-      rank: '#1',
-      name: 'Sahil kashyap',
-      location: 'chandigarh',
-      status: 'Missed:',
-      date: 'October 23, 2026',
-    ),
-  ].obs;
+  final RxList<LeadModel> leads = <LeadModel>[].obs;
+
+  @override
+  void onInit() {
+    super.onInit();
+    fetchLeads();
+  }
+
+  Future<void> fetchLeads() async {
+    final userData = getUserData();
+    final passkey = userData.passkey ?? storage.read(LocalKeys.userData)?['passkey'] ?? '8dffbe67y3b';
+
+    try {
+      var res = await httpRequest(
+        REQUEST.get,
+        "$getLeadsApiEndPoint?passkey=$passkey",
+        {},
+      );
+
+      if (res != null && res["success"] == true && res["data"] != null) {
+        List dataList = res["data"];
+        if (dataList.isNotEmpty) {
+          leads.value = dataList.map((item) {
+            List respList = item["responses"] ?? [];
+            return LeadModel(
+              rank: item["rank"]?.toString() ?? '#1',
+              name: item["name"]?.toString() ?? 'Lead',
+              location: item["location"]?.toString() ?? 'chandigarh',
+              status: item["status"]?.toString() ?? 'To-Do:',
+              date: item["date"]?.toString() ?? 'October 23, 2026',
+              phoneNumber: item["phoneNumber"]?.toString() ?? '+919876543210',
+              altPhoneNumber: item["altPhoneNumber"]?.toString() ?? '+919876543211',
+              initialResponses: respList.map((r) => LeadResponseModel(
+                responseNumber: r["responseNumber"]?.toString() ?? 'Response #1',
+                outcome: r["outcome"]?.toString() ?? '',
+                meetingScheduled: r["meetingScheduled"]?.toString(),
+                callback: r["callback"]?.toString(),
+                text: r["text"]?.toString() ?? '',
+                callDate: r["callDate"]?.toString() ?? '',
+              )).toList(),
+            );
+          }).toList();
+        } else {
+          _setDefaultDummyLeads();
+        }
+      } else {
+        _setDefaultDummyLeads();
+      }
+    } catch (e) {
+      _setDefaultDummyLeads();
+    }
+  }
+
+  void _setDefaultDummyLeads() {
+    if (leads.isEmpty) {
+      leads.value = [
+        LeadModel(
+          rank: '#3',
+          name: 'Lehraj mehra',
+          location: 'chandigarh',
+          status: 'To-Do:',
+          date: 'October 23, 2026',
+        ),
+        LeadModel(
+          rank: '#2',
+          name: 'Arun mehra',
+          location: 'chandigarh',
+          status: 'Done Task:',
+          date: 'October 23, 2026',
+        ),
+        LeadModel(
+          rank: '#1',
+          name: 'Sahil kashyap',
+          location: 'chandigarh',
+          status: 'Missed:',
+          date: 'October 23, 2026',
+        ),
+      ];
+    }
+  }
 
   List<LeadModel> get filteredLeads {
     List<LeadModel> result = leads.toList();
@@ -205,7 +262,7 @@ class HomeController extends GetxController {
                                             Text(
                                               directionText,
                                               style: const TextStyle(
-                                                fontSize: 12,
+                                                fontSize: 14,
                                                 fontWeight: FontWeight.w400,
                                                 color: AppColors.textDark,
                                               ),

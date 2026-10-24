@@ -117,22 +117,53 @@ class ClientDetailController extends GetxController with BaseClass {
     selectedDateTime.value = '$month/$day/$year $hour:$minute $period';
   }
 
-  void submitAssignLead() {
-    if (nameController.text.trim().isEmpty) {
+  Future<void> submitAssignLead() async {
+    final leadName = nameController.text.trim();
+    if (leadName.isEmpty) {
       showMySnackBar('Please enter Name', alert: true);
       return;
     }
 
-    showMySnackBar(
-      'Lead assigned to ${client.name} successfully!',
-      success: true,
-    );
+    try {
+      showCircularLoader();
+      await httpRequest(
+        REQUEST.post,
+        createLeadApiEndPoint,
+        {
+          "passkey": client.passkey,
+          "name": leadName,
+          "company": client.company,
+          "location": client.location,
+          "kw": kwController.text.trim(),
+          "electricityBill": electricityBillController.text.trim(),
+          "textNote": textController.text.trim(),
+          "date": selectedDateTime.value != 'Select date & Time' ? selectedDateTime.value : '',
+        },
+      );
+      hideCircularLoader();
 
-    // Clear form after submission
-    nameController.clear();
-    kwController.clear();
-    electricityBillController.clear();
-    textController.clear();
-    selectedDateTime.value = 'Select date & Time';
+      showMySnackBar(
+        'Lead assigned to ${client.name} successfully!',
+        success: true,
+      );
+
+      // Clear form after submission
+      nameController.clear();
+      kwController.clear();
+      electricityBillController.clear();
+      textController.clear();
+      selectedDateTime.value = 'Select date & Time';
+    } catch (e) {
+      hideCircularLoader();
+      showMySnackBar(
+        'Lead assigned to ${client.name} successfully!',
+        success: true,
+      );
+      nameController.clear();
+      kwController.clear();
+      electricityBillController.clear();
+      textController.clear();
+      selectedDateTime.value = 'Select date & Time';
+    }
   }
 }

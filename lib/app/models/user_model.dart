@@ -5,6 +5,7 @@ class UserDataModel {
   String? token;
   String? createdAt;
   String? role;
+  String? passkey;
 
   UserDataModel({
     this.id,
@@ -13,6 +14,7 @@ class UserDataModel {
     this.token,
     this.createdAt,
     this.role,
+    this.passkey,
   });
 
   UserDataModel.fromJson(Map<String, dynamic> json) {
@@ -22,6 +24,7 @@ class UserDataModel {
     token = json['token'];
     createdAt = json['createdAt'];
     role = json['role'];
+    passkey = json['passkey'];
   }
 
   Map<String, dynamic> toJson() {
@@ -32,6 +35,7 @@ class UserDataModel {
     data['token'] = token;
     data['createdAt'] = createdAt;
     data['role'] = role;
+    data['passkey'] = passkey;
     return data;
   }
 }

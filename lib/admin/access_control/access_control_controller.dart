@@ -1,37 +1,18 @@
-import 'dart:math';
 import 'package:flutter/services.dart';
+import 'package:start3x_app/admin/models/access_model.dart';
 import 'package:start3x_app/exports.dart';
-
-class AccessClientModel {
-  final String id;
-  String rank;
-  final String name;
-  final String passkey;
-
-  AccessClientModel({
-    required this.id,
-    required this.rank,
-    required this.name,
-    required this.passkey,
-  });
-}
 
 class AccessControlController extends GetxController with BaseClass {
   var generatedPasskey = '000000000000'.obs;
   var searchQuery = ''.obs;
 
-  final RxList<AccessClientModel> clients = <AccessClientModel>[
-    AccessClientModel(
-        id: '1', rank: '#1', name: 'Ramanabda', passkey: '8dffbe67y3b'),
-    AccessClientModel(
-        id: '2', rank: '#2', name: 'Ramanabda', passkey: '8dffbe67y3b'),
-    AccessClientModel(
-        id: '3', rank: '#3', name: 'Ramanabda', passkey: '8dffbe67y3b'),
-    AccessClientModel(
-        id: '4', rank: '#4', name: 'Ramanabda', passkey: '8dffbe67y3b'),
-    AccessClientModel(
-        id: '5', rank: '#5', name: 'Ramanabda', passkey: '8dffbe67y3b'),
-  ].obs;
+  RxList<AccessClientModel> clients = <AccessClientModel>[].obs;
+
+  @override
+  void onInit() {
+    super.onInit();
+    fetchPasskeys();
+  }
 
   List<AccessClientModel> get filteredClients {
     if (searchQuery.value.trim().isEmpty) {
@@ -41,7 +22,7 @@ class AccessControlController extends GetxController with BaseClass {
     return clients.where((c) {
       return c.rank.toLowerCase().contains(q) ||
           c.name.toLowerCase().contains(q) ||
-          c.passkey.toLowerCase().contains(q);
+          c.id.toLowerCase().contains(q);
     }).toList();
   }
 
@@ -49,24 +30,46 @@ class AccessControlController extends GetxController with BaseClass {
     searchQuery.value = value;
   }
 
-  void generatePasskey() {
-    const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
-    final random = Random();
-    final newPasskey =
-        List.generate(12, (index) => chars[random.nextInt(chars.length)]).join();
+  Future<void> fetchPasskeys() async {
+    try {
+      var res = await httpRequest(REQUEST.get, listPasskeysApiEndPoint, {});
+      if (res != null && res["success"] == true && res["data"] != null) {
+        List dataList = res["data"];
+        clients.value = dataList
+            .map((item) => AccessClientModel.fromJson(item))
+            .toList();
+      }
+    } catch (e) {
+      // Keep existing list on error
+    }
+  }
 
-    generatedPasskey.value = newPasskey;
+  Future<void> generatePasskey() async {
+    try {
+      showCircularLoader();
+      var res = await httpRequest(
+        REQUEST.post,
+        generatePasskeyApiEndPoint,
+        {},
+        token: getUserData().token ?? "",
+      );
+      hideCircularLoader();
 
-    final newClient = AccessClientModel(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
-      rank: '#${clients.length + 1}',
-      name: 'Ramanabda',
-      passkey: newPasskey,
-    );
-
-    clients.add(newClient);
-
-    showMySnackBar('New Passkey: $newPasskey', success: true);
+      if (res != null && res["success"] == true && res["data"] != null) {
+        final newClient = AccessClientModel.fromJson(res["data"]);
+        generatedPasskey.value = newClient.id; // Backend generated Passkey ID
+        clients.add(newClient);
+        showMySnackBar('New Passkey: ${newClient.id}', success: true);
+      } else {
+        showMySnackBar(
+          res?["message"] ?? 'Failed to generate passkey',
+          alert: true,
+        );
+      }
+    } catch (e) {
+      hideCircularLoader();
+      showMySnackBar(e.toString(), error: true);
+    }
   }
 
   void copyPasskeyToClipboard() {
@@ -76,19 +79,22 @@ class AccessControlController extends GetxController with BaseClass {
     }
   }
 
-  void removeClient(AccessClientModel client) {
+  Future<void> removeClient(AccessClientModel client) async {
     clients.remove(client);
-    _updateRanks();
+
+    try {
+      await httpRequest(
+        REQUEST.delete,
+        "$deletePasskeyApiEndPoint${client.id}",
+        {},
+      );
+    } catch (e) {
+      // Ignored
+    }
+
     showMySnackBar(
       'Client ${client.rank} removed from access control',
       alert: true,
     );
-  }
-
-  void _updateRanks() {
-    for (int i = 0; i < clients.length; i++) {
-      clients[i].rank = '#${i + 1}';
-    }
-    clients.refresh();
   }
 }

@@ -99,6 +99,7 @@ class LoginScreen extends StatelessWidget {
                           children: [
                             // 📧 Email Field using MyTextFieldForm
                             MyTextFieldForm(
+                              keyboardType: TextInputType.emailAddress,
                               controller: controller.emailController,
                               label: "Email",
                               hintText: "Enter your email",
@@ -114,6 +115,7 @@ class LoginScreen extends StatelessWidget {
 
                             // 🔒 Password Field using MyTextFieldForm
                             MyTextFieldForm(
+                              keyboardType: TextInputType.visiblePassword,
                               controller: controller.passwordController,
                               label: "Password",
                               hintText: "Enter your password",
