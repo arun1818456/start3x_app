@@ -170,16 +170,6 @@ class LoginController extends GetxController with BaseClass {
 
                     try {
                       showCircularLoader();
-
-                      // 1. Verify Passkey with backend
-                      var verifyRes = await httpRequest(
-                        REQUEST.post,
-                        "verifyPasskeyApiEndPoint",
-                        {"passkey": passkey},
-                      );
-
-                      if (verifyRes != null && verifyRes["success"] == true) {
-                        // 2. Register user with this passkey
                         var regRes = await httpRequest(
                           REQUEST.post,
                           signUpApiEndPoint,
@@ -203,19 +193,7 @@ class LoginController extends GetxController with BaseClass {
                             'Passkey verified! Account created successfully',
                             success: true,
                           );
-                        } else {
-                          showMySnackBar(
-                            regRes?["message"] ?? 'Registration failed',
-                            alert: true,
-                          );
                         }
-                      } else {
-                        hideCircularLoader();
-                        showMySnackBar(
-                          verifyRes?["message"] ?? 'Invalid Passkey. Please check with Admin',
-                          alert: true,
-                        );
-                      }
                     } catch (error) {
                       hideCircularLoader();
                       showMySnackBar(error.toString(), error: true);
