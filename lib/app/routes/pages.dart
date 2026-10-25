@@ -14,6 +14,10 @@ class AppPages {
       page: () => const LoginScreen(),
     ),
     GetPage(
+      name: AppRoutes.clientSetupScreen,
+      page: () => const ClientSetupScreen(),
+    ),
+    GetPage(
       name: AppRoutes.adminDashboardScreen,
       page: () => const AdminDashboardScreen(),
     ),

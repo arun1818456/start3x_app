@@ -37,6 +37,8 @@ export 'package:start3x_app/admin/clients/client_detail_controller.dart';
 export 'package:start3x_app/admin/clients/client_detail_screen.dart';
 export 'package:start3x_app/admin/clients/clients_controller.dart';
 export 'package:start3x_app/admin/clients/clients_screen.dart';
+export 'package:start3x_app/auth/client_setup/client_setup_controller.dart';
+export 'package:start3x_app/auth/client_setup/client_setup_screen.dart';
 export 'package:start3x_app/auth/login/login_controller.dart';
 export 'package:start3x_app/auth/login/login_screen.dart';
 export 'package:start3x_app/auth/splash/splash_controller.dart';

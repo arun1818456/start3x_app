@@ -25,10 +25,7 @@ class LoginController extends GetxController with BaseClass {
       return;
     }
 
-    Map<String, dynamic> data = {
-      "email": email,
-      "password": password,
-    };
+    Map<String, dynamic> data = {"email": email, "password": password};
 
     try {
       showCircularLoader();
@@ -41,10 +38,14 @@ class LoginController extends GetxController with BaseClass {
           await storage.write(LocalKeys.userData, userData);
         }
         showMySnackBar("Login successful", success: true);
-        if (userData != null && (userData["role"] == "admin" || email == "admin@gmail.com")) {
+        if (userData != null && (userData["role"] == "admin")) {
           Get.offAll(() => const AdminDashboardScreen());
         } else {
-          Get.offAllNamed(AppRoutes.mainScreen);
+          if (userData["clientInfo"] == null) {
+            Get.offAllNamed(AppRoutes.clientSetupScreen);
+          } else {
+            Get.offAllNamed(AppRoutes.mainScreen);
+          }
         }
       } else {
         showMySnackBar(
@@ -82,7 +83,7 @@ class LoginController extends GetxController with BaseClass {
   }
 
   Future<void> onTapGoogleLogin() async {
-    showPasskeyDialog();
+    // showPasskeyDialog();
   }
 
   void showPasskeyDialog() {
@@ -92,9 +93,7 @@ class LoginController extends GetxController with BaseClass {
 
     Get.dialog(
       Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(24),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         backgroundColor: Colors.white,
         insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
         child: SingleChildScrollView(
@@ -133,10 +132,7 @@ class LoginController extends GetxController with BaseClass {
                 const Text(
                   'Enter your passkey to verify and create your account',
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: AppColors.textGrey,
-                  ),
+                  style: TextStyle(fontSize: 13, color: AppColors.textGrey),
                 ),
                 const SizedBox(height: 20),
 
@@ -170,30 +166,36 @@ class LoginController extends GetxController with BaseClass {
 
                     try {
                       showCircularLoader();
-                        var regRes = await httpRequest(
-                          REQUEST.post,
-                          signUpApiEndPoint,
-                          {
-                            "name": email.isNotEmpty ? email.split('@').first : "User",
-                            "email": email.isNotEmpty ? email : "user_${DateTime.now().millisecondsSinceEpoch}@gmail.com",
-                            "password": password.isNotEmpty ? password : "User@1234",
-                            "passkey": passkey,
-                            "role": "user"
-                          },
+                      var regRes = await httpRequest(
+                        REQUEST.post,
+                        signUpApiEndPoint,
+                        {
+                          "name": email.isNotEmpty
+                              ? email.split('@').first
+                              : "User",
+                          "email": email.isNotEmpty
+                              ? email
+                              : "user_${DateTime.now().millisecondsSinceEpoch}@gmail.com",
+                          "password": password.isNotEmpty
+                              ? password
+                              : "User@1234",
+                          "passkey": passkey,
+                          "role": "user",
+                        },
+                      );
+
+                      hideCircularLoader();
+
+                      if (regRes != null && regRes["success"] == true) {
+                        final userData = regRes["data"];
+                        await storage.write(LocalKeys.userData, userData);
+                        Get.back(); // Close Dialog
+                        Get.offAllNamed(AppRoutes.clientSetupScreen);
+                        showMySnackBar(
+                          'Passkey verified! Account created successfully',
+                          success: true,
                         );
-
-                        hideCircularLoader();
-
-                        if (regRes != null && regRes["success"] == true) {
-                          final userData = regRes["data"];
-                          await storage.write(LocalKeys.userData, userData);
-                          Get.back(); // Close Dialog
-                          Get.offAllNamed(AppRoutes.mainScreen);
-                          showMySnackBar(
-                            'Passkey verified! Account created successfully',
-                            success: true,
-                          );
-                        }
+                      }
                     } catch (error) {
                       hideCircularLoader();
                       showMySnackBar(error.toString(), error: true);

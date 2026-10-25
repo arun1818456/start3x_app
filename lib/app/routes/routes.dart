@@ -1,6 +1,7 @@
 abstract class AppRoutes {
   static const splashRoute = '/splashRoute';
   static const loginScreen = '/loginScreen';
+  static const clientSetupScreen = '/clientSetupScreen';
   static const adminDashboardScreen = '/adminDashboardScreen';
   static const accessControlScreen = '/accessControlScreen';
   static const clientsScreen = '/clientsScreen';
