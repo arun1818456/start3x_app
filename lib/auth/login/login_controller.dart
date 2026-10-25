@@ -1,9 +1,18 @@
 import 'package:start3x_app/exports.dart';
 
 class LoginController extends GetxController with BaseClass {
-  TextEditingController emailController = TextEditingController();
-  TextEditingController passwordController = TextEditingController();
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+  final confirmPasswordController = TextEditingController();
 
+  var isSignUp = false.obs;
+
+  void toggleSignUpMode() {
+    isSignUp.value = !isSignUp.value;
+    update();
+  }
+
+  // ✅ NORMAL LOGIN FLOW (NO PASSKEY DIALOG)
   Future<void> onTapLoginButton() async {
     final email = emailController.text.trim();
     final password = passwordController.text.trim();
@@ -37,15 +46,39 @@ class LoginController extends GetxController with BaseClass {
         } else {
           Get.offAllNamed(AppRoutes.mainScreen);
         }
-      } else if (response != null && response["message"] != null) {
-        // If login failed, ask for passkey verification
-        showPasskeyDialog();
+      } else {
+        showMySnackBar(
+          response?["message"] ?? "Login failed. Please check credentials",
+          alert: true,
+        );
       }
     } catch (e) {
       hideCircularLoader();
-      // If user not registered yet, open passkey verification dialog
-      showPasskeyDialog();
+      showMySnackBar(e.toString(), error: true);
     }
+  }
+
+  // ✅ SIGN UP BUTTON CLICK -> OPENS PASSKEY DIALOG
+  void onTapSignUpButton() {
+    final email = emailController.text.trim();
+    final password = passwordController.text.trim();
+    final confirmPassword = confirmPasswordController.text.trim();
+
+    if (email.isEmpty) {
+      showMySnackBar('Please enter email', alert: true);
+      return;
+    } else if (password.isEmpty) {
+      showMySnackBar('Please enter password', alert: true);
+      return;
+    } else if (confirmPassword.isEmpty) {
+      showMySnackBar('Please enter confirm password', alert: true);
+      return;
+    } else if (password != confirmPassword) {
+      showMySnackBar('Passwords do not match', alert: true);
+      return;
+    }
+
+    showPasskeyDialog();
   }
 
   Future<void> onTapGoogleLogin() async {
@@ -98,7 +131,7 @@ class LoginController extends GetxController with BaseClass {
 
                 // Subtitle
                 const Text(
-                  'Enter your passkey to verify and access your leads',
+                  'Enter your passkey to verify and create your account',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 13,
@@ -124,7 +157,7 @@ class LoginController extends GetxController with BaseClass {
 
                 // Verify & Create Account Button
                 CustomButton(
-                  text: 'Verify & Access Account',
+                  text: 'Verify & Create Account',
                   color: AppColors.primaryBlue,
                   radius: 12,
                   buttonHeight: 50,
@@ -141,7 +174,7 @@ class LoginController extends GetxController with BaseClass {
                       // 1. Verify Passkey with backend
                       var verifyRes = await httpRequest(
                         REQUEST.post,
-                        verifyPasskeyApiEndPoint,
+                        "verifyPasskeyApiEndPoint",
                         {"passkey": passkey},
                       );
 
@@ -171,36 +204,10 @@ class LoginController extends GetxController with BaseClass {
                             success: true,
                           );
                         } else {
-                          // If user already exists, login user with passkey
-                          var loginRes = await httpRequest(
-                            REQUEST.post,
-                            loginApiEndPoint,
-                            {
-                              "email": email.isNotEmpty ? email : "user@gmail.com",
-                              "password": password.isNotEmpty ? password : "User@1234",
-                              "passkey": passkey,
-                            },
+                          showMySnackBar(
+                            regRes?["message"] ?? 'Registration failed',
+                            alert: true,
                           );
-                          if (loginRes != null && loginRes["success"] == true) {
-                            final userData = loginRes["data"];
-                            await storage.write(LocalKeys.userData, userData);
-                            Get.back(); // Close Dialog
-                            Get.offAllNamed(AppRoutes.mainScreen);
-                            showMySnackBar('Welcome back!', success: true);
-                          } else {
-                            // Local fallback if backend fails
-                            final localUserData = {
-                              "_id": DateTime.now().millisecondsSinceEpoch.toString(),
-                              "email": email.isNotEmpty ? email : "user@gmail.com",
-                              "passkey": passkey,
-                              "role": "user",
-                              "createdAt": DateTime.now().toIso8601String(),
-                            };
-                            await storage.write(LocalKeys.userData, localUserData);
-                            Get.back();
-                            Get.offAllNamed(AppRoutes.mainScreen);
-                            showMySnackBar('Passkey verified successfully', success: true);
-                          }
                         }
                       } else {
                         hideCircularLoader();
@@ -211,18 +218,7 @@ class LoginController extends GetxController with BaseClass {
                       }
                     } catch (error) {
                       hideCircularLoader();
-                      // Fallback: save passkey locally and proceed
-                      final localUserData = {
-                        "_id": DateTime.now().millisecondsSinceEpoch.toString(),
-                        "email": email.isNotEmpty ? email : "user@gmail.com",
-                        "passkey": passkey,
-                        "role": "user",
-                        "createdAt": DateTime.now().toIso8601String(),
-                      };
-                      await storage.write(LocalKeys.userData, localUserData);
-                      Get.back();
-                      Get.offAllNamed(AppRoutes.mainScreen);
-                      showMySnackBar('Passkey verified successfully', success: true);
+                      showMySnackBar(error.toString(), error: true);
                     }
                   },
                 ),
@@ -246,5 +242,13 @@ class LoginController extends GetxController with BaseClass {
       ),
       barrierDismissible: false,
     );
+  }
+
+  @override
+  void onClose() {
+    emailController.dispose();
+    passwordController.dispose();
+    confirmPasswordController.dispose();
+    super.onClose();
   }
 }

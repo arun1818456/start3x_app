@@ -63,18 +63,25 @@ class LoginScreen extends StatelessWidget {
                     const SizedBox(height: 10),
 
                     // Welcome Text
-                    const Text(
-                      "Welcome",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1,
+                    Obx(
+                      () => Text(
+                        controller.isSignUp.value ? "Create Account" : "Welcome",
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1,
+                        ),
                       ),
                     ),
-                    const Text(
-                      "Login to your account",
-                      style: TextStyle(color: Colors.white70, fontSize: 13),
+                    Obx(
+                      () => Text(
+                        controller.isSignUp.value
+                            ? "Sign up for a new account"
+                            : "Login to your account",
+                        style: const TextStyle(
+                            color: Colors.white70, fontSize: 13),
+                      ),
                     ),
 
                     const SizedBox(height: 20),
@@ -97,7 +104,7 @@ class LoginScreen extends StatelessWidget {
                         ),
                         child: Column(
                           children: [
-                            // 📧 Email Field using MyTextFieldForm
+                            // 📧 Email Field
                             MyTextFieldForm(
                               keyboardType: TextInputType.emailAddress,
                               controller: controller.emailController,
@@ -113,12 +120,12 @@ class LoginScreen extends StatelessWidget {
 
                             const SizedBox(height: 10),
 
-                            // 🔒 Password Field using MyTextFieldForm
+                            // 🔒 Password Field
                             MyTextFieldForm(
                               keyboardType: TextInputType.visiblePassword,
                               controller: controller.passwordController,
-                              label: "Password",
-                              hintText: "Enter your password",
+                              label: controller.isSignUp.value ? "New Password" : "Password",
+                              hintText: controller.isSignUp.value ? "Enter new password" : "Enter your password",
                               isPassword: true,
                               prefixIcon: const Icon(
                                 Icons.lock_outline_rounded,
@@ -128,15 +135,44 @@ class LoginScreen extends StatelessWidget {
                               formRadius: 12,
                             ),
 
+                            // 🔒 Confirm Password Field (Visible in Sign Up Mode)
+                            Obx(() {
+                              if (controller.isSignUp.value) {
+                                return Column(
+                                  children: [
+                                    const SizedBox(height: 10),
+                                    MyTextFieldForm(
+                                      keyboardType: TextInputType.visiblePassword,
+                                      controller: controller.confirmPasswordController,
+                                      label: "Confirm Password",
+                                      hintText: "Re-enter new password",
+                                      isPassword: true,
+                                      prefixIcon: const Icon(
+                                        Icons.lock_reset_rounded,
+                                        color: AppColors.primaryBlue,
+                                        size: 22,
+                                      ),
+                                      formRadius: 12,
+                                    ),
+                                  ],
+                                );
+                              }
+                              return const SizedBox.shrink();
+                            }),
+
                             const SizedBox(height: 15),
 
-                            // 🚀 Custom Button
-                            CustomButton(
-                              text: "LOGIN",
-                              color: AppColors.primaryBlue,
-                              radius: 12,
-                              buttonHeight: 52,
-                              onPressed: controller.onTapLoginButton,
+                            // 🚀 Custom Action Button (LOGIN / SIGN UP)
+                            Obx(
+                              () => CustomButton(
+                                text: controller.isSignUp.value ? "SIGN UP" : "LOGIN",
+                                color: AppColors.primaryBlue,
+                                radius: 12,
+                                buttonHeight: 52,
+                                onPressed: controller.isSignUp.value
+                                    ? controller.onTapSignUpButton
+                                    : controller.onTapLoginButton,
+                              ),
                             ),
 
                             const SizedBox(height: 10),
@@ -202,6 +238,25 @@ class LoginScreen extends StatelessWidget {
                                     ),
                                   ),
                                 ],
+                              ),
+                            ),
+
+                            const SizedBox(height: 12),
+
+                            // 🔄 New User / Toggle Sign Up Mode Button
+                            Obx(
+                              () => TextButton(
+                                onPressed: controller.toggleSignUpMode,
+                                child: Text(
+                                  controller.isSignUp.value
+                                      ? "Already have an account? Login"
+                                      : "New User? Create Account",
+                                  style: const TextStyle(
+                                    color: AppColors.primaryBlue,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                               ),
                             ),
                           ],

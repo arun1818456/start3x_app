@@ -50,7 +50,7 @@ class AccessControlScreen extends StatelessWidget {
             Expanded(
               child: SingleChildScrollView(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                 child: Column(
                   children: [
                     // --- Search Bar ---
@@ -77,7 +77,7 @@ class AccessControlScreen extends StatelessWidget {
                       ),
                     ),
 
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 20),
 
                     // --- Clients Count Box ---
                     Container(
@@ -113,7 +113,7 @@ class AccessControlScreen extends StatelessWidget {
                       ),
                     ),
 
-                    const SizedBox(height: 28),
+                    const SizedBox(height: 24),
 
                     // --- Generated Passkey Display Pill ---
                     GestureDetector(
@@ -166,9 +166,9 @@ class AccessControlScreen extends StatelessWidget {
                       ),
                     ),
 
-                    const SizedBox(height: 36),
+                    const SizedBox(height: 28),
 
-                    // --- Clients List ---
+                    // --- Clients Cards List ---
                     Obx(
                       () {
                         final clientList = controller.filteredClients;
@@ -188,31 +188,114 @@ class AccessControlScreen extends StatelessWidget {
                         return Column(
                           children: List.generate(clientList.length, (index) {
                             final item = clientList[index];
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 6.0),
+                            return Container(
+                              margin: const EdgeInsets.symmetric(vertical: 6.0),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 12),
+                              decoration: BoxDecoration(
+                                color: AppColors.whiteColor,
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(color: Colors.grey.shade200),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.03),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ],
+                              ),
                               child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Expanded(
+                                  // Rank Badge
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 10, vertical: 6),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.primaryBlue
+                                          .withValues(alpha: 0.1),
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
                                     child: Text(
-                                      '${item.rank} ${item.name} - ${item.id}',
+                                      item.rank,
                                       style: const TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w500,
-                                        color: AppColors.textDark,
+                                        color: AppColors.primaryBlue,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 14,
                                       ),
                                     ),
                                   ),
+                                  const SizedBox(width: 12),
+
+                                  // User Name, Passkey ID & CreatedAt
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          item.name,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: const TextStyle(
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.bold,
+                                            color: AppColors.textDark,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 2),
+                                        Text(
+                                          'Key: ${item.id}',
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: const TextStyle(
+                                            fontSize: 13,
+                                            color: AppColors.textGrey,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                        if (item.createdAt.isNotEmpty) ...[
+                                          const SizedBox(height: 2),
+                                          Text(
+                                            'Created: ${item.createdAt}',
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: const TextStyle(
+                                              fontSize: 11,
+                                              color: AppColors.textGrey,
+                                              fontWeight: FontWeight.w400,
+                                            ),
+                                          ),
+                                        ],
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(width: 4),
+
+                                  // Copy Passkey Icon
                                   GestureDetector(
-                                    onTap: () => controller.removeClient(item),
+                                    onTap: () => controller
+                                        .copySpecificPasskey(item.id),
                                     behavior: HitTestBehavior.opaque,
                                     child: const Padding(
-                                      padding: EdgeInsets.all(4.0),
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 4.0),
                                       child: Icon(
-                                        Icons.close_rounded,
-                                        color: AppColors.textDark,
-                                        size: 24,
+                                        Icons.copy_rounded,
+                                        size: 18,
+                                        color: AppColors.primaryBlue,
+                                      ),
+                                    ),
+                                  ),
+
+                                  // Active/Inactive Toggle Switch (Smaller size)
+                                  Transform.scale(
+                                    scale: 0.75,
+                                    child: Obx(
+                                      () => Switch(
+                                        value: item.isActive.value,
+                                        activeTrackColor: AppColors.primaryBlue,
+                                        onChanged: (val) =>
+                                            controller.togglePasskey(item, val),
                                       ),
                                     ),
                                   ),

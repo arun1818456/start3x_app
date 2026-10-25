@@ -79,22 +79,33 @@ class AccessControlController extends GetxController with BaseClass {
     }
   }
 
-  Future<void> removeClient(AccessClientModel client) async {
-    clients.remove(client);
-
-    try {
-      await httpRequest(
-        REQUEST.delete,
-        "$deletePasskeyApiEndPoint${client.id}",
-        {},
-      );
-    } catch (e) {
-      // Ignored
+  void copySpecificPasskey(String passkey) {
+    if (passkey.isNotEmpty) {
+      Clipboard.setData(ClipboardData(text: passkey));
+      showMySnackBar('Passkey copied: $passkey', success: true);
     }
+  }
 
-    showMySnackBar(
-      'Client ${client.rank} removed from access control',
-      alert: true,
-    );
+  // ✅ TOGGLE PASSKEY ISACTIVE (ON / OFF)
+  Future<void> togglePasskey(AccessClientModel client, bool value) async {
+    client.isActive.value = value;
+    try {
+      var res = await httpRequest(
+        REQUEST.put,
+        "$togglePasskeyApiEndPoint${client.id}",
+        {"isActive": value},
+      );
+      if (res != null && res["success"] == true) {
+        showMySnackBar(
+          'Passkey ${value ? "Activated" : "Deactivated"}',
+          success: value,
+          alert: !value,
+        );
+      }
+    } catch (e) {
+      // Fallback revert if network fails
+      client.isActive.value = !value;
+      showMySnackBar('Failed to update status', error: true);
+    }
   }
 }
