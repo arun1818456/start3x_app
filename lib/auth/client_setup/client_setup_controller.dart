@@ -24,36 +24,6 @@ class ClientSetupController extends GetxController with BaseClass {
   final inverterSpecController = TextEditingController();
   final batterySpecController = TextEditingController();
 
-  @override
-  void onInit() {
-    super.onInit();
-    _populateExistingData();
-  }
-
-  void _populateExistingData() {
-    final userData = getUserData();
-    if (userData.clientInfo != null) {
-      final c = userData.clientInfo!;
-      legalNameController.text = c.legalName;
-      companyNameController.text = c.companyName;
-      gstNameController.text = c.gstName;
-      gstNumberController.text = c.gstNumber;
-      phoneController.text = c.phone;
-      targetedLocationController.text = c.targetedLocation;
-      fullAddressController.text = c.fullAddress;
-
-      onGrid3kWController.text = c.onGrid3kW;
-      onGrid4kWController.text = c.onGrid4kW;
-      onGrid5kWController.text = c.onGrid5kW;
-
-      hybrid3kWController.text = c.hybrid3kW;
-      hybrid4kWController.text = c.hybrid4kW;
-      hybrid5kWController.text = c.hybrid5kW;
-
-      inverterSpecController.text = c.inverterSpec;
-      batterySpecController.text = c.batterySpec;
-    }
-  }
 
   Future<void> submitClientInfo() async {
     final legalName = legalNameController.text.trim();

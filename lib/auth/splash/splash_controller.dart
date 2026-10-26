@@ -23,7 +23,12 @@ class SplashController extends GetxController with BaseClass {
         if (userData.role=="admin") {
           Get.offAllNamed(AppRoutes.adminDashboardScreen);
         } else {
-          Get.offAllNamed(AppRoutes.mainScreen);
+          if(userData.isSetupComplete??false){
+            Get.offAllNamed(AppRoutes.mainScreen);
+          }else{
+            Get.offAllNamed(AppRoutes.clientSetupScreen);
+          }
+
         }
       } else {
         Get.offAllNamed(AppRoutes.loginScreen);
