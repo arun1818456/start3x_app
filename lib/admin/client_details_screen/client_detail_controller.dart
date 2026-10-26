@@ -17,8 +17,19 @@ class ClientDetailController extends GetxController with BaseClass {
   @override
   void onInit() {
     super.onInit();
-    if (Get.arguments != null && Get.arguments is ClientModel) {
-      client = Get.arguments as ClientModel;
+    if (Get.arguments != null) {
+      if (Get.arguments is ClientModel) {
+        client = Get.arguments as ClientModel;
+      } else if (Get.arguments is AccessClientModel) {
+        final accessClient = Get.arguments as AccessClientModel;
+        client = ClientModel(
+          rank: accessClient.rank,
+          name: accessClient.name,
+          location: '',
+          company: accessClient.name,
+          passkey: accessClient.id,
+        );
+      }
     } else {
       client = ClientModel(
         rank: '#3',

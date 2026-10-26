@@ -5,7 +5,7 @@ class AdminDashboardScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(AdminDashboardController());
+    final controller = Get.put(ClientManagementController(), permanent: true);
 
     return Scaffold(
       backgroundColor: AppColors.whiteColor,

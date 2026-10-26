@@ -42,9 +42,9 @@ class LoginController extends GetxController with BaseClass {
           Get.offAll(() => const AdminDashboardScreen());
         } else {
           if (userData["isSetupComplete"]??false) {
-            Get.offAllNamed(AppRoutes.mainScreen);
-          } else {
             Get.offAllNamed(AppRoutes.clientSetupScreen);
+          } else {
+            Get.offAllNamed(AppRoutes.mainScreen);
           }
         }
       } else {

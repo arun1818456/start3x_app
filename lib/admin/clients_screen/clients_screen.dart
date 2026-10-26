@@ -26,11 +26,19 @@ class ClientsScreen extends StatelessWidget {
               Expanded(
                 child: Obx(
                   () {
-                    final list = controller.filteredClients;
+                    if (controller.isLoading.value) {
+                      return const Center(
+                        child: CircularProgressIndicator(
+                          color: AppColors.primaryBlue,
+                        ),
+                      );
+                    }
+
+                    final List<AccessClientModel> list = controller.filteredClients;
                     if (list.isEmpty) {
                       return const Center(
                         child: Text(
-                          'No clients found',
+                          'No clients_screen found',
                           style: TextStyle(
                             color: AppColors.textGrey,
                             fontSize: 16,
@@ -44,7 +52,7 @@ class ClientsScreen extends StatelessWidget {
                       separatorBuilder: (context, index) =>
                           const SizedBox(height: 14),
                       itemBuilder: (context, index) {
-                        return _buildClientCard(list[index]);
+                        return _buildClientItemCard(list[index]);
                       },
                     );
                   },
@@ -145,10 +153,10 @@ class ClientsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildClientCard(ClientModel client) {
+  Widget _buildClientItemCard(AccessClientModel item) {
     return GestureDetector(
       onTap: () {
-        Get.to(() => const ClientDetailScreen(), arguments: client);
+        Get.to(() => const ClientDetailScreen(), arguments: item);
       },
       behavior: HitTestBehavior.opaque,
       child: Container(
@@ -163,7 +171,7 @@ class ClientsScreen extends StatelessWidget {
             SizedBox(
               width: 36,
               child: Text(
-                client.rank,
+                item.rank,
                 style: AppTextStyles.rankText,
               ),
             ),
@@ -176,46 +184,59 @@ class ClientsScreen extends StatelessWidget {
               color: Colors.white24,
             ),
 
-            // Name and Location
+            // Name & Passkey Key ID
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    client.name,
+                    item.name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: AppTextStyles.cardTitle,
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    client.location,
+                    'Key: ${item.id}',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: AppTextStyles.cardSubtitle,
                   ),
+                  if (item.createdAt.isNotEmpty) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      item.createdAt,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 11,
+                        color: Colors.white54,
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),
 
-            // Company and Passkey
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  client.company,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.whiteColor,
-                  ),
+            // Status Badge
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: item.isActive.value
+                    ? Colors.green.withValues(alpha: 0.2)
+                    : Colors.red.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                item.isActive.value ? 'Active' : 'Inactive',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: item.isActive.value
+                      ? Colors.greenAccent
+                      : Colors.redAccent,
                 ),
-                const SizedBox(height: 2),
-                Text(
-                  client.passkey,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w400,
-                    color: Colors.white70,
-                  ),
-                ),
-              ],
+              ),
             ),
           ],
         ),

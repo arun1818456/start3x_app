@@ -1,17 +1,25 @@
 import 'package:flutter/services.dart';
-import 'package:start3x_app/admin/models/access_model.dart';
 import 'package:start3x_app/exports.dart';
 
 class AccessControlController extends GetxController with BaseClass {
   var generatedPasskey = '000000000000'.obs;
   var searchQuery = ''.obs;
+  RxList<AccessClientModel> get clients => clientManagement.clients;
+  RxBool get isLoading => clientManagement.isLoading;
 
-  RxList<AccessClientModel> clients = <AccessClientModel>[].obs;
+  ClientManagementController get clientManagement {
+    if (!Get.isRegistered<ClientManagementController>()) {
+      return Get.put(ClientManagementController(), permanent: true);
+    }
+    return Get.find<ClientManagementController>();
+  }
+
+
 
   @override
   void onInit() {
     super.onInit();
-    fetchPasskeys();
+    clientManagement.fetchPasskeys();
   }
 
   List<AccessClientModel> get filteredClients {
@@ -31,17 +39,7 @@ class AccessControlController extends GetxController with BaseClass {
   }
 
   Future<void> fetchPasskeys() async {
-    try {
-      var res = await httpRequest(REQUEST.get, listPasskeysApiEndPoint, {});
-      if (res != null && res["success"] == true && res["data"] != null) {
-        List dataList = res["data"];
-        clients.value = dataList
-            .map((item) => AccessClientModel.fromJson(item))
-            .toList();
-      }
-    } catch (e) {
-      // Keep existing list on error
-    }
+    await clientManagement.fetchPasskeys(force: true);
   }
 
   Future<void> generatePasskey() async {
@@ -58,7 +56,7 @@ class AccessControlController extends GetxController with BaseClass {
       if (res != null && res["success"] == true && res["data"] != null) {
         final newClient = AccessClientModel.fromJson(res["data"]);
         generatedPasskey.value = newClient.id; // Backend generated Passkey ID
-        clients.add(newClient);
+        clientManagement.addClient(newClient);
         showMySnackBar('New Passkey: ${newClient.id}', success: true);
       } else {
         showMySnackBar(

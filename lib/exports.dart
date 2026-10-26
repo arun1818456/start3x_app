@@ -21,6 +21,7 @@ export 'package:start3x_app/app/services/app_exception.dart';
 export 'package:start3x_app/app/mixin/base_class.dart';
 
 // App Models
+export 'package:start3x_app/admin/models/access_model.dart';
 export 'package:start3x_app/app/models/group_message_model.dart';
 export 'package:start3x_app/app/models/insight_item_model.dart';
 export 'package:start3x_app/app/models/lead_model.dart';
@@ -31,12 +32,12 @@ export 'package:start3x_app/app/models/user_model.dart';
 // App Screens & Controllers
 export 'package:start3x_app/admin/access_control/access_control_controller.dart';
 export 'package:start3x_app/admin/access_control/access_control_screen.dart';
-export 'package:start3x_app/admin/admin_dashboard_controller.dart';
+export 'package:start3x_app/admin/client_management_controller.dart';
 export 'package:start3x_app/admin/admin_dashboard_screen.dart';
-export 'package:start3x_app/admin/clients/client_detail_controller.dart';
-export 'package:start3x_app/admin/clients/client_detail_screen.dart';
-export 'package:start3x_app/admin/clients/clients_controller.dart';
-export 'package:start3x_app/admin/clients/clients_screen.dart';
+export 'package:start3x_app/admin/client_details_screen/client_detail_controller.dart';
+export 'package:start3x_app/admin/client_details_screen/client_detail_screen.dart';
+export 'package:start3x_app/admin/clients_screen/clients_controller.dart';
+export 'package:start3x_app/admin/clients_screen/clients_screen.dart';
 export 'package:start3x_app/auth/client_setup/client_setup_controller.dart';
 export 'package:start3x_app/auth/client_setup/client_setup_screen.dart';
 export 'package:start3x_app/auth/login/login_controller.dart';

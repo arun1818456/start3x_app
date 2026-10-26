@@ -25,40 +25,30 @@ class ClientsController extends GetxController {
   var selectedSortOption = 'Upload Date'.obs;
   var selectedSortDirection = 'Newest to Oldest'.obs;
 
-  final RxList<ClientModel> clients = <ClientModel>[
-    ClientModel(
-      rank: '#3',
-      name: 'Ramananda',
-      location: 'chandigarh',
-      company: 'Sunrays',
-      passkey: '8dffbe67y3b',
-    ),
-    ClientModel(
-      rank: '#2',
-      name: 'Ramananda',
-      location: 'chandigarh',
-      company: 'Sunrays',
-      passkey: '8dffbe67y3b',
-    ),
-    ClientModel(
-      rank: '#1',
-      name: 'Ramananda',
-      location: 'chandigarh',
-      company: 'Sunrays',
-      passkey: '8dffbe67y3b',
-    ),
-  ].obs;
+  ClientManagementController get clientManagement {
+    if (!Get.isRegistered<ClientManagementController>()) {
+      return Get.put(ClientManagementController(), permanent: true);
+    }
+    return Get.find<ClientManagementController>();
+  }
 
-  List<ClientModel> get filteredClients {
-    List<ClientModel> result = clients.toList();
+  RxList<AccessClientModel> get clients => clientManagement.clients;
+  RxBool get isLoading => clientManagement.isLoading;
+
+  @override
+  void onInit() {
+    super.onInit();
+    clientManagement.fetchPasskeys();
+  }
+
+  List<AccessClientModel> get filteredClients {
+    List<AccessClientModel> result = clients.toList();
 
     if (searchQuery.value.trim().isNotEmpty) {
       final q = searchQuery.value.toLowerCase().trim();
       result = result.where((client) {
         return client.name.toLowerCase().contains(q) ||
-            client.location.toLowerCase().contains(q) ||
-            client.company.toLowerCase().contains(q) ||
-            client.passkey.toLowerCase().contains(q) ||
+            client.id.toLowerCase().contains(q) ||
             client.rank.toLowerCase().contains(q);
       }).toList();
     }

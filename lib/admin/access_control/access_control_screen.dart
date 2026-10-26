@@ -171,12 +171,23 @@ class AccessControlScreen extends StatelessWidget {
                     // --- Clients Cards List ---
                     Obx(
                       () {
+                        if (controller.isLoading.value) {
+                          return const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 40),
+                            child: Center(
+                              child: CircularProgressIndicator(
+                                color: AppColors.primaryBlue,
+                              ),
+                            ),
+                          );
+                        }
+
                         final clientList = controller.filteredClients;
                         if (clientList.isEmpty) {
                           return const Padding(
                             padding: EdgeInsets.symmetric(vertical: 20),
                             child: Text(
-                              'No clients found',
+                              'No clients_screen found',
                               style: TextStyle(
                                 color: AppColors.textGrey,
                                 fontSize: 15,
