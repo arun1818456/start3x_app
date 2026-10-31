@@ -155,6 +155,8 @@ class GroupScreen extends StatelessWidget {
               children: [
                 Text(
                   lead.name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     color: AppColors.whiteColor,
                     fontSize: 16,
@@ -163,6 +165,8 @@ class GroupScreen extends StatelessWidget {
                 ),
                 Text(
                   lead.location,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     color: Colors.white70,
                     fontSize: 12,

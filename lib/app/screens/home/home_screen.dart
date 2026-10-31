@@ -8,7 +8,7 @@ class HomeScreen extends StatelessWidget {
     final controller = Get.put(HomeController());
     return Scaffold(
       backgroundColor: AppColors.whiteColor,
-      drawer:  SideMenuBar(),
+      drawer: SideMenuBar(),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
@@ -18,24 +18,56 @@ class HomeScreen extends StatelessWidget {
               _buildTopHeader(context, controller),
               const SizedBox(height: 16),
 
-              // --- Search Bar (Reduced Height) ---
+              // --- Search Bar ---
               _buildSearchBar(controller),
               const SizedBox(height: 20),
 
-              // --- Cards List ---
+              // --- Dynamic Cards List with Pull-to-Refresh ---
               Expanded(
-                child: Obx(
-                  () {
-                    final leadsList = controller.filteredLeads;
-                    return ListView.separated(
-                      itemCount: leadsList.length,
-                      separatorBuilder: (context, index) =>
-                          const SizedBox(height: 14),
-                      itemBuilder: (context, index) {
-                        return _buildLeadCard(leadsList[index]);
-                      },
-                    );
-                  },
+                child: RefreshIndicator(
+                  onRefresh: controller.refreshLeads,
+                  color: AppColors.primaryBlue,
+                  child: Obx(
+                    () {
+                      if (controller.isLoading.value) {
+                        return const Center(
+                          child: CircularProgressIndicator(
+                            color: AppColors.primaryBlue,
+                          ),
+                        );
+                      }
+
+                      final leadsList = controller.filteredLeads;
+                      if (leadsList.isEmpty) {
+                        return ListView(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          children: const [
+                            SizedBox(height: 100),
+                            Center(
+                              child: Text(
+                                'No leads assigned yet',
+                                style: TextStyle(
+                                  color: AppColors.textGrey,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      }
+
+                      return ListView.separated(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        itemCount: leadsList.length,
+                        separatorBuilder: (context, index) =>
+                            const SizedBox(height: 14),
+                        itemBuilder: (context, index) {
+                          return _buildLeadCard(leadsList[index]);
+                        },
+                      );
+                    },
+                  ),
                 ),
               ),
             ],
@@ -46,24 +78,41 @@ class HomeScreen extends StatelessWidget {
   }
 
   Widget _buildTopHeader(BuildContext context, HomeController controller) {
+    final user = controller.getUserData();
+    final bool isAdmin = user.role == 'admin';
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        // Drawer Menu Icon
-        Builder(
-          builder: (ctx) => GestureDetector(
-            onTap: () => Scaffold.of(ctx).openDrawer(),
+        // Back Button if Admin viewing Client Profile, else Drawer Menu Icon
+        if (isAdmin)
+          GestureDetector(
+            onTap: () => Get.offAll(() => const AdminDashboardScreen()),
             behavior: HitTestBehavior.opaque,
             child: const Padding(
               padding: EdgeInsets.all(4.0),
               child: Icon(
-                Icons.menu_rounded,
-                size: 28,
+                Icons.arrow_back_ios_new_rounded,
+                size: 22,
                 color: AppColors.textDark,
               ),
             ),
+          )
+        else
+          Builder(
+            builder: (ctx) => GestureDetector(
+              onTap: () => Scaffold.of(ctx).openDrawer(),
+              behavior: HitTestBehavior.opaque,
+              child: const Padding(
+                padding: EdgeInsets.all(4.0),
+                child: Icon(
+                  Icons.menu_rounded,
+                  size: 28,
+                  color: AppColors.textDark,
+                ),
+              ),
+            ),
           ),
-        ),
 
         // Centered Home Title
         const Text(
@@ -160,11 +209,15 @@ class HomeScreen extends StatelessWidget {
                 children: [
                   Text(
                     lead.name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: AppTextStyles.cardTitle,
                   ),
                   const SizedBox(height: 2),
                   Text(
                     lead.location,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                     style: AppTextStyles.cardSubtitle,
                   ),
                 ],
@@ -175,11 +228,15 @@ class HomeScreen extends StatelessWidget {
               children: [
                 Text(
                   lead.status,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: AppTextStyles.cardTagBold,
                 ),
                 const SizedBox(height: 2),
                 Text(
                   lead.date,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: AppTextStyles.cardTagLight,
                 ),
               ],

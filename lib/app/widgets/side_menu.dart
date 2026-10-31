@@ -5,6 +5,37 @@ class SideMenuBar extends StatelessWidget with BaseClass {
 
   @override
   Widget build(BuildContext context) {
+    final user = getUserData();
+    String displayName =
+        (user.name != null && user.name!.trim().isNotEmpty)
+            ? user.name!.trim()
+            : 'User';
+    String displaySubtitle =
+        (user.email != null && user.email!.trim().isNotEmpty)
+            ? user.email!.trim()
+            : (user.passkey != null && user.passkey!.trim().isNotEmpty
+                ? 'Passkey: ${user.passkey}'
+                : '');
+
+    if (Get.arguments != null) {
+      if (Get.arguments is Map) {
+        final clientObj = Get.arguments['client'];
+        if (clientObj != null) {
+          if (clientObj is ClientModel) {
+            if (clientObj.name.isNotEmpty) displayName = clientObj.name;
+            if (clientObj.passkey.isNotEmpty) {
+              displaySubtitle = 'Passkey: ${clientObj.passkey}';
+            }
+          } else if (clientObj is AccessClientModel) {
+            if (clientObj.name.isNotEmpty) displayName = clientObj.name;
+            displaySubtitle = 'Passkey: ${clientObj.id}';
+          }
+        } else if (Get.arguments['passkey'] != null) {
+          displaySubtitle = 'Passkey: ${Get.arguments['passkey']}';
+        }
+      }
+    }
+
     return Drawer(
       backgroundColor: AppColors.whiteColor,
       child: SafeArea(
@@ -28,36 +59,45 @@ class SideMenuBar extends StatelessWidget with BaseClass {
                   // Profile Photo / CircleAvatar
                   CircleAvatar(
                     radius: 30,
-                    backgroundColor: Colors.grey.shade300,
-                    child: const Icon(
-                      Icons.person,
-                      size: 36,
-                      color: AppColors.darkCardBg,
+                    backgroundColor: Colors.white24,
+                    child: Text(
+                      displayName.isNotEmpty ? displayName[0].toUpperCase() : 'U',
+                      style: const TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.whiteColor,
+                      ),
                     ),
                   ),
                   const SizedBox(width: 16),
 
                   // Name & Subtitle
-                  const Expanded(
+                  Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Lehraj Mehra',
-                          style: TextStyle(
+                          displayName,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
                             color: AppColors.whiteColor,
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        SizedBox(height: 4),
-                        Text(
-                          'lehraj@gmail.com',
-                          style: TextStyle(
-                            color: Colors.white70,
-                            fontSize: 13,
+                        if (displaySubtitle.isNotEmpty) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                            displaySubtitle,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: Colors.white70,
+                              fontSize: 13,
+                            ),
                           ),
-                        ),
+                        ],
                       ],
                     ),
                   ),

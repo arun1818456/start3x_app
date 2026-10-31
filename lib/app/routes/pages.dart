@@ -35,7 +35,7 @@ class AppPages {
     ),
     GetPage(
       name: AppRoutes.mainScreen,
-      page: () => const BottomBar(),
+      page: () => BottomBar(),
     ),
     GetPage(
       name: AppRoutes.homeScreen,

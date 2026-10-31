@@ -18,3 +18,9 @@ const String createLeadApiEndPoint = "/api/lead/create";
 const String getLeadsApiEndPoint = "/api/lead/get";
 const String updateLeadApiEndPoint = "/api/lead/update/";
 const String deleteLeadApiEndPoint = "/api/lead/delete/";
+
+// Response API Endpoints
+const String createResponseApiEndPoint = "/api/response/create";
+const String getResponsesApiEndPoint = "/api/response/get";
+const String updateResponseApiEndPoint = "/api/response/update/";
+const String deleteResponseApiEndPoint = "/api/response/delete/";

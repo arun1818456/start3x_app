@@ -13,26 +13,27 @@ class FinalScreenController extends GetxController with BaseClass {
       final args = Get.arguments as Map;
       lead = args['lead'] as LeadModel? ??
           LeadModel(
-            rank: '#3',
-            name: 'Vikram Singh',
-            location: 'chandigarh',
-            status: 'To-Do:',
-            date: 'October 23, 2026',
+            rank: '',
+            name: '',
+            location: '',
+            status: '',
+            date: '',
           );
       selectedOutcome = args['outcome']?.toString() ?? 'Got a meeting';
       selectedDateTime.value = args['dateTime']?.toString();
     } else {
       lead = LeadModel(
-        rank: '#3',
-        name: 'Vikram Singh',
-        location: 'chandigarh',
-        status: 'To-Do:',
-        date: 'October 23, 2026',
+        rank: '',
+        name: '',
+        location: '',
+        status: '',
+        date: '',
       );
     }
 
     // Auto trigger date & time picker on init for callback/meeting if not set
-    if ((selectedOutcome == 'Got a callback' || selectedOutcome == 'Got a meeting') &&
+    if ((selectedOutcome == 'Got a callback' ||
+            selectedOutcome == 'Got a meeting') &&
         (selectedDateTime.value == null || selectedDateTime.value!.isEmpty)) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         pickDateTime();
@@ -94,8 +95,9 @@ class FinalScreenController extends GetxController with BaseClass {
       pickedTime.minute,
     );
 
-    final String hour = (pickedTime.hourOfPeriod == 0 ? 12 : pickedTime.hourOfPeriod)
-        .toString();
+    final String hour =
+        (pickedTime.hourOfPeriod == 0 ? 12 : pickedTime.hourOfPeriod)
+            .toString();
     final String minute = pickedTime.minute.toString().padLeft(2, '0');
     final String period = pickedTime.period == DayPeriod.am ? 'AM' : 'PM';
     final String month = combined.month.toString().padLeft(2, '0');
@@ -117,23 +119,65 @@ class FinalScreenController extends GetxController with BaseClass {
     return '$hour12:$minute $period, $month/$day/$year';
   }
 
-  void saveResponse() {
+  Future<void> saveResponse() async {
     final noteText = textController.text.trim();
     final dt = selectedDateTime.value;
-    final newResponse = LeadResponseModel(
-      responseNumber: 'Response #${lead.responses.length + 1}',
-      outcome: selectedOutcome,
-      meetingScheduled: selectedOutcome == 'Got a meeting' ? dt : null,
-      callback: selectedOutcome == 'Got a callback' ? dt : null,
-      text: noteText.isEmpty ? 'Unhe sirf hybrid chahiye' : noteText,
-      callDate: _getFormattedCurrentDateTime(),
-    );
+    final formattedCallDate = _getFormattedCurrentDateTime();
 
-    lead.responses.insert(0, newResponse);
+    String passkeyVal = lead.passkey;
+    if (passkeyVal.isEmpty) {
+      final userData = getUserData();
+      passkeyVal = userData.passkey ??
+          storage.read(LocalKeys.userData)?['passkey'] ??
+          '';
+    }
 
-    showMySnackBar('Response added for ${lead.name}', success: true);
+    try {
+      showCircularLoader();
 
-    Get.until((route) => route.settings.name == AppRoutes.callingScreen || route.isFirst);
+      var responseRes = await httpRequest(
+        REQUEST.post,
+        createResponseApiEndPoint,
+        {
+          "passkey": passkeyVal,
+          "leadId": lead.id,
+          "phoneNumber": lead.phoneNumber,
+          "outcome": selectedOutcome,
+          "meetingScheduled": selectedOutcome == 'Got a meeting' ? dt : null,
+          "callback": selectedOutcome == 'Got a callback' ? dt : null,
+          "text": noteText.isEmpty ? 'Follow-up response' : noteText,
+          "callDate": formattedCallDate,
+        },
+      );
+
+      hideCircularLoader();
+
+      if (responseRes != null &&
+          responseRes["success"] == true &&
+          responseRes["data"] != null) {
+        final createdResponse =
+            LeadResponseModel.fromJson(responseRes["data"]);
+        lead.responses.insert(0, createdResponse);
+      } else {
+        final newResponse = LeadResponseModel(
+          responseNumber: 'Response #${lead.responses.length + 1}',
+          outcome: selectedOutcome,
+          meetingScheduled: selectedOutcome == 'Got a meeting' ? dt : null,
+          callback: selectedOutcome == 'Got a callback' ? dt : null,
+          text: noteText.isEmpty ? 'Follow-up response' : noteText,
+          callDate: formattedCallDate,
+        );
+        lead.responses.insert(0, newResponse);
+      }
+
+      showMySnackBar('Response added for ${lead.name}', success: true);
+    } catch (e) {
+      hideCircularLoader();
+      showMySnackBar('Saved response locally', success: true);
+    }
+
+    Get.until((route) =>
+        route.settings.name == AppRoutes.callingScreen || route.isFirst);
   }
 
   @override

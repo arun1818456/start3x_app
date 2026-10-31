@@ -18,11 +18,11 @@ class CallResponseController extends GetxController with BaseClass {
       lead = Get.arguments as LeadModel;
     } else {
       lead = LeadModel(
-        rank: '#3',
-        name: 'Vikram Singh',
-        location: 'chandigarh',
-        status: 'To-Do:',
-        date: 'October 23, 2026',
+        rank: '',
+        name: '',
+        location: '',
+        status: '',
+        date: '',
       );
     }
   }

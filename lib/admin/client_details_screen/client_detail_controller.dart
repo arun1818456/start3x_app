@@ -41,7 +41,13 @@ class ClientDetailController extends GetxController with BaseClass {
   }
 
   void navigateToProfile() {
-    Get.to(() => const BottomBar());
+    Get.to(
+      () => BottomBar(),
+      arguments: {
+        'passkey': client.passkey,
+        'client': client,
+      },
+    );
   }
 
   Future<void> makePhoneCall([String? number]) async {

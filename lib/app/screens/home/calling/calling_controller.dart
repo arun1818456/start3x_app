@@ -3,6 +3,8 @@ import 'package:url_launcher/url_launcher.dart';
 
 class CallingController extends GetxController with BaseClass {
   late LeadModel lead;
+  var isLoadingResponses = false.obs;
+  var showDetails = false.obs;
 
   final List<String> outcomes = [
     'Got a callback',
@@ -16,17 +18,100 @@ class CallingController extends GetxController with BaseClass {
     super.onInit();
     if (Get.arguments != null && Get.arguments is LeadModel) {
       lead = Get.arguments as LeadModel;
+      fetchResponsesFromApi();
     } else {
       lead = LeadModel(
-        rank: '#3',
-        name: 'Lehraj Mehra',
-        location: 'chandigarh',
-        status: 'To-Do:',
-        date: 'October 23, 2026',
-        phoneNumber: '+919876543210',
-        altPhoneNumber: '+919876543211',
+        rank: '',
+        name: '',
+        location: '',
+        status: '',
+        date: '',
       );
     }
+  }
+
+  Future<void> fetchResponsesFromApi() async {
+    if (lead.phoneNumber.isEmpty && lead.passkey.isEmpty && lead.id.isEmpty) return;
+
+    try {
+      isLoadingResponses.value = true;
+      String query = '';
+      if (lead.passkey.isNotEmpty && lead.phoneNumber.isNotEmpty) {
+        query = "passkey=${lead.passkey}&phoneNumber=${Uri.encodeComponent(lead.phoneNumber)}";
+      } else if (lead.phoneNumber.isNotEmpty) {
+        query = "phoneNumber=${Uri.encodeComponent(lead.phoneNumber)}";
+      } else if (lead.id.isNotEmpty) {
+        query = "leadId=${lead.id}";
+      } else if (lead.passkey.isNotEmpty) {
+        query = "passkey=${lead.passkey}";
+      }
+
+      var res = await httpRequest(
+        REQUEST.get,
+        "$getResponsesApiEndPoint?$query",
+        {},
+      );
+
+      if (res != null && res["success"] == true && res["data"] != null) {
+        List dataList = res["data"];
+        if (dataList.isNotEmpty) {
+          List<LeadResponseModel> fetched =
+              dataList.map((item) => LeadResponseModel.fromJson(item)).toList();
+          lead.responses.value = fetched;
+        }
+      }
+    } catch (e) {
+      // Keep local lead.responses if error
+    } finally {
+      isLoadingResponses.value = false;
+    }
+  }
+
+  Future<void> syncResponsesToBackend() async {
+    if (lead.id.isEmpty) return;
+
+    try {
+      await httpRequest(
+        REQUEST.put,
+        "$updateLeadApiEndPoint${lead.id}",
+        {
+          "responses": lead.responses.map((r) => r.toJson()).toList(),
+        },
+      );
+    } catch (e) {
+      // Fallback
+    }
+  }
+
+  Future<void> deleteResponseFromBackend(String responseId, int index) async {
+    if (responseId.isNotEmpty) {
+      try {
+        await httpRequest(
+          REQUEST.delete,
+          "$deleteResponseApiEndPoint$responseId",
+          {},
+        );
+      } catch (e) {
+        // Fallback
+      }
+    }
+    syncResponsesToBackend();
+  }
+
+  Future<void> updateResponseInBackend(
+      String responseId, LeadResponseModel resp) async {
+    if (responseId.isNotEmpty) {
+      try {
+        await httpRequest(
+          REQUEST.put,
+          "$updateResponseApiEndPoint$responseId",
+          resp.toJson(),
+        );
+      } catch (e) {
+        // Fallback
+      }
+    }
+    syncResponsesToBackend();
   }
 
   Future<void> makePhoneCall([String? number]) async {
@@ -48,7 +133,7 @@ class CallingController extends GetxController with BaseClass {
 
   Future<void> openWhatsApp([String? number]) async {
     final phone = number ?? lead.phoneNumber;
-    final cleanPhone = phone.replaceAll(RegExp(r'[^\d]'), '');
+    final cleanPhone = phone.replaceAll(RegExp(r'\D'), '');
     final uri = Uri.parse('https://wa.me/$cleanPhone');
     try {
       if (await canLaunchUrl(uri)) {
@@ -323,7 +408,9 @@ class CallingController extends GetxController with BaseClass {
                   // Delete Button
                   IconButton(
                     onPressed: () {
+                      final targetId = resp.id;
                       lead.responses.removeAt(index);
+                      deleteResponseFromBackend(targetId, index);
                       Get.back();
                       showMySnackBar('Response removed', alert: true);
                     },
@@ -341,6 +428,7 @@ class CallingController extends GetxController with BaseClass {
                         final dt = selectedDateTime.value;
 
                         final updatedResponse = LeadResponseModel(
+                          id: resp.id,
                           responseNumber: resp.responseNumber,
                           outcome: selectedOutcome.value,
                           meetingScheduled:
@@ -352,6 +440,7 @@ class CallingController extends GetxController with BaseClass {
                         );
 
                         lead.responses[index] = updatedResponse;
+                        updateResponseInBackend(resp.id, updatedResponse);
                         Get.back();
 
                         showMySnackBar('Response updated successfully', success: true);

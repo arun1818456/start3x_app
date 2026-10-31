@@ -199,11 +199,15 @@ class ToDoScreen extends StatelessWidget {
                 children: [
                   Text(
                     item.name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: AppTextStyles.cardTitle,
                   ),
                   const SizedBox(height: 2),
                   Text(
                     item.location,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                     style: AppTextStyles.cardSubtitle,
                   ),
                 ],

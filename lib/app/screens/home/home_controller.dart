@@ -4,96 +4,91 @@ class HomeController extends GetxController with BaseClass {
   var searchQuery = ''.obs;
   var selectedSortOption = 'Interaction Date'.obs;
   var selectedSortDirection = 'Newest to Oldest'.obs;
+  var isLoading = false.obs;
+
+  String clientPasskey = '';
 
   final RxList<LeadModel> leads = <LeadModel>[].obs;
 
   @override
   void onInit() {
     super.onInit();
+    _extractPasskeyFromArguments();
     fetchLeads();
   }
 
+  void _extractPasskeyFromArguments() {
+    if (Get.arguments != null) {
+      if (Get.arguments is Map && Get.arguments['passkey'] != null) {
+        clientPasskey = Get.arguments['passkey'].toString();
+      } else if (Get.arguments is ClientModel) {
+        clientPasskey = (Get.arguments as ClientModel).passkey;
+      } else if (Get.arguments is AccessClientModel) {
+        clientPasskey = (Get.arguments as AccessClientModel).id;
+      } else if (Get.arguments is String) {
+        clientPasskey = Get.arguments as String;
+      }
+    }
+
+    if (clientPasskey.isEmpty) {
+      final userData = getUserData();
+      clientPasskey = userData.passkey ??
+          storage.read(LocalKeys.userData)?['passkey'] ??
+          '';
+    }
+  }
+
   Future<void> fetchLeads() async {
-    final userData = getUserData();
-    final passkey = userData.passkey ?? storage.read(LocalKeys.userData)?['passkey'] ?? '8dffbe67y3b';
+    if (clientPasskey.isEmpty) {
+      _extractPasskeyFromArguments();
+    }
+
+    if (clientPasskey.isEmpty) {
+      leads.clear();
+      isLoading.value = false;
+      return;
+    }
 
     try {
+      isLoading.value = true;
       var res = await httpRequest(
         REQUEST.get,
-        "$getLeadsApiEndPoint?passkey=$passkey",
+        "$getLeadsApiEndPoint?passkey=$clientPasskey",
         {},
       );
 
       if (res != null && res["success"] == true && res["data"] != null) {
         List dataList = res["data"];
         if (dataList.isNotEmpty) {
-          leads.value = dataList.map((item) {
-            List respList = item["responses"] ?? [];
-            return LeadModel(
-              rank: item["rank"]?.toString() ?? '#1',
-              name: item["name"]?.toString() ?? 'Lead',
-              location: item["location"]?.toString() ?? 'chandigarh',
-              status: item["status"]?.toString() ?? 'To-Do:',
-              date: item["date"]?.toString() ?? 'October 23, 2026',
-              phoneNumber: item["phoneNumber"]?.toString() ?? '+919876543210',
-              altPhoneNumber: item["altPhoneNumber"]?.toString() ?? '+919876543211',
-              initialResponses: respList.map((r) => LeadResponseModel(
-                responseNumber: r["responseNumber"]?.toString() ?? 'Response #1',
-                outcome: r["outcome"]?.toString() ?? '',
-                meetingScheduled: r["meetingScheduled"]?.toString(),
-                callback: r["callback"]?.toString(),
-                text: r["text"]?.toString() ?? '',
-                callDate: r["callDate"]?.toString() ?? '',
-              )).toList(),
-            );
-          }).toList();
+          leads.value =
+              dataList.map((item) => LeadModel.fromJson(item)).toList();
         } else {
-          _setDefaultDummyLeads();
+          leads.clear();
         }
       } else {
-        _setDefaultDummyLeads();
+        leads.clear();
       }
     } catch (e) {
-      _setDefaultDummyLeads();
+      // Keep existing leads on network glitch
+    } finally {
+      isLoading.value = false;
     }
   }
 
-  void _setDefaultDummyLeads() {
-    if (leads.isEmpty) {
-      leads.value = [
-        LeadModel(
-          rank: '#3',
-          name: 'Lehraj mehra',
-          location: 'chandigarh',
-          status: 'To-Do:',
-          date: 'October 23, 2026',
-        ),
-        LeadModel(
-          rank: '#2',
-          name: 'Arun mehra',
-          location: 'chandigarh',
-          status: 'Done Task:',
-          date: 'October 23, 2026',
-        ),
-        LeadModel(
-          rank: '#1',
-          name: 'Sahil kashyap',
-          location: 'chandigarh',
-          status: 'Missed:',
-          date: 'October 23, 2026',
-        ),
-      ];
-    }
+  Future<void> refreshLeads() async {
+    await fetchLeads();
   }
 
   List<LeadModel> get filteredLeads {
     List<LeadModel> result = leads.toList();
 
     if (searchQuery.value.isNotEmpty) {
+      final q = searchQuery.value.toLowerCase();
       result = result
           .where((lead) =>
-              lead.name.toLowerCase().contains(searchQuery.value.toLowerCase()) ||
-              lead.location.toLowerCase().contains(searchQuery.value.toLowerCase()))
+              lead.name.toLowerCase().contains(q) ||
+              lead.location.toLowerCase().contains(q) ||
+              lead.company.toLowerCase().contains(q))
           .toList();
     }
 

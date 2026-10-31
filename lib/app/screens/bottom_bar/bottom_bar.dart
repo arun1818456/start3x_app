@@ -1,22 +1,47 @@
+import 'package:flutter/services.dart';
 import 'package:start3x_app/exports.dart';
 
-class BottomBar extends StatelessWidget {
-  const BottomBar({super.key});
+class BottomBar extends StatelessWidget with BaseClass {
+  BottomBar({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<BottomController>(
-      init: BottomController(),
-      builder: (controller) {
-        return Scaffold(
-          backgroundColor: AppColors.whiteColor,
-          body: IndexedStack(
-            index: controller.selectedIndex,
-            children: controller.pages,
-          ),
-          bottomNavigationBar: _buildFloatingBottomNav(controller),
-        );
+    final user = getUserData();
+    final bool isAdmin = user.role == 'admin';
+
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+
+        if (isAdmin) {
+          Get.offAll(() => const AdminDashboardScreen());
+        } else {
+          CommonDialogs().showCustomDialog(
+            context,
+            title: "Exit App",
+            description: "Are you sure you want to exit the app?",
+            yesButtonText: "Exit",
+            noButtonText: "Cancel",
+            onTapYes: () {
+              SystemNavigator.pop();
+            },
+          );
+        }
       },
+      child: GetBuilder<BottomController>(
+        init: BottomController(),
+        builder: (controller) {
+          return Scaffold(
+            backgroundColor: AppColors.whiteColor,
+            body: IndexedStack(
+              index: controller.selectedIndex,
+              children: controller.pages,
+            ),
+            bottomNavigationBar: _buildFloatingBottomNav(controller),
+          );
+        },
+      ),
     );
   }
 
