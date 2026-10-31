@@ -4,10 +4,9 @@ import 'package:url_launcher/url_launcher.dart';
 class ClientDetailController extends GetxController with BaseClass {
   late ClientModel client;
 
-  var selectedTab = 0.obs; // 0: Assign Lead, 1: Profile
-
   // Form Controllers for Assign Lead
   final nameController = TextEditingController();
+  final addressController = TextEditingController();
   final kwController = TextEditingController();
   final electricityBillController = TextEditingController();
   final textController = TextEditingController();
@@ -32,13 +31,17 @@ class ClientDetailController extends GetxController with BaseClass {
       }
     } else {
       client = ClientModel(
-        rank: '#3',
-        name: 'Ramananda',
-        location: 'chandigarh',
-        company: 'Sunrays',
-        passkey: '8dffbe67y3b',
+        rank: '',
+        name: '',
+        location: '',
+        company: '',
+        passkey: '',
       );
     }
+  }
+
+  void navigateToProfile() {
+    Get.to(() => const BottomBar());
   }
 
   Future<void> makePhoneCall([String? number]) async {
@@ -58,7 +61,7 @@ class ClientDetailController extends GetxController with BaseClass {
 
   Future<void> openWhatsApp([String? number]) async {
     final phone = number ?? client.phone;
-    final cleanPhone = phone.replaceAll(RegExp(r'[^\d]'), '');
+    final cleanPhone = phone.replaceAll(RegExp(r'\D'), '');
     final uri = Uri.parse('https://wa.me/$cleanPhone');
     try {
       if (await canLaunchUrl(uri)) {
@@ -135,6 +138,9 @@ class ClientDetailController extends GetxController with BaseClass {
       return;
     }
 
+    final addressText = addressController.text.trim();
+    final locationVal = addressText.isNotEmpty ? addressText : client.location;
+
     try {
       showCircularLoader();
       await httpRequest(
@@ -144,11 +150,13 @@ class ClientDetailController extends GetxController with BaseClass {
           "passkey": client.passkey,
           "name": leadName,
           "company": client.company,
-          "location": client.location,
+          "location": locationVal,
           "kw": kwController.text.trim(),
           "electricityBill": electricityBillController.text.trim(),
           "textNote": textController.text.trim(),
-          "date": selectedDateTime.value != 'Select date & Time' ? selectedDateTime.value : '',
+          "date": selectedDateTime.value != 'Select date & Time'
+              ? selectedDateTime.value
+              : '',
         },
       );
       hideCircularLoader();
@@ -160,6 +168,7 @@ class ClientDetailController extends GetxController with BaseClass {
 
       // Clear form after submission
       nameController.clear();
+      addressController.clear();
       kwController.clear();
       electricityBillController.clear();
       textController.clear();
@@ -171,6 +180,7 @@ class ClientDetailController extends GetxController with BaseClass {
         success: true,
       );
       nameController.clear();
+      addressController.clear();
       kwController.clear();
       electricityBillController.clear();
       textController.clear();

@@ -84,8 +84,8 @@ class AccessControlController extends GetxController with BaseClass {
     }
   }
 
-  // ✅ TOGGLE PASSKEY ISACTIVE (ON / OFF)
   Future<void> togglePasskey(AccessClientModel client, bool value) async {
+    if(Get.isSnackbarOpen) Get.closeCurrentSnackbar();
     client.isActive.value = value;
     try {
       var res = await httpRequest(

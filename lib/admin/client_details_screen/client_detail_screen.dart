@@ -14,19 +14,10 @@ class ClientDetailScreen extends StatelessWidget {
           // --- Top Header ---
           _buildTopHeader(context, controller),
 
-          // --- Dynamic Body Content based on Tab ---
+          // --- Assign Lead Main Body (Fixed Screen Content) ---
           Expanded(
-            child: Obx(() {
-              if (controller.selectedTab.value == 0) {
-                return _buildAssignLeadView(context, controller);
-              } else {
-                return const BottomBar(); // User's full app access
-              }
-            }),
+            child: _buildAssignLeadView(context, controller),
           ),
-
-          // --- Bottom Tab Navigation Bar (Assign Lead | Profile) ---
-          _buildBottomTabBar(controller),
         ],
       ),
     );
@@ -40,6 +31,7 @@ class ClientDetailScreen extends StatelessWidget {
       padding: const EdgeInsets.only(top: 44, bottom: 20, left: 18, right: 18),
       child: Column(
         children: [
+          // Top Navigation Row with Back Button, Title & 3-Dots Menu
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -56,58 +48,112 @@ class ClientDetailScreen extends StatelessWidget {
                   ),
                 ),
               ),
+
+              // Title and Passkey info
+              Expanded(
+                child: Column(
+                  children: [
+                    Text(
+                      controller.client.name.isNotEmpty
+                          ? controller.client.name
+                          : 'Client Details',
+                      textAlign: TextAlign.center,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: AppColors.whiteColor,
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    if (controller.client.passkey.isNotEmpty) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        'Passkey: ${controller.client.passkey}',
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+
+              // Three-Dots Popup Menu
               PopupMenuButton<String>(
                 icon: const Icon(
                   Icons.more_vert,
                   color: AppColors.whiteColor,
                   size: 26,
                 ),
+                color: Colors.white,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(14),
                 ),
                 onSelected: (value) {
-                  controller.showMySnackBar('Option: $value', alert: true);
+                  if (value == 'View Profile') {
+                    controller.navigateToProfile();
+                  } else {
+                    controller.showMySnackBar('Option: $value', alert: true);
+                  }
                 },
                 itemBuilder: (context) => [
                   const PopupMenuItem(
-                      value: 'Edit Client', child: Text('Edit Client')),
+                    value: 'View Profile',
+                    child: Row(
+                      children: [
+                        Icon(Icons.person_rounded,
+                            color: AppColors.primaryBlue, size: 20),
+                        SizedBox(width: 10),
+                        Text(
+                          'View Profile',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.textDark,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuDivider(),
                   const PopupMenuItem(
-                      value: 'Block Client', child: Text('Block Client')),
+                    value: 'Edit Client',
+                    child: Row(
+                      children: [
+                        Icon(Icons.edit_rounded,
+                            color: AppColors.textDark, size: 20),
+                        SizedBox(width: 10),
+                        Text('Edit Client', style: TextStyle(fontSize: 14)),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuItem(
+                    value: 'Block Client',
+                    child: Row(
+                      children: [
+                        Icon(Icons.block_rounded, color: Colors.red, size: 20),
+                        SizedBox(width: 10),
+                        Text('Block Client',
+                            style: TextStyle(fontSize: 14, color: Colors.red)),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ],
           ),
-          Text(
-            controller.client.company,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 14,
-              fontWeight: FontWeight.w400,
-            ),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            controller.client.name,
-            style: const TextStyle(
-              color: AppColors.whiteColor,
-              fontSize: 26,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            controller.client.passkey,
-            style: const TextStyle(
-              color: Colors.white70,
-              fontSize: 13,
-            ),
-          ),
-          const SizedBox(height: 20),
+
+          const SizedBox(height: 18),
+
+          // Action Buttons: Call | Whatsapp | Alt Num
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               _buildActionButton(
-                icon: Icons.phone,
+                icon: Icons.phone_rounded,
                 bgColor: AppColors.primaryBlue,
                 label: 'Call',
                 onTap: () => controller.makePhoneCall(),
@@ -144,12 +190,12 @@ class ClientDetailScreen extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           CircleAvatar(
-            radius: 24,
+            radius: 22,
             backgroundColor: bgColor,
             child: Icon(
               icon,
               color: AppColors.whiteColor,
-              size: 22,
+              size: 20,
             ),
           ),
           const SizedBox(height: 6),
@@ -169,44 +215,85 @@ class ClientDetailScreen extends StatelessWidget {
   Widget _buildAssignLeadView(
       BuildContext context, ClientDetailController controller) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
       child: Container(
         decoration: BoxDecoration(
           color: AppColors.darkCardBg,
-          borderRadius: BorderRadius.circular(0),
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.08),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(22),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Form Header Title
+            const Text(
+              'Assign New Lead',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 4),
+            const Text(
+              'Fill in the lead details to assign to this client',
+              style: TextStyle(
+                color: Colors.white60,
+                fontSize: 12,
+              ),
+            ),
+            const SizedBox(height: 20),
+
             // Name Field
-            _buildFieldLabel('Name'),
+            _buildFieldLabel('Lead Name'),
             const SizedBox(height: 6),
             _buildDarkTextField(
               controller: controller.nameController,
-              hintText: 'Enter name',
+              hintText: 'Enter lead name',
+              icon: Icons.person_outline_rounded,
+            ),
+            const SizedBox(height: 16),
+
+            // Address Field
+            _buildFieldLabel('Address / Location'),
+            const SizedBox(height: 6),
+            _buildDarkTextField(
+              controller: controller.addressController,
+              hintText: 'Enter address / location',
+              icon: Icons.location_on_outlined,
             ),
             const SizedBox(height: 16),
 
             // KW Field
-            _buildFieldLabel('KW'),
+            _buildFieldLabel('KW (System Size)'),
             const SizedBox(height: 6),
             _buildDarkTextField(
               controller: controller.kwController,
-              hintText: 'Enter KW',
+              hintText: 'Enter KW capacity',
+              icon: Icons.electric_bolt_rounded,
             ),
             const SizedBox(height: 16),
 
             // Electricity Bill Field
-            _buildFieldLabel('Electricity Bill'),
+            _buildFieldLabel('Electricity Bill (Monthly)'),
             const SizedBox(height: 6),
             _buildDarkTextField(
               controller: controller.electricityBillController,
-              hintText: 'Enter electricity bill',
+              hintText: 'Enter bill amount',
+              icon: Icons.receipt_long_rounded,
             ),
             const SizedBox(height: 16),
 
             // Select Date & Time Picker
+            _buildFieldLabel('Schedule Date & Time'),
+            const SizedBox(height: 6),
             GestureDetector(
               onTap: () => controller.selectDateTime(context),
               child: Container(
@@ -215,25 +302,36 @@ class ClientDetailScreen extends StatelessWidget {
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                 decoration: BoxDecoration(
                   color: const Color(0xFF05161C),
-                  borderRadius: BorderRadius.circular(25),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: Colors.white12),
                 ),
                 child: Row(
                   children: [
                     const Icon(
-                      Icons.arrow_drop_down_rounded,
-                      color: Colors.white,
-                      size: 28,
+                      Icons.calendar_month_rounded,
+                      color: AppColors.primaryBlue,
+                      size: 20,
                     ),
-                    const SizedBox(width: 8),
-                    Obx(
-                      () => Text(
-                        controller.selectedDateTime.value,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 15,
-                          fontWeight: FontWeight.w400,
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Obx(
+                        () => Text(
+                          controller.selectedDateTime.value,
+                          style: TextStyle(
+                            color: controller.selectedDateTime.value ==
+                                    'Select date & Time'
+                                ? Colors.white38
+                                : Colors.white,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w400,
+                          ),
                         ),
                       ),
+                    ),
+                    const Icon(
+                      Icons.arrow_drop_down_rounded,
+                      color: Colors.white54,
+                      size: 26,
                     ),
                   ],
                 ),
@@ -241,30 +339,31 @@ class ClientDetailScreen extends StatelessWidget {
             ),
             const SizedBox(height: 16),
 
-            // Text Field
-            _buildFieldLabel('Text'),
+            // Text Note Field
+            _buildFieldLabel('Notes / Remarks'),
             const SizedBox(height: 6),
             _buildDarkTextField(
               controller: controller.textController,
-              hintText: 'Enter text',
+              hintText: 'Enter additional text note...',
+              icon: Icons.notes_rounded,
             ),
             const SizedBox(height: 28),
 
             // Submit Button
             SizedBox(
               width: double.infinity,
-              height: 48,
+              height: 50,
               child: ElevatedButton(
                 onPressed: controller.submitAssignLead,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primaryBlue,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(0),
+                    borderRadius: BorderRadius.circular(16),
                   ),
-                  elevation: 0,
+                  elevation: 2,
                 ),
                 child: const Text(
-                  'Submit',
+                  'Assign Lead',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 16,
@@ -284,7 +383,7 @@ class ClientDetailScreen extends StatelessWidget {
       label,
       style: const TextStyle(
         color: Colors.white,
-        fontSize: 15,
+        fontSize: 14,
         fontWeight: FontWeight.w500,
       ),
     );
@@ -293,85 +392,23 @@ class ClientDetailScreen extends StatelessWidget {
   Widget _buildDarkTextField({
     required TextEditingController controller,
     required String hintText,
+    required IconData icon,
   }) {
     return Container(
       decoration: BoxDecoration(
         color: const Color(0xFF05161C),
-        borderRadius: BorderRadius.circular(25),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white12),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
       child: TextField(
         controller: controller,
-        style: const TextStyle(color: Colors.white, fontSize: 15),
+        style: const TextStyle(color: Colors.white, fontSize: 14),
         decoration: InputDecoration(
+          icon: Icon(icon, color: AppColors.primaryBlue, size: 20),
           border: InputBorder.none,
           hintText: hintText,
           hintStyle: const TextStyle(color: Colors.white38, fontSize: 14),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildBottomTabBar(ClientDetailController controller) {
-    return Obx(
-      () => Container(
-        height: 56,
-        color: AppColors.primaryBlue,
-        child: Row(
-          children: [
-            // Tab 1: Assign Lead
-            Expanded(
-              child: GestureDetector(
-                onTap: () => controller.selectedTab.value = 0,
-                behavior: HitTestBehavior.opaque,
-                child: Center(
-                  child: Text(
-                    'Assign Lead',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: controller.selectedTab.value == 0
-                          ? FontWeight.bold
-                          : FontWeight.normal,
-                      color: Colors.white,
-                      decoration: controller.selectedTab.value == 0
-                          ? TextDecoration.underline
-                          : TextDecoration.none,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-
-            // Divider Line
-            Container(
-              width: 1,
-              height: 30,
-              color: Colors.white30,
-            ),
-
-            // Tab 2: Profile
-            Expanded(
-              child: GestureDetector(
-                onTap: () => controller.selectedTab.value = 1,
-                behavior: HitTestBehavior.opaque,
-                child: Center(
-                  child: Text(
-                    'Profile',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: controller.selectedTab.value == 1
-                          ? FontWeight.bold
-                          : FontWeight.normal,
-                      color: Colors.white,
-                      decoration: controller.selectedTab.value == 1
-                          ? TextDecoration.underline
-                          : TextDecoration.none,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
         ),
       ),
     );

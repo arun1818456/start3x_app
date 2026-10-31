@@ -48,153 +48,159 @@ class AccessControlScreen extends StatelessWidget {
             ),
 
             Expanded(
-              child: SingleChildScrollView(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                child: Column(
-                  children: [
-                    // --- Search Bar ---
-                    Container(
-                      height: 42,
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade200,
-                        borderRadius: BorderRadius.circular(25),
-                      ),
-                      padding: const EdgeInsets.symmetric(horizontal: 14),
-                      child: TextField(
-                        onChanged: controller.updateSearch,
-                        style: const TextStyle(fontSize: 14),
-                        decoration: const InputDecoration(
-                          icon: Icon(Icons.search,
-                              color: AppColors.textDark, size: 20),
-                          hintText: 'Search',
-                          hintStyle: TextStyle(
-                              fontSize: 14, color: AppColors.textGrey),
-                          border: InputBorder.none,
-                          isDense: true,
-                          contentPadding: EdgeInsets.symmetric(vertical: 11),
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 20),
-
-                    // --- Clients Count Box ---
-                    Container(
-                      width: 135,
-                      height: 135,
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade200,
-                        borderRadius: BorderRadius.circular(28),
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Obx(
-                            () => Text(
-                              '${controller.clients.length}',
-                              style: const TextStyle(
-                                fontSize: 56,
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.primaryBlue,
-                                height: 1.1,
-                              ),
-                            ),
-                          ),
-                          const Text(
-                            'Clients',
-                            style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w500,
-                              color: AppColors.textDark,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    const SizedBox(height: 24),
-
-                    // --- Generated Passkey Display Pill ---
-                    GestureDetector(
-                      onTap: controller.copyPasskeyToClipboard,
-                      child: Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
+              child: RefreshIndicator(
+                onRefresh: () async {
+                  await controller.fetchPasskeys();
+                },
+                color: AppColors.primaryBlue,
+                child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                  child: Column(
+                    children: [
+                      // --- Search Bar ---
+                      Container(
+                        height: 42,
                         decoration: BoxDecoration(
                           color: Colors.grey.shade200,
                           borderRadius: BorderRadius.circular(25),
                         ),
-                        child: Center(
-                          child: Obx(
-                            () => Text(
-                              controller.generatedPasskey.value,
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w600,
-                                letterSpacing: 1.2,
+                        padding: const EdgeInsets.symmetric(horizontal: 14),
+                        child: TextField(
+                          onChanged: controller.updateSearch,
+                          style: const TextStyle(fontSize: 14),
+                          decoration: const InputDecoration(
+                            icon: Icon(Icons.search,
+                                color: AppColors.textDark, size: 20),
+                            hintText: 'Search',
+                            hintStyle: TextStyle(
+                                fontSize: 14, color: AppColors.textGrey),
+                            border: InputBorder.none,
+                            isDense: true,
+                            contentPadding: EdgeInsets.symmetric(vertical: 11),
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      // --- Clients Count Box ---
+                      Container(
+                        width: 135,
+                        height: 135,
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade200,
+                          borderRadius: BorderRadius.circular(28),
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Obx(
+                              () => Text(
+                                '${controller.clients.length}',
+                                style: const TextStyle(
+                                  fontSize: 56,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.primaryBlue,
+                                  height: 1.1,
+                                ),
+                              ),
+                            ),
+                            const Text(
+                              'Clients',
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w500,
                                 color: AppColors.textDark,
                               ),
                             ),
-                          ),
+                          ],
                         ),
                       ),
-                    ),
 
-                    const SizedBox(height: 14),
+                      const SizedBox(height: 24),
 
-                    // --- Click to Generate Passkey Button ---
-                    GestureDetector(
-                      onTap: controller.generatePasskey,
-                      child: Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        decoration: BoxDecoration(
-                          color: AppColors.primaryBlue,
-                          borderRadius: BorderRadius.circular(25),
-                        ),
-                        child: const Center(
-                          child: Text(
-                            'Click to Generate Passkey',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.whiteColor,
-                            ),
+                      // --- Generated Passkey Display Pill ---
+                      GestureDetector(
+                        onTap: controller.copyPasskeyToClipboard,
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade200,
+                            borderRadius: BorderRadius.circular(25),
                           ),
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 28),
-
-                    // --- Clients Cards List ---
-                    Obx(
-                      () {
-                        if (controller.isLoading.value) {
-                          return const Padding(
-                            padding: EdgeInsets.symmetric(vertical: 40),
-                            child: Center(
-                              child: CircularProgressIndicator(
-                                color: AppColors.primaryBlue,
+                          child: Center(
+                            child: Obx(
+                              () => Text(
+                                controller.generatedPasskey.value,
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w600,
+                                  letterSpacing: 1.2,
+                                  color: AppColors.textDark,
+                                ),
                               ),
                             ),
-                          );
-                        }
+                          ),
+                        ),
+                      ),
 
-                        final clientList = controller.filteredClients;
-                        if (clientList.isEmpty) {
-                          return const Padding(
-                            padding: EdgeInsets.symmetric(vertical: 20),
+                      const SizedBox(height: 14),
+
+                      // --- Click to Generate Passkey Button ---
+                      GestureDetector(
+                        onTap: controller.generatePasskey,
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          decoration: BoxDecoration(
+                            color: AppColors.primaryBlue,
+                            borderRadius: BorderRadius.circular(25),
+                          ),
+                          child: const Center(
                             child: Text(
-                              'No clients_screen found',
+                              'Click to Generate Passkey',
                               style: TextStyle(
-                                color: AppColors.textGrey,
-                                fontSize: 15,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.whiteColor,
                               ),
                             ),
-                          );
-                        }
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 28),
+
+                      // --- Clients Cards List ---
+                      Obx(
+                        () {
+                          if (controller.isLoading.value) {
+                            return const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 40),
+                              child: Center(
+                                child: CircularProgressIndicator(
+                                  color: AppColors.primaryBlue,
+                                ),
+                              ),
+                            );
+                          }
+
+                          final clientList = controller.filteredClients;
+                          if (clientList.isEmpty) {
+                            return const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 20),
+                              child: Text(
+                                'No clients found',
+                                style: TextStyle(
+                                  color: AppColors.textGrey,
+                                  fontSize: 15,
+                                ),
+                              ),
+                            );
+                          }
 
                         return Column(
                           children: List.generate(clientList.length, (index) {
@@ -321,9 +327,10 @@ class AccessControlScreen extends StatelessWidget {
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
-    );
-  }
+    ),
+  );
+}
 }

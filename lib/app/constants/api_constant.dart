@@ -1,4 +1,4 @@
-String baseUrl = "http://10.113.225.57:3000";
+String baseUrl = "http://10.71.116.57:3000";
 const String appVersion = "1.0.0";
 
 // User API Endpoints
