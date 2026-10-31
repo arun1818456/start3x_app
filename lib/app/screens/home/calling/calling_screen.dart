@@ -26,7 +26,7 @@ class CallingScreen extends StatelessWidget {
                   );
                 }
 
-                final responseList = controller.lead.responses.toList();
+                final responseList = controller.lead.responses;
 
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

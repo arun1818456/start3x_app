@@ -25,8 +25,8 @@ class LeadModel {
     required this.location,
     required this.status,
     required this.date,
-    this.phoneNumber = '+919876543210',
-    this.altPhoneNumber = '+919876543211',
+    this.phoneNumber = '',
+    this.altPhoneNumber = '',
     this.kw = '',
     this.electricityBill = '',
     this.textNote = '',
@@ -34,47 +34,81 @@ class LeadModel {
   }) : responses = RxList<LeadResponseModel>(initialResponses ?? []);
 
   factory LeadModel.fromJson(Map<String, dynamic> json) {
-    List respList = json['responses'] ?? [];
-    List<LeadResponseModel> parsedResponses = respList.map((r) {
-      if (r is Map<String, dynamic>) {
-        return LeadResponseModel.fromJson(r);
-      }
-      return LeadResponseModel(
-        responseNumber: 'Response #1',
-        outcome: r.toString(),
-        text: '',
-        callDate: '',
-      );
-    }).toList();
+    final List<LeadResponseModel> parsedResponses = [];
+    final rawResponses = json['responses'];
 
-    String rawDate = json['date']?.toString() ?? json['createdAt']?.toString() ?? '';
+    if (rawResponses is List) {
+      for (final response in rawResponses) {
+        if (response is Map<String, dynamic>) {
+          parsedResponses.add(LeadResponseModel.fromJson(response));
+        } else if (response is Map) {
+          parsedResponses.add(
+            LeadResponseModel.fromJson(
+              Map<String, dynamic>.from(response),
+            ),
+          );
+        } else if (response != null) {
+          parsedResponses.add(
+            LeadResponseModel(
+              responseNumber: 'Response #1',
+              outcome: response.toString(),
+              text: '',
+              callDate: '',
+            ),
+          );
+        }
+      }
+    }
+
+    final rawDate = (json['date'] ?? json['createdAt'] ?? '').toString();
     String formattedDate = rawDate;
+
     if (rawDate.isNotEmpty) {
-      try {
-        DateTime dt = DateTime.parse(rawDate).toLocal();
+      final parsedDate = DateTime.tryParse(rawDate);
+      if (parsedDate != null) {
+        final dt = parsedDate.toLocal();
         String day = dt.day.toString().padLeft(2, '0');
         String month = dt.month.toString().padLeft(2, '0');
         formattedDate = '$day/$month/${dt.year}';
-      } catch (e) {
-        formattedDate = rawDate;
       }
     }
 
     return LeadModel(
-      id: json['_id']?.toString() ?? json['id']?.toString() ?? '',
-      passkey: json['passkey']?.toString() ?? '',
-      rank: json['rank']?.toString() ?? '#1',
-      name: json['name']?.toString() ?? 'Lead',
-      company: json['company']?.toString() ?? '',
-      location: json['location']?.toString() ?? 'Chandigarh',
-      status: json['status']?.toString() ?? 'To-Do:',
+      id: (json['_id'] ?? json['id'] ?? '').toString(),
+      passkey: (json['passkey'] ?? '').toString(),
+      rank: (json['rank'] ?? '#1').toString(),
+      name: (json['name'] ?? 'Lead').toString(),
+      company: (json['company'] ?? '').toString(),
+      location: (json['location'] ?? '').toString(),
+      status: (json['status'] ?? 'To-Do:').toString(),
       date: formattedDate.isNotEmpty ? formattedDate : '05/03/2025',
-      phoneNumber: json['phoneNumber']?.toString() ?? json['phone']?.toString() ?? '+919876543210',
-      altPhoneNumber: json['altPhoneNumber']?.toString() ?? json['altPhone']?.toString() ?? '+919876543211',
-      kw: json['kw']?.toString() ?? '',
-      electricityBill: json['electricityBill']?.toString() ?? '',
-      textNote: json['textNote']?.toString() ?? '',
+      phoneNumber:
+          (json['phoneNumber'] ?? json['phone'] ?? '').toString(),
+      altPhoneNumber:
+          (json['altPhoneNumber'] ?? json['altPhone'] ?? '').toString(),
+      kw: (json['kw'] ?? '').toString(),
+      electricityBill: (json['electricityBill'] ?? '').toString(),
+      textNote: (json['textNote'] ?? '').toString(),
       initialResponses: parsedResponses,
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      '_id': id,
+      'passkey': passkey,
+      'rank': rank,
+      'name': name,
+      'company': company,
+      'location': location,
+      'status': status,
+      'date': date,
+      'phoneNumber': phoneNumber,
+      'altPhoneNumber': altPhoneNumber,
+      'kw': kw,
+      'electricityBill': electricityBill,
+      'textNote': textNote,
+      'responses': responses.map((r) => r.toJson()).toList(),
+    };
   }
 }

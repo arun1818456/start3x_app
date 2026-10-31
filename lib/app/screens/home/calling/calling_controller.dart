@@ -55,31 +55,16 @@ class CallingController extends GetxController with BaseClass {
       if (res != null && res["success"] == true && res["data"] != null) {
         List dataList = res["data"];
         if (dataList.isNotEmpty) {
-          List<LeadResponseModel> fetched =
-              dataList.map((item) => LeadResponseModel.fromJson(item)).toList();
+          final fetched = dataList
+              .map((item) => LeadResponseModel.fromJson(item))
+              .toList();
           lead.responses.value = fetched;
         }
       }
     } catch (e) {
-      // Keep local lead.responses if error
+      // Keep existing lead.responses on error
     } finally {
       isLoadingResponses.value = false;
-    }
-  }
-
-  Future<void> syncResponsesToBackend() async {
-    if (lead.id.isEmpty) return;
-
-    try {
-      await httpRequest(
-        REQUEST.put,
-        "$updateLeadApiEndPoint${lead.id}",
-        {
-          "responses": lead.responses.map((r) => r.toJson()).toList(),
-        },
-      );
-    } catch (e) {
-      // Fallback
     }
   }
 
@@ -95,7 +80,6 @@ class CallingController extends GetxController with BaseClass {
         // Fallback
       }
     }
-    syncResponsesToBackend();
   }
 
   Future<void> updateResponseInBackend(
@@ -111,11 +95,10 @@ class CallingController extends GetxController with BaseClass {
         // Fallback
       }
     }
-    syncResponsesToBackend();
   }
 
   Future<void> makePhoneCall([String? number]) async {
-    final phone = number ?? lead.phoneNumber;
+    final phone = (number != null && number.isNotEmpty) ? number : lead.phoneNumber;
     final cleanPhone = phone.replaceAll(RegExp(r'[^\d+]'), '');
     final uri = Uri.parse('tel:$cleanPhone');
     try {
@@ -132,7 +115,7 @@ class CallingController extends GetxController with BaseClass {
   }
 
   Future<void> openWhatsApp([String? number]) async {
-    final phone = number ?? lead.phoneNumber;
+    final phone = (number != null && number.isNotEmpty) ? number : lead.phoneNumber;
     final cleanPhone = phone.replaceAll(RegExp(r'\D'), '');
     final uri = Uri.parse('https://wa.me/$cleanPhone');
     try {
@@ -409,7 +392,9 @@ class CallingController extends GetxController with BaseClass {
                   IconButton(
                     onPressed: () {
                       final targetId = resp.id;
-                      lead.responses.removeAt(index);
+                      if (index < lead.responses.length) {
+                        lead.responses.removeAt(index);
+                      }
                       deleteResponseFromBackend(targetId, index);
                       Get.back();
                       showMySnackBar('Response removed', alert: true);
@@ -439,7 +424,9 @@ class CallingController extends GetxController with BaseClass {
                           callDate: resp.callDate,
                         );
 
-                        lead.responses[index] = updatedResponse;
+                        if (index < lead.responses.length) {
+                          lead.responses[index] = updatedResponse;
+                        }
                         updateResponseInBackend(resp.id, updatedResponse);
                         Get.back();
 

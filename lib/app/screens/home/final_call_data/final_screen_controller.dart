@@ -114,7 +114,7 @@ class FinalScreenController extends GetxController with BaseClass {
     final String day = combined.day.toString().padLeft(2, '0');
     final String year = combined.year.toString();
 
-    selectedDateTime.value = '$day/$month/$year $hour:$minute $period';
+    selectedDateTime.value = '$hour:$minute $period, $month/$day/$year';
   }
 
   void showReminderBottomSheet(BuildContext context) {
@@ -233,19 +233,19 @@ class FinalScreenController extends GetxController with BaseClass {
     final String month = pickedDate.month.toString().padLeft(2, '0');
     final String day = pickedDate.day.toString().padLeft(2, '0');
 
-    return '$day/$month/${pickedDate.year} $hour:$minute $period';
+    return '$month/$day $hour:$minute $period';
   }
 
   String _getFormattedCurrentDateTime() {
     final now = DateTime.now();
-    final String day = now.day.toString().padLeft(2, '0');
-    final String month = now.month.toString().padLeft(2, '0');
-    final String year = now.year.toString();
     final int hour12 = now.hour % 12 == 0 ? 12 : now.hour % 12;
     final String minute = now.minute.toString().padLeft(2, '0');
     final String period = now.hour >= 12 ? 'PM' : 'AM';
+    final String month = now.month.toString().padLeft(2, '0');
+    final String day = now.day.toString().padLeft(2, '0');
+    final String year = now.year.toString();
 
-    return '$day/$month/$year $hour12:$minute $period';
+    return '$hour12:$minute $period, $month/$day/$year';
   }
 
   Future<void> saveResponse() async {

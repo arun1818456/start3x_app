@@ -68,9 +68,6 @@ class TaskController extends GetxController with BaseClass {
 
   DateTime? _parseDateString(String text) {
     if (text.isEmpty) return null;
-    try {
-      return DateTime.parse(text).toLocal();
-    } catch (_) {}
 
     final regex = RegExp(r'(\d{1,2})[/\-](\d{1,2})[/\-](\d{4})');
     final match = regex.firstMatch(text);
@@ -79,13 +76,18 @@ class TaskController extends GetxController with BaseClass {
       int d2 = int.parse(match.group(2)!);
       int year = int.parse(match.group(3)!);
 
-      // Assumes DD/MM/YYYY format primarily
-      if (d2 <= 12 && d1 <= 31) {
+      // Primary DD/MM/YYYY format: d1 is Day, d2 is Month
+      if (d2 >= 1 && d2 <= 12 && d1 >= 1 && d1 <= 31) {
         return DateTime(year, d2, d1);
-      } else if (d1 <= 12 && d2 <= 31) {
+      } else if (d1 >= 1 && d1 <= 12 && d2 >= 1 && d2 <= 31) {
         return DateTime(year, d1, d2);
       }
     }
+
+    try {
+      return DateTime.parse(text).toLocal();
+    } catch (_) {}
+
     return null;
   }
 

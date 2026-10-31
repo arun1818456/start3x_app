@@ -183,24 +183,21 @@ class HomeScreen extends StatelessWidget {
         Get.toNamed(AppRoutes.callingScreen, arguments: lead);
       },
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         decoration: BoxDecoration(
           color: AppColors.darkCardBg,
           borderRadius: BorderRadius.circular(18),
         ),
         child: Row(
           children: [
-            SizedBox(
-              width: 36,
-              child: Text(
-                lead.rank,
-                style: AppTextStyles.rankText,
-              ),
+            Text(
+              lead.rank,
+              style: AppTextStyles.rankText,
             ),
             Container(
               height: 36,
               width: 1,
-              margin: const EdgeInsets.symmetric(horizontal: 14),
+              margin: const EdgeInsets.symmetric(horizontal: 5),
               color: Colors.white24,
             ),
             Expanded(
@@ -234,7 +231,14 @@ class HomeScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  lead.date,
+                  lead.date.split(' ').first,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.cardTagLight,
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  lead.date.split(' ').skip(1).join(' '),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: AppTextStyles.cardTagLight,

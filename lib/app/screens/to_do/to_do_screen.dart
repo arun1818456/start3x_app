@@ -18,133 +18,138 @@ class ToDoScreen extends StatelessWidget {
               _buildSearchBar(controller),
               const SizedBox(height: 20),
               Expanded(
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // --- Today's To-Do Section ---
-                      const Text(
-                        "Today's To-Do List",
-                        style: TextStyle(
-                          color: AppColors.primaryBlue,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                child: RefreshIndicator(
+                  onRefresh: controller.fetchTasksFromApi,
+                  color: AppColors.primaryBlue,
+                  child: SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // --- Today's To-Do Section ---
+                        const Text(
+                          "Today's To-Do List",
+                          style: TextStyle(
+                            color: AppColors.primaryBlue,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 12),
-                      Obx(
-                        () {
-                          final todayList =
-                              controller.filterTasks(controller.todayTasks);
-                          if (todayList.isEmpty) {
-                            return const Padding(
-                              padding: EdgeInsets.symmetric(vertical: 8.0),
-                              child: Text(
-                                'No tasks for today',
-                                style: TextStyle(
-                                  color: AppColors.textGrey,
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w500,
+                        const SizedBox(height: 12),
+                        Obx(
+                          () {
+                            final todayList =
+                                controller.filterTasks(controller.todayTasks);
+                            if (todayList.isEmpty) {
+                              return const Padding(
+                                padding: EdgeInsets.symmetric(vertical: 8.0),
+                                child: Text(
+                                  'No tasks for today',
+                                  style: TextStyle(
+                                    color: AppColors.textGrey,
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w500,
+                                  ),
                                 ),
-                              ),
+                              );
+                            }
+                            return ListView.separated(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: todayList.length,
+                              separatorBuilder: (context, index) =>
+                                  const SizedBox(height: 14),
+                              itemBuilder: (context, index) {
+                                return _buildTaskCard(todayList[index]);
+                              },
                             );
-                          }
-                          return ListView.separated(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemCount: todayList.length,
-                            separatorBuilder: (context, index) =>
-                                const SizedBox(height: 14),
-                            itemBuilder: (context, index) {
-                              return _buildTaskCard(todayList[index]);
-                            },
-                          );
-                        },
-                      ),
-                      const SizedBox(height: 24),
+                          },
+                        ),
+                        const SizedBox(height: 24),
 
-                      // --- Tomorrow's To-Do Section ---
-                      const Text(
-                        "Tomorrow's To-Do List",
-                        style: TextStyle(
-                          color: AppColors.primaryBlue,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                        // --- Tomorrow's To-Do Section ---
+                        const Text(
+                          "Tomorrow's To-Do List",
+                          style: TextStyle(
+                            color: AppColors.primaryBlue,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 12),
-                      Obx(
-                        () {
-                          final tomorrowList =
-                              controller.filterTasks(controller.tomorrowTasks);
-                          if (tomorrowList.isEmpty) {
-                            return const Padding(
-                              padding: EdgeInsets.symmetric(vertical: 8.0),
-                              child: Text(
-                                'No tasks for tomorrow',
-                                style: TextStyle(
-                                  color: AppColors.textGrey,
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w500,
+                        const SizedBox(height: 12),
+                        Obx(
+                          () {
+                            final tomorrowList =
+                                controller.filterTasks(controller.tomorrowTasks);
+                            if (tomorrowList.isEmpty) {
+                              return const Padding(
+                                padding: EdgeInsets.symmetric(vertical: 8.0),
+                                child: Text(
+                                  'No tasks for tomorrow',
+                                  style: TextStyle(
+                                    color: AppColors.textGrey,
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w500,
+                                  ),
                                 ),
-                              ),
+                              );
+                            }
+                            return ListView.separated(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: tomorrowList.length,
+                              separatorBuilder: (context, index) =>
+                                  const SizedBox(height: 14),
+                              itemBuilder: (context, index) {
+                                return _buildTaskCard(tomorrowList[index]);
+                              },
                             );
-                          }
-                          return ListView.separated(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemCount: tomorrowList.length,
-                            separatorBuilder: (context, index) =>
-                                const SizedBox(height: 14),
-                            itemBuilder: (context, index) {
-                              return _buildTaskCard(tomorrowList[index]);
-                            },
-                          );
-                        },
-                      ),
-                      const SizedBox(height: 24),
+                          },
+                        ),
+                        const SizedBox(height: 24),
 
-                      // --- Other Dates To-Do Section ---
-                      const Text(
-                        "Other Dates To-Do List",
-                        style: TextStyle(
-                          color: AppColors.primaryBlue,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                        // --- Other Dates To-Do Section ---
+                        const Text(
+                          "Other Dates To-Do List",
+                          style: TextStyle(
+                            color: AppColors.primaryBlue,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 12),
-                      Obx(
-                        () {
-                          final otherList =
-                              controller.filterTasks(controller.otherTasks);
-                          if (otherList.isEmpty) {
-                            return const Padding(
-                              padding: EdgeInsets.symmetric(vertical: 8.0),
-                              child: Text(
-                                'No tasks for other dates',
-                                style: TextStyle(
-                                  color: AppColors.textGrey,
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w500,
+                        const SizedBox(height: 12),
+                        Obx(
+                          () {
+                            final otherList =
+                                controller.filterTasks(controller.otherTasks);
+                            if (otherList.isEmpty) {
+                              return const Padding(
+                                padding: EdgeInsets.symmetric(vertical: 8.0),
+                                child: Text(
+                                  'No tasks for other dates',
+                                  style: TextStyle(
+                                    color: AppColors.textGrey,
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w500,
+                                  ),
                                 ),
-                              ),
+                              );
+                            }
+                            return ListView.separated(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: otherList.length,
+                              separatorBuilder: (context, index) =>
+                                  const SizedBox(height: 14),
+                              itemBuilder: (context, index) {
+                                return _buildTaskCard(otherList[index]);
+                              },
                             );
-                          }
-                          return ListView.separated(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemCount: otherList.length,
-                            separatorBuilder: (context, index) =>
-                                const SizedBox(height: 14),
-                            itemBuilder: (context, index) {
-                              return _buildTaskCard(otherList[index]);
-                            },
-                          );
-                        },
-                      ),
-                      const SizedBox(height: 24),
-                    ],
+                          },
+                        ),
+                        const SizedBox(height: 24),
+                      ],
+                    ),
                   ),
                 ),
               ),
