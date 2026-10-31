@@ -22,6 +22,7 @@ class ToDoScreen extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      // --- Today's To-Do Section ---
                       const Text(
                         "Today's To-Do List",
                         style: TextStyle(
@@ -35,6 +36,19 @@ class ToDoScreen extends StatelessWidget {
                         () {
                           final todayList =
                               controller.filterTasks(controller.todayTasks);
+                          if (todayList.isEmpty) {
+                            return const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 8.0),
+                              child: Text(
+                                'No tasks for today',
+                                style: TextStyle(
+                                  color: AppColors.textGrey,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            );
+                          }
                           return ListView.separated(
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
@@ -48,6 +62,8 @@ class ToDoScreen extends StatelessWidget {
                         },
                       ),
                       const SizedBox(height: 24),
+
+                      // --- Tomorrow's To-Do Section ---
                       const Text(
                         "Tomorrow's To-Do List",
                         style: TextStyle(
@@ -61,6 +77,19 @@ class ToDoScreen extends StatelessWidget {
                         () {
                           final tomorrowList =
                               controller.filterTasks(controller.tomorrowTasks);
+                          if (tomorrowList.isEmpty) {
+                            return const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 8.0),
+                              child: Text(
+                                'No tasks for tomorrow',
+                                style: TextStyle(
+                                  color: AppColors.textGrey,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            );
+                          }
                           return ListView.separated(
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
@@ -74,18 +103,47 @@ class ToDoScreen extends StatelessWidget {
                         },
                       ),
                       const SizedBox(height: 24),
-                      GestureDetector(
-                        onTap: () {},
-                        child: const Text(
-                          "Other dates...",
-                          style: TextStyle(
-                            color: AppColors.primaryBlue,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
+
+                      // --- Other Dates To-Do Section ---
+                      const Text(
+                        "Other Dates To-Do List",
+                        style: TextStyle(
+                          color: AppColors.primaryBlue,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 12),
+                      Obx(
+                        () {
+                          final otherList =
+                              controller.filterTasks(controller.otherTasks);
+                          if (otherList.isEmpty) {
+                            return const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 8.0),
+                              child: Text(
+                                'No tasks for other dates',
+                                style: TextStyle(
+                                  color: AppColors.textGrey,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            );
+                          }
+                          return ListView.separated(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: otherList.length,
+                            separatorBuilder: (context, index) =>
+                                const SizedBox(height: 14),
+                            itemBuilder: (context, index) {
+                              return _buildTaskCard(otherList[index]);
+                            },
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 24),
                     ],
                   ),
                 ),
@@ -163,14 +221,7 @@ class ToDoScreen extends StatelessWidget {
   Widget _buildTaskCard(ToDoItemModel item) {
     return GestureDetector(
       onTap: () {
-        final lead = LeadModel(
-          rank: item.rank,
-          name: item.name,
-          location: item.location,
-          status: item.status,
-          date: item.date,
-        );
-        Get.toNamed(AppRoutes.callingScreen, arguments: lead);
+        Get.toNamed(AppRoutes.callingScreen, arguments: item.lead);
       },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),

@@ -251,13 +251,24 @@ class ClientDetailScreen extends StatelessWidget {
             ),
             const SizedBox(height: 20),
 
-            // Name Field
+            // Lead Name Field
             _buildFieldLabel('Lead Name'),
             const SizedBox(height: 6),
             _buildDarkTextField(
               controller: controller.nameController,
               hintText: 'Enter lead name',
               icon: Icons.person_outline_rounded,
+            ),
+            const SizedBox(height: 16),
+
+            // Phone Number Field
+            _buildFieldLabel('Phone Number'),
+            const SizedBox(height: 6),
+            _buildDarkTextField(
+              controller: controller.phoneController,
+              hintText: 'Enter phone number',
+              icon: Icons.phone_rounded,
+              keyboardType: TextInputType.phone,
             ),
             const SizedBox(height: 16),
 
@@ -393,6 +404,7 @@ class ClientDetailScreen extends StatelessWidget {
     required TextEditingController controller,
     required String hintText,
     required IconData icon,
+    TextInputType? keyboardType,
   }) {
     return Container(
       decoration: BoxDecoration(
@@ -403,6 +415,7 @@ class ClientDetailScreen extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
       child: TextField(
         controller: controller,
+        keyboardType: keyboardType,
         style: const TextStyle(color: Colors.white, fontSize: 14),
         decoration: InputDecoration(
           icon: Icon(icon, color: AppColors.primaryBlue, size: 20),

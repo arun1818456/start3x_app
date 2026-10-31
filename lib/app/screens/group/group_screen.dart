@@ -7,365 +7,282 @@ class GroupScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = Get.put(GroupController());
     return Scaffold(
-      backgroundColor: AppColors.whiteColor,
-      body: Column(
-        children: [
-          _buildHeader(),
-          Expanded(
-            child: SingleChildScrollView(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 18.0, vertical: 16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Obx(
-                    () => ListView.separated(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: controller.messages.length,
-                      separatorBuilder: (context, index) =>
-                          const SizedBox(height: 20),
-                      itemBuilder: (context, index) {
-                        return _buildMessagePost(controller.messages[index]);
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  Obx(
-                    () => controller.showComposeBox.value
-                        ? _buildComposeCard(controller)
-                        : const SizedBox.shrink(),
-                  ),
-                ],
+      backgroundColor: const Color(0xFFF4F6F9),
+      body: SafeArea(
+        top: false,
+        child: Column(
+          children: [
+            // --- Header ---
+            _buildHeader(controller),
+
+            // --- Chat Messages Area ---
+            Expanded(
+              child: Obx(
+                () {
+                  if (controller.isLoading.value && controller.messages.isEmpty) {
+                    return const Center(
+                      child: CircularProgressIndicator(
+                        color: AppColors.primaryBlue,
+                      ),
+                    );
+                  }
+
+                  return ListView.builder(
+                    controller: controller.scrollController,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 14.0, vertical: 12.0),
+                    itemCount: controller.messages.length,
+                    itemBuilder: (context, index) {
+                      return _buildChatBubble(controller, controller.messages[index]);
+                    },
+                  );
+                },
               ),
             ),
-          ),
-          _buildActionBar(controller),
-        ],
+
+            // --- Bottom WhatsApp Style Input Bar ---
+            _buildWhatsAppInputBar(controller),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(GroupController controller) {
     return Container(
       width: double.infinity,
       color: AppColors.primaryBlue,
-      padding: const EdgeInsets.only(top: 48, bottom: 18),
-      child: const Center(
-        child: Text(
-          'Group Chat',
-          style: TextStyle(
-            color: AppColors.whiteColor,
-            fontSize: 28,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildMessagePost(GroupMessageModel item) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
-          decoration: BoxDecoration(
-            color: AppColors.darkCardBg,
-            borderRadius: BorderRadius.circular(14),
-          ),
-          child: Column(
+      padding: const EdgeInsets.only(top: 48, bottom: 14, left: 16, right: 12),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          const Row(
             children: [
-              Text(
-                item.senderName,
-                style: const TextStyle(
-                  color: AppColors.whiteColor,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-                textAlign: TextAlign.center,
+              Icon(
+                Icons.forum_rounded,
+                color: AppColors.whiteColor,
+                size: 26,
               ),
-              const SizedBox(height: 8),
-              const Divider(color: Colors.white24, height: 1),
-              const SizedBox(height: 12),
-              Text(
-                item.messageText,
-                style: const TextStyle(
-                  color: AppColors.whiteColor,
-                  fontSize: 14,
-                  height: 1.4,
-                ),
-                textAlign: TextAlign.center,
+              SizedBox(width: 10),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Group Chat',
+                    style: TextStyle(
+                      color: AppColors.whiteColor,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    'Team Discussion',
+                    style: TextStyle(
+                      color: Colors.white70,
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
-        ),
-        if (item.flaggedLead != null) ...[
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              const Text(
-                'Flagged',
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w500,
-                  color: AppColors.textDark,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _buildLeadCard(item.flaggedLead!),
-              ),
-            ],
+          IconButton(
+            onPressed: () => controller.fetchChatMessagesFromApi(),
+            icon: const Icon(
+              Icons.refresh_rounded,
+              color: AppColors.whiteColor,
+              size: 22,
+            ),
+            tooltip: 'Refresh Chat',
           ),
         ],
-      ],
+      ),
     );
   }
 
-  Widget _buildLeadCard(LeadModel lead) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-      decoration: BoxDecoration(
-        color: AppColors.darkCardBg,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        children: [
-          SizedBox(
-            width: 28,
-            child: Text(
-              lead.rank,
-              style: const TextStyle(
-                color: AppColors.whiteColor,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+  Widget _buildChatBubble(GroupController controller, GroupMessageModel item) {
+    final bool isMe = item.isMe;
+
+    return Align(
+      alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
+      child: Container(
+        margin: EdgeInsets.only(
+          top: 4,
+          bottom: 6,
+          left: isMe ? 50 : 0,
+          right: isMe ? 0 : 50,
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        decoration: BoxDecoration(
+          color: isMe ? AppColors.primaryBlue : Colors.grey.shade200,
+          borderRadius: BorderRadius.only(
+            topLeft: const Radius.circular(16),
+            topRight: const Radius.circular(16),
+            bottomLeft: Radius.circular(isMe ? 16 : 3),
+            bottomRight: Radius.circular(isMe ? 3 : 16),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.04),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
             ),
-          ),
-          Container(
-            height: 28,
-            width: 1,
-            margin: const EdgeInsets.symmetric(horizontal: 10),
-            color: Colors.white24,
-          ),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  lead.name,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: AppColors.whiteColor,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                Text(
-                  lead.location,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: Colors.white70,
-                    fontSize: 12,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment:
+              isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Sender Name (Only shown for incoming messages from others)
+            if (!isMe) ...[
               Text(
-                lead.status,
-                style: const TextStyle(
-                  color: AppColors.whiteColor,
-                  fontSize: 10,
+                item.senderName,
+                style: TextStyle(
+                  color: item.messageType == 'welcome'
+                      ? Colors.purple.shade700
+                      : AppColors.primaryBlue,
+                  fontSize: 12,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              Text(
-                lead.date,
-                style: const TextStyle(
-                  color: Colors.white70,
-                  fontSize: 10,
+              const SizedBox(height: 3),
+            ],
+
+            // Message Text
+            Text(
+              item.messageText,
+              style: TextStyle(
+                color: isMe ? Colors.white : AppColors.textDark,
+                fontSize: 14.5,
+                height: 1.35,
+              ),
+            ),
+
+            // Optional Flagged Lead Card
+            if (item.flaggedLead != null) ...[
+              const SizedBox(height: 8),
+              GestureDetector(
+                onTap: () => controller.openLeadDetails(item.flaggedLead!),
+                behavior: HitTestBehavior.opaque,
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: isMe
+                        ? Colors.white.withValues(alpha: 0.2)
+                        : Colors.white,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: isMe
+                          ? Colors.white30
+                          : AppColors.primaryBlue.withValues(alpha: 0.3),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.person_pin_rounded,
+                        color: isMe ? Colors.white : AppColors.primaryBlue,
+                        size: 18,
+                      ),
+                      const SizedBox(width: 6),
+                      Flexible(
+                        child: Text(
+                          '${item.flaggedLead!.rank} ${item.flaggedLead!.name}',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: isMe ? Colors.white : AppColors.textDark,
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Icon(
+                        Icons.arrow_forward_ios_rounded,
+                        color: isMe ? Colors.white70 : AppColors.textGrey,
+                        size: 10,
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildComposeCard(GroupController controller) {
-    return Column(
-      children: [
-        Container(
-          margin: const EdgeInsets.symmetric(horizontal: 20),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          clipBehavior: Clip.antiAlias,
-          child: Column(
-            children: [
-              Container(
-                color: AppColors.primaryBlue,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                child: Column(
-                  children: [
-                    TextField(
-                      controller: controller.nameController,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        color: AppColors.whiteColor,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                      ),
-                      decoration: const InputDecoration(
-                        border: InputBorder.none,
-                        isDense: true,
-                        contentPadding: EdgeInsets.zero,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    const Divider(color: Colors.white38, height: 1),
-                    const SizedBox(height: 10),
-                    TextField(
-                      controller: controller.messageController,
-                      textAlign: TextAlign.center,
-                      maxLines: 2,
-                      style: const TextStyle(
-                        color: AppColors.whiteColor,
-                        fontSize: 15,
-                      ),
-                      decoration: const InputDecoration(
-                        hintText: 'Add Text',
-                        hintStyle: TextStyle(
-                          color: Colors.white70,
-                          fontSize: 15,
-                        ),
-                        border: InputBorder.none,
-                        isDense: true,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                color: AppColors.darkCardBg,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'Flag a lead',
-                      style: TextStyle(
-                        color: AppColors.whiteColor,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Text(
-                          '#  ',
-                          style: TextStyle(
-                            color: AppColors.whiteColor,
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        SizedBox(
-                          width: 100,
-                          child: TextField(
-                            controller: controller.leadNumController,
-                            style: const TextStyle(
-                              color: AppColors.whiteColor,
-                              fontSize: 14,
-                            ),
-                            decoration: const InputDecoration(
-                              hintText: 'Add Lead Num',
-                              hintStyle: TextStyle(
-                                color: Colors.white70,
-                                fontSize: 13,
-                              ),
-                              border: InputBorder.none,
-                              isDense: true,
-                              contentPadding: EdgeInsets.zero,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 12),
-        GestureDetector(
-          onTap: controller.postMessage,
-          child: const Padding(
-            padding: EdgeInsets.symmetric(vertical: 6, horizontal: 16),
-            child: Text(
-              'Post',
-              style: TextStyle(
-                color: AppColors.primaryBlue,
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildActionBar(GroupController controller) {
+  Widget _buildWhatsAppInputBar(GroupController controller) {
     return Container(
-      color: AppColors.primaryBlue,
-      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 6,
+            offset: const Offset(0, -2),
+          ),
+        ],
+      ),
       child: Row(
         children: [
+          // Text Input Box
           Expanded(
-            child: GestureDetector(
-              onTap: controller.toggleComposeBox,
-              behavior: HitTestBehavior.opaque,
-              child: const Center(
-                child: Text(
-                  'Add message box to post message',
-                  style: TextStyle(
-                    color: AppColors.whiteColor,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                  ),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade100,
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(color: Colors.grey.shade300),
+              ),
+              child: TextField(
+                controller: controller.messageController,
+                textCapitalization: TextCapitalization.sentences,
+                minLines: 1,
+                maxLines: 4,
+                style: const TextStyle(
+                  color: AppColors.textDark,
+                  fontSize: 15,
                 ),
+                decoration: const InputDecoration(
+                  hintText: 'Type a message...',
+                  hintStyle: TextStyle(
+                    color: AppColors.textGrey,
+                    fontSize: 14,
+                  ),
+                  border: InputBorder.none,
+                  isDense: true,
+                  contentPadding: EdgeInsets.symmetric(vertical: 10),
+                ),
+                onSubmitted: (_) => controller.sendMessage(),
               ),
             ),
           ),
-          Container(
-            height: 20,
-            width: 1,
-            color: Colors.white38,
-            margin: const EdgeInsets.symmetric(horizontal: 12),
-          ),
+
+          const SizedBox(width: 8),
+
+          // Send Button
           GestureDetector(
-            onTap: () {},
+            onTap: () => controller.sendMessage(),
             behavior: HitTestBehavior.opaque,
-            child: const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 12),
-              child: Text(
-                'Bell',
-                style: TextStyle(
-                  color: AppColors.whiteColor,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                ),
+            child: Container(
+              width: 44,
+              height: 44,
+              decoration: const BoxDecoration(
+                color: AppColors.primaryBlue,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.send_rounded,
+                color: Colors.white,
+                size: 20,
               ),
             ),
           ),

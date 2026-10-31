@@ -19,18 +19,18 @@ class InsightsScreen extends StatelessWidget {
                 'Insights',
                 style: AppTextStyles.headerTitle,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 14),
               Align(
                 alignment: Alignment.centerRight,
                 child: _buildFilterButton(context, controller),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 16),
               Expanded(
                 child: Obx(
                   () => ListView.separated(
                     itemCount: controller.insightItems.length,
                     separatorBuilder: (context, index) =>
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 10),
                     itemBuilder: (context, index) {
                       return _buildInsightCard(controller.insightItems[index]);
                     },
@@ -44,7 +44,8 @@ class InsightsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildFilterButton(BuildContext context, InsightsController controller) {
+  Widget _buildFilterButton(
+      BuildContext context, InsightsController controller) {
     return PopupMenuButton<String>(
       onSelected: (String value) {
         controller.updateFilter(value);
@@ -77,7 +78,7 @@ class InsightsScreen extends StatelessWidget {
         ];
       },
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
           color: Colors.grey.shade200,
           borderRadius: BorderRadius.circular(20),
@@ -94,7 +95,7 @@ class InsightsScreen extends StatelessWidget {
             const SizedBox(width: 6),
             const Icon(
               Icons.tune_rounded,
-              size: 16,
+              size: 15,
               color: AppColors.textDark,
             ),
           ],
@@ -105,26 +106,26 @@ class InsightsScreen extends StatelessWidget {
 
   Widget _buildInsightCard(InsightItemModel item) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 22),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
       decoration: BoxDecoration(
         color: AppColors.primaryBlue,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(14),
       ),
       child: Row(
         children: [
           const Icon(
             Icons.folder_open_rounded,
             color: AppColors.whiteColor,
-            size: 44,
+            size: 28,
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: 14),
           Expanded(
             child: Text(
               item.title,
               style: const TextStyle(
                 color: AppColors.whiteColor,
-                fontSize: 18,
-                fontWeight: FontWeight.w500,
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
               ),
             ),
           ),
@@ -132,7 +133,7 @@ class InsightsScreen extends StatelessWidget {
             item.count,
             style: const TextStyle(
               color: AppColors.whiteColor,
-              fontSize: 18,
+              fontSize: 16,
               fontWeight: FontWeight.bold,
             ),
           ),

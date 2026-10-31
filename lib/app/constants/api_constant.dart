@@ -24,3 +24,9 @@ const String createResponseApiEndPoint = "/api/response/create";
 const String getResponsesApiEndPoint = "/api/response/get";
 const String updateResponseApiEndPoint = "/api/response/update/";
 const String deleteResponseApiEndPoint = "/api/response/delete/";
+
+// Chat API Endpoints
+const String sendChatMessageApiEndPoint = "/api/chat/send";
+const String getChatMessagesApiEndPoint = "/api/chat/get";
+const String deleteChatMessageApiEndPoint = "/api/chat/delete/";
+

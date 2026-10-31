@@ -15,8 +15,8 @@ class ClientModel {
     required this.location,
     required this.company,
     required this.passkey,
-    this.phone = '+919876543210',
-    this.altPhone = '+919876543211',
+    this.phone = '',
+    this.altPhone = '',
   });
 }
 

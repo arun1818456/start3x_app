@@ -52,11 +52,9 @@ class LeadModel {
     if (rawDate.isNotEmpty) {
       try {
         DateTime dt = DateTime.parse(rawDate).toLocal();
-        final months = [
-          'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-          'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
-        ];
-        formattedDate = '${months[dt.month - 1]} ${dt.day}, ${dt.year}';
+        String day = dt.day.toString().padLeft(2, '0');
+        String month = dt.month.toString().padLeft(2, '0');
+        formattedDate = '$day/$month/${dt.year}';
       } catch (e) {
         formattedDate = rawDate;
       }
@@ -70,7 +68,7 @@ class LeadModel {
       company: json['company']?.toString() ?? '',
       location: json['location']?.toString() ?? 'Chandigarh',
       status: json['status']?.toString() ?? 'To-Do:',
-      date: formattedDate.isNotEmpty ? formattedDate : 'October 23, 2026',
+      date: formattedDate.isNotEmpty ? formattedDate : '05/03/2025',
       phoneNumber: json['phoneNumber']?.toString() ?? json['phone']?.toString() ?? '+919876543210',
       altPhoneNumber: json['altPhoneNumber']?.toString() ?? json['altPhone']?.toString() ?? '+919876543211',
       kw: json['kw']?.toString() ?? '',

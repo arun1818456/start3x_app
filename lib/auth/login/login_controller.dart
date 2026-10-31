@@ -1,6 +1,7 @@
 import 'package:start3x_app/exports.dart';
 
 class LoginController extends GetxController with BaseClass {
+  final nameController = TextEditingController();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
@@ -41,7 +42,7 @@ class LoginController extends GetxController with BaseClass {
         if (userData != null && (userData["role"] == "admin")) {
           Get.offAll(() => const AdminDashboardScreen());
         } else {
-          if (userData["isSetupComplete"]??false) {
+          if (userData["isSetupComplete"] ?? false) {
             Get.offAllNamed(AppRoutes.clientSetupScreen);
           } else {
             Get.offAllNamed(AppRoutes.mainScreen);
@@ -61,11 +62,15 @@ class LoginController extends GetxController with BaseClass {
 
   // ✅ SIGN UP BUTTON CLICK -> OPENS PASSKEY DIALOG
   void onTapSignUpButton() {
+    final name = nameController.text.trim();
     final email = emailController.text.trim();
     final password = passwordController.text.trim();
     final confirmPassword = confirmPasswordController.text.trim();
 
-    if (email.isEmpty) {
+    if (name.isEmpty) {
+      showMySnackBar('Please enter your full name', alert: true);
+      return;
+    } else if (email.isEmpty) {
       showMySnackBar('Please enter email', alert: true);
       return;
     } else if (password.isEmpty) {
@@ -88,6 +93,7 @@ class LoginController extends GetxController with BaseClass {
 
   void showPasskeyDialog() {
     final passkeyController = TextEditingController();
+    final name = nameController.text.trim();
     final email = emailController.text.trim();
     final password = passwordController.text.trim();
 
@@ -170,9 +176,11 @@ class LoginController extends GetxController with BaseClass {
                         REQUEST.post,
                         signUpApiEndPoint,
                         {
-                          "name": email.isNotEmpty
-                              ? email.split('@').first
-                              : "User",
+                          "name": name.isNotEmpty
+                              ? name
+                              : (email.isNotEmpty
+                                  ? email.split('@').first
+                                  : "User"),
                           "email": email.isNotEmpty
                               ? email
                               : "user_${DateTime.now().millisecondsSinceEpoch}@gmail.com",
@@ -180,7 +188,6 @@ class LoginController extends GetxController with BaseClass {
                               ? password
                               : "User@1234",
                           "passkey": passkey,
-                          "role": "user",
                         },
                       );
 
@@ -190,11 +197,11 @@ class LoginController extends GetxController with BaseClass {
                         final userData = regRes["data"];
                         await storage.write(LocalKeys.userData, userData);
                         Get.back(); // Close Dialog
-                        Get.offAllNamed(AppRoutes.clientSetupScreen);
-                        showMySnackBar(
-                          'Passkey verified! Account created successfully',
-                          success: true,
-                        );
+                        if(userData["isSetupComplete"] ?? false) {
+                          Get.offAllNamed(AppRoutes.homeScreen);
+                        }else{
+                          Get.offAllNamed(AppRoutes.clientSetupScreen);
+                        }
                       }
                     } catch (error) {
                       hideCircularLoader();
@@ -226,6 +233,7 @@ class LoginController extends GetxController with BaseClass {
 
   @override
   void onClose() {
+    nameController.dispose();
     emailController.dispose();
     passwordController.dispose();
     confirmPasswordController.dispose();

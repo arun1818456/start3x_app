@@ -104,6 +104,30 @@ class LoginScreen extends StatelessWidget {
                         ),
                         child: Column(
                           children: [
+                            // 👤 Full Name Field (Visible in Sign Up Mode)
+                            Obx(() {
+                              if (controller.isSignUp.value) {
+                                return Column(
+                                  children: [
+                                    MyTextFieldForm(
+                                      keyboardType: TextInputType.name,
+                                      controller: controller.nameController,
+                                      label: "Your Full Name",
+                                      hintText: "Enter your full name",
+                                      prefixIcon: const Icon(
+                                        Icons.person_outline_rounded,
+                                        color: AppColors.primaryBlue,
+                                        size: 22,
+                                      ),
+                                      formRadius: 12,
+                                    ),
+                                    const SizedBox(height: 10),
+                                  ],
+                                );
+                              }
+                              return const SizedBox.shrink();
+                            }),
+
                             // 📧 Email Field
                             MyTextFieldForm(
                               keyboardType: TextInputType.emailAddress,

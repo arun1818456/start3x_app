@@ -6,6 +6,7 @@ class ClientDetailController extends GetxController with BaseClass {
 
   // Form Controllers for Assign Lead
   final nameController = TextEditingController();
+  final phoneController = TextEditingController();
   final addressController = TextEditingController();
   final kwController = TextEditingController();
   final electricityBillController = TextEditingController();
@@ -24,9 +25,10 @@ class ClientDetailController extends GetxController with BaseClass {
         client = ClientModel(
           rank: accessClient.rank,
           name: accessClient.name,
-          location: '',
-          company: accessClient.name,
+          location: accessClient.location,
+          company: accessClient.company.isNotEmpty ? accessClient.company : accessClient.name,
           passkey: accessClient.id,
+          phone: accessClient.phone,
         );
       }
     } else {
@@ -51,7 +53,11 @@ class ClientDetailController extends GetxController with BaseClass {
   }
 
   Future<void> makePhoneCall([String? number]) async {
-    final phone = number ?? client.phone;
+    final phone = (number != null && number.isNotEmpty) ? number : client.phone;
+    if (phone.isEmpty) {
+      showMySnackBar('No phone number available for ${client.name}', alert: true);
+      return;
+    }
     final cleanPhone = phone.replaceAll(RegExp(r'[^\d+]'), '');
     final uri = Uri.parse('tel:$cleanPhone');
     try {
@@ -66,7 +72,11 @@ class ClientDetailController extends GetxController with BaseClass {
   }
 
   Future<void> openWhatsApp([String? number]) async {
-    final phone = number ?? client.phone;
+    final phone = (number != null && number.isNotEmpty) ? number : client.phone;
+    if (phone.isEmpty) {
+      showMySnackBar('No phone number available for ${client.name}', alert: true);
+      return;
+    }
     final cleanPhone = phone.replaceAll(RegExp(r'\D'), '');
     final uri = Uri.parse('https://wa.me/$cleanPhone');
     try {
@@ -81,7 +91,8 @@ class ClientDetailController extends GetxController with BaseClass {
   }
 
   Future<void> makeAltCall() async {
-    await makePhoneCall(client.altPhone);
+    final alt = client.altPhone.isNotEmpty ? client.altPhone : client.phone;
+    await makePhoneCall(alt);
   }
 
   Future<void> selectDateTime(BuildContext context) async {
@@ -134,7 +145,7 @@ class ClientDetailController extends GetxController with BaseClass {
     final String day = pickedDate.day.toString().padLeft(2, '0');
     final String year = pickedDate.year.toString();
 
-    selectedDateTime.value = '$month/$day/$year $hour:$minute $period';
+    selectedDateTime.value = '$day/$month/$year $hour:$minute $period';
   }
 
   Future<void> submitAssignLead() async {
@@ -144,6 +155,7 @@ class ClientDetailController extends GetxController with BaseClass {
       return;
     }
 
+    final phoneVal = phoneController.text.trim();
     final addressText = addressController.text.trim();
     final locationVal = addressText.isNotEmpty ? addressText : client.location;
 
@@ -155,6 +167,7 @@ class ClientDetailController extends GetxController with BaseClass {
         {
           "passkey": client.passkey,
           "name": leadName,
+          "phoneNumber": phoneVal,
           "company": client.company,
           "location": locationVal,
           "kw": kwController.text.trim(),
@@ -174,6 +187,7 @@ class ClientDetailController extends GetxController with BaseClass {
 
       // Clear form after submission
       nameController.clear();
+      phoneController.clear();
       addressController.clear();
       kwController.clear();
       electricityBillController.clear();
@@ -186,11 +200,23 @@ class ClientDetailController extends GetxController with BaseClass {
         success: true,
       );
       nameController.clear();
+      phoneController.clear();
       addressController.clear();
       kwController.clear();
       electricityBillController.clear();
       textController.clear();
       selectedDateTime.value = 'Select date & Time';
     }
+  }
+
+  @override
+  void onClose() {
+    nameController.dispose();
+    phoneController.dispose();
+    addressController.dispose();
+    kwController.dispose();
+    electricityBillController.dispose();
+    textController.dispose();
+    super.onClose();
   }
 }

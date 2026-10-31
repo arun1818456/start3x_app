@@ -5,6 +5,7 @@ class LeadResponseModel {
   final String? meetingScheduled;
   final String? callback;
   final String text;
+  final String? reminder;
   final String callDate;
 
   LeadResponseModel({
@@ -14,6 +15,7 @@ class LeadResponseModel {
     this.meetingScheduled,
     this.callback,
     required this.text,
+    this.reminder,
     required this.callDate,
   });
 
@@ -26,6 +28,7 @@ class LeadResponseModel {
           json['meetingScheduled']?.toString() ?? json['meeting']?.toString(),
       callback: json['callback']?.toString(),
       text: json['text']?.toString() ?? json['note']?.toString() ?? '',
+      reminder: json['reminder']?.toString(),
       callDate: json['callDate']?.toString() ?? json['date']?.toString() ?? '',
     );
   }
@@ -38,6 +41,7 @@ class LeadResponseModel {
       'meetingScheduled': meetingScheduled,
       'callback': callback,
       'text': text,
+      if (reminder != null) 'reminder': reminder,
       'callDate': callDate,
     };
   }

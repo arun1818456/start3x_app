@@ -320,7 +320,7 @@ class CallingController extends GetxController with BaseClass {
                           final String year = combined.year.toString();
 
                           selectedDateTime.value =
-                              '$hour:$minute $period, $month/$day/$year';
+                              '$day/$month/$year $hour:$minute $period';
                         },
                         child: Container(
                           width: double.infinity,

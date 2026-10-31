@@ -95,9 +95,14 @@ class ClientSetupController extends GetxController with BaseClass {
       hideCircularLoader();
 
       if (res != null && res["success"] == true && res["data"] != null) {
-        final updatedData = res["data"];
+        final Map<String, dynamic> updatedData = Map<String, dynamic>.from(res["data"]);
         if (userData.token != null) {
           updatedData['token'] = userData.token;
+        }
+        if ((updatedData['name'] == null || updatedData['name'].toString().isEmpty) &&
+            userData.name != null &&
+            userData.name!.isNotEmpty) {
+          updatedData['name'] = userData.name;
         }
         await storage.write(LocalKeys.userData, updatedData);
         showMySnackBar("Client setup completed successfully!", success: true);
