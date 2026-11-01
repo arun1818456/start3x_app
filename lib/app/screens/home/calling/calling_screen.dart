@@ -7,111 +7,280 @@ class CallingScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = Get.put(CallingController());
 
-    return Scaffold(
-      backgroundColor: Colors.grey.shade100,
-      body: Column(
-        children: [
-          // --- Top Header Bar ---
-          _buildTopHeader(context, controller),
+    return Obx(
+      () => PopScope(
+        canPop: !controller.isPastDueAlertActive.value,
+        child: Scaffold(
+          backgroundColor: Colors.grey.shade100,
+          body: Column(
+            children: [
+              // --- Top Start3X Past Due Alert Banner ---
+              if (controller.isPastDueAlertActive.value)
+                _buildStart3xAlertBanner(context, controller),
 
-          // --- Responses Section Header & List ---
-          Expanded(
-            child: Obx(
-              () {
-                if (controller.isLoadingResponses.value) {
-                  return const Center(
-                    child: CircularProgressIndicator(
-                      color: AppColors.primaryBlue,
-                    ),
-                  );
-                }
+              // --- Top Header Bar ---
+              _buildTopHeader(context, controller),
 
-                final responseList = controller.lead.responses;
+              // --- Responses Section Header & List ---
+              Expanded(
+                child: Obx(
+                  () {
+                    if (controller.isLoadingResponses.value) {
+                      return const Center(
+                        child: CircularProgressIndicator(
+                          color: AppColors.primaryBlue,
+                        ),
+                      );
+                    }
 
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Section Title Row
-                    Padding(
-                      padding: const EdgeInsets.only(
-                          left: 20, right: 20, top: 16, bottom: 8),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text(
-                            'Call Responses',
-                            style: TextStyle(
-                              color: AppColors.textDark,
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: AppColors.primaryBlue
-                                  .withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Text(
-                              '${responseList.length} Total',
-                              style: const TextStyle(
-                                color: AppColors.primaryBlue,
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
+                    final responseList = controller.lead.responses;
+
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Section Title Row
+                        Padding(
+                          padding: const EdgeInsets.only(
+                              left: 20, right: 20, top: 16, bottom: 8),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text(
+                                'Call Responses',
+                                style: TextStyle(
+                                  color: AppColors.textDark,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
-                            ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: AppColors.primaryBlue
+                                      .withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Text(
+                                  '${responseList.length} Total',
+                                  style: const TextStyle(
+                                    color: AppColors.primaryBlue,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
+                        ),
+
+                        // Responses List or Empty View
+                        Expanded(
+                          child: responseList.isEmpty
+                              ? const Center(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.phonelink_ring_rounded,
+                                        size: 48,
+                                        color: AppColors.textGrey,
+                                      ),
+                                      SizedBox(height: 12),
+                                      Text(
+                                        'No call responses recorded yet',
+                                        style: TextStyle(
+                                          color: AppColors.textGrey,
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              : ListView.separated(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 18.0, vertical: 12.0),
+                                  itemCount: responseList.length,
+                                  separatorBuilder: (context, index) =>
+                                      const SizedBox(height: 14),
+                                  itemBuilder: (context, index) {
+                                    return _buildResponseCard(
+                                      controller,
+                                      responseList[index],
+                                      index,
+                                    );
+                                  },
+                                ),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStart3xAlertBanner(
+      BuildContext context, CallingController controller) {
+    return SafeArea(
+      bottom: false,
+      child: Container(
+        width: double.infinity,
+        color: Colors.white,
+        padding: const EdgeInsets.only(top: 14),
+        child: Column(
+          children: [
+            // Logo Image / Text
+            Image.asset(
+              AppImages.logo,
+              height: 38,
+              fit: BoxFit.contain,
+              errorBuilder: (context, error, stackTrace) => const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'START3X',
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w900,
+                      color: AppColors.primaryBlue,
+                      letterSpacing: 1.2,
+                    ),
+                  ),
+                  Icon(Icons.north_east_rounded,
+                      color: AppColors.primaryBlue, size: 22),
+                ],
+              ),
+            ),
+            const SizedBox(height: 10),
+
+            // Message Body
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+              child: Column(
+                children: [
+                  Text(
+                    'You had a task scheduled for this lead: ${controller.pastDueDateStr.isNotEmpty ? controller.pastDueDateStr : controller.lead.scheduledDate}.',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      color: AppColors.textDark,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                  const SizedBox(height: 3),
+                  const Text(
+                    'Has it been completed?',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: AppColors.textDark,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 3),
+                  const Text(
+                    'Please select the correct option to keep the data up to date.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: AppColors.textDark,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 14),
+
+            const Divider(height: 1, color: Color(0xFFE0E0E0)),
+
+            // Row with 3 equal width buttons: YES | NO | Ask group
+            IntrinsicHeight(
+              child: Row(
+                children: [
+                  // YES Button
+                  Expanded(
+                    child: InkWell(
+                      onTap: () {
+                        controller.isPastDueAlertActive.value = false;
+                        Get.toNamed(
+                          AppRoutes.callResponseScreen,
+                          arguments: controller.lead,
+                        );
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        alignment: Alignment.center,
+                        child: const Text(
+                          'YES',
+                          style: TextStyle(
+                            color: AppColors.textDark,
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
                     ),
+                  ),
+                  const VerticalDivider(
+                      width: 1, thickness: 1, color: Color(0xFFE0E0E0)),
 
-                    // Responses List or Empty View
-                    Expanded(
-                      child: responseList.isEmpty
-                          ? const Center(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    Icons.phonelink_ring_rounded,
-                                    size: 48,
-                                    color: AppColors.textGrey,
-                                  ),
-                                  SizedBox(height: 12),
-                                  Text(
-                                    'No call responses recorded yet',
-                                    style: TextStyle(
-                                      color: AppColors.textGrey,
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            )
-                          : ListView.separated(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 18.0, vertical: 12.0),
-                              itemCount: responseList.length,
-                              separatorBuilder: (context, index) =>
-                                  const SizedBox(height: 14),
-                              itemBuilder: (context, index) {
-                                return _buildResponseCard(
-                                  controller,
-                                  responseList[index],
-                                  index,
-                                );
-                              },
-                            ),
+                  // NO Button
+                  Expanded(
+                    child: InkWell(
+                      onTap: () {
+                        controller.isPastDueAlertActive.value = false;
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        alignment: Alignment.center,
+                        child: const Text(
+                          'NO',
+                          style: TextStyle(
+                            color: AppColors.textDark,
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
                     ),
-                  ],
-                );
-              },
+                  ),
+                  const VerticalDivider(
+                      width: 1, thickness: 1, color: Color(0xFFE0E0E0)),
+
+                  // Ask group Button
+                  Expanded(
+                    child: InkWell(
+                      onTap: () {
+                        controller.isPastDueAlertActive.value = false;
+                        Get.toNamed(AppRoutes.groupScreen);
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        alignment: Alignment.center,
+                        child: const Text(
+                          'Ask group',
+                          style: TextStyle(
+                            color: Color(0xFF007AFF),
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+            const Divider(height: 1, color: Color(0xFFE0E0E0)),
+          ],
+        ),
       ),
     );
   }
@@ -129,24 +298,32 @@ class CallingScreen extends StatelessWidget {
           // Top Navigation Row
           Row(
             children: [
-              GestureDetector(
-                onTap: () => Get.back(),
-                behavior: HitTestBehavior.opaque,
-                child: Container(
-                  width: 38,
-                  height: 38,
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.15),
-                    shape: BoxShape.circle,
+              // Back Button (Hidden if alert active to prevent back navigation)
+              Obx(() {
+                if (controller.isPastDueAlertActive.value) {
+                  return const SizedBox(width: 38);
+                }
+                return GestureDetector(
+                  onTap: () => Get.back(),
+                  behavior: HitTestBehavior.opaque,
+                  child: Container(
+                    width: 38,
+                    height: 38,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.15),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.arrow_back_ios_new_rounded,
+                      color: AppColors.whiteColor,
+                      size: 18,
+                    ),
                   ),
-                  child: const Icon(
-                    Icons.arrow_back_ios_new_rounded,
-                    color: AppColors.whiteColor,
-                    size: 18,
-                  ),
-                ),
-              ),
+                );
+              }),
               const SizedBox(width: 12),
+
+              // Title Name & Location
               Expanded(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -194,6 +371,8 @@ class CallingScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
+
+              // Dropdown Details Toggle Button (ALWAYS VISIBLE!)
               Obx(
                 () => GestureDetector(
                   onTap: () => controller.showDetails.toggle(),
@@ -217,89 +396,101 @@ class CallingScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(width: 6),
-              PopupMenuButton<String>(
-                icon: Container(
-                  width: 38,
-                  height: 38,
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.15),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.more_vert_rounded,
-                    color: AppColors.whiteColor,
-                    size: 20,
-                  ),
-                ),
-                color: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                onSelected: (value) {
-                  if (value == 'Details') {
-                    controller.showDetails.toggle();
-                  } else {
-                    controller.showMySnackBar('Option: $value', alert: true);
-                  }
-                },
-                itemBuilder: (context) => [
-                  PopupMenuItem<String>(
-                    value: 'Details',
-                    child: Row(
-                      children: [
-                        Icon(
-                          controller.showDetails.value
-                              ? Icons.visibility_off_rounded
-                              : Icons.info_outline_rounded,
-                          color: AppColors.primaryBlue,
+
+              // Three Dots Popup Menu (Hidden if alert active)
+              Obx(() {
+                if (controller.isPastDueAlertActive.value) {
+                  return const SizedBox.shrink();
+                }
+                return Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const SizedBox(width: 6),
+                    PopupMenuButton<String>(
+                      icon: Container(
+                        width: 38,
+                        height: 38,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.15),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.more_vert_rounded,
+                          color: AppColors.whiteColor,
                           size: 20,
                         ),
-                        const SizedBox(width: 10),
-                        Text(
-                          controller.showDetails.value
-                              ? 'Hide Details'
-                              : 'Details',
-                          style: const TextStyle(fontSize: 14),
+                      ),
+                      color: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      onSelected: (value) {
+                        if (value == 'Details') {
+                          controller.showDetails.toggle();
+                        } else {
+                          controller.showMySnackBar('Option: $value', alert: true);
+                        }
+                      },
+                      itemBuilder: (context) => [
+                        PopupMenuItem<String>(
+                          value: 'Details',
+                          child: Row(
+                            children: [
+                              Icon(
+                                controller.showDetails.value
+                                    ? Icons.visibility_off_rounded
+                                    : Icons.info_outline_rounded,
+                                color: AppColors.primaryBlue,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 10),
+                              Text(
+                                controller.showDetails.value
+                                    ? 'Hide Details'
+                                    : 'Details',
+                                style: const TextStyle(fontSize: 14),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const PopupMenuItem(
+                          value: 'Edit Lead',
+                          child: Row(
+                            children: [
+                              Icon(Icons.edit_rounded,
+                                  color: AppColors.textDark, size: 20),
+                              SizedBox(width: 10),
+                              Text('Edit Lead', style: TextStyle(fontSize: 14)),
+                            ],
+                          ),
+                        ),
+                        const PopupMenuItem(
+                          value: 'Block Lead',
+                          child: Row(
+                            children: [
+                              Icon(Icons.block_rounded, color: Colors.red, size: 20),
+                              SizedBox(width: 10),
+                              Text('Block Lead',
+                                  style: TextStyle(fontSize: 14, color: Colors.red)),
+                            ],
+                          ),
+                        ),
+                        const PopupMenuItem(
+                          value: 'Share Lead',
+                          child: Row(
+                            children: [
+                              Icon(Icons.share_rounded,
+                                  color: AppColors.primaryBlue, size: 20),
+                              SizedBox(width: 10),
+                              Text('Share Lead', style: TextStyle(fontSize: 14)),
+                            ],
+                          ),
                         ),
                       ],
                     ),
-                  ),
-                  const PopupMenuItem(
-                    value: 'Edit Lead',
-                    child: Row(
-                      children: [
-                        Icon(Icons.edit_rounded,
-                            color: AppColors.textDark, size: 20),
-                        SizedBox(width: 10),
-                        Text('Edit Lead', style: TextStyle(fontSize: 14)),
-                      ],
-                    ),
-                  ),
-                  const PopupMenuItem(
-                    value: 'Block Lead',
-                    child: Row(
-                      children: [
-                        Icon(Icons.block_rounded, color: Colors.red, size: 20),
-                        SizedBox(width: 10),
-                        Text('Block Lead',
-                            style: TextStyle(fontSize: 14, color: Colors.red)),
-                      ],
-                    ),
-                  ),
-                  const PopupMenuItem(
-                    value: 'Share Lead',
-                    child: Row(
-                      children: [
-                        Icon(Icons.share_rounded,
-                            color: AppColors.primaryBlue, size: 20),
-                        SizedBox(width: 10),
-                        Text('Share Lead', style: TextStyle(fontSize: 14)),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+                  ],
+                );
+              }),
             ],
           ),
 
@@ -389,16 +580,6 @@ class CallingScreen extends StatelessWidget {
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            if (controller.lead.company.isNotEmpty) ...[
-                              const SizedBox(height: 2),
-                              Text(
-                                controller.lead.company,
-                                style: const TextStyle(
-                                  color: Colors.white70,
-                                  fontSize: 13,
-                                ),
-                              ),
-                            ],
                             if (controller.lead.location.isNotEmpty) ...[
                               const SizedBox(height: 2),
                               Row(
@@ -475,19 +656,6 @@ class CallingScreen extends StatelessWidget {
                               ],
                             ),
                         ],
-                      ),
-                    ),
-                  ],
-
-                  if (controller.lead.textNote.isNotEmpty) ...[
-                    const SizedBox(height: 10),
-                    Text(
-                      'Note: "${controller.lead.textNote}"',
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        color: Colors.white60,
-                        fontSize: 12,
-                        fontStyle: FontStyle.italic,
                       ),
                     ),
                   ],
@@ -615,12 +783,12 @@ class CallingScreen extends StatelessWidget {
           const SizedBox(height: 14),
 
           // Meeting or Callback Details
-          if (resp.meetingScheduled != null &&
-              resp.meetingScheduled!.isNotEmpty) ...[
+          if (resp.scheduledDate != null &&
+              resp.scheduledDate!.isNotEmpty) ...[
             _buildDetailTile(
               icon: Icons.event_available_rounded,
               label: 'Meeting Scheduled: ',
-              value: resp.meetingScheduled!,
+              value: resp.scheduledDate!,
             ),
             const SizedBox(height: 8),
           ],
@@ -685,7 +853,7 @@ class CallingScreen extends StatelessWidget {
                       ),
                     ),
                     TextSpan(
-                      text: resp.callDate,
+                      text: resp.createdAt,
                       style: const TextStyle(
                         color: Color(0xFFFFCC00),
                         fontSize: 12,

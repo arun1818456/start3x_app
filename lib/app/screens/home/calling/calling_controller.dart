@@ -5,6 +5,8 @@ class CallingController extends GetxController with BaseClass {
   late LeadModel lead;
   var isLoadingResponses = false.obs;
   var showDetails = false.obs;
+  var isPastDueAlertActive = false.obs;
+  String pastDueDateStr = '';
 
   final List<String> outcomes = [
     'Got a callback',
@@ -16,8 +18,18 @@ class CallingController extends GetxController with BaseClass {
   @override
   void onInit() {
     super.onInit();
-    if (Get.arguments != null && Get.arguments is LeadModel) {
-      lead = Get.arguments as LeadModel;
+    if (Get.arguments != null) {
+      if (Get.arguments is Map) {
+        final args = Get.arguments as Map;
+        lead = args['lead'] as LeadModel? ??
+            LeadModel(rank: '', name: '', location: '', status: '', scheduledDate: '');
+        if (args['isPastDue'] == true) {
+          isPastDueAlertActive.value = true;
+          pastDueDateStr = args['pastDueDate']?.toString() ?? lead.scheduledDate;
+        }
+      } else if (Get.arguments is LeadModel) {
+        lead = Get.arguments as LeadModel;
+      }
       fetchResponsesFromApi();
     } else {
       lead = LeadModel(
@@ -25,7 +37,7 @@ class CallingController extends GetxController with BaseClass {
         name: '',
         location: '',
         status: '',
-        date: '',
+        scheduledDate: '',
       );
     }
   }
@@ -136,7 +148,7 @@ class CallingController extends GetxController with BaseClass {
   void showEditResponseBottomSheet(int index, LeadResponseModel resp) {
     final textController = TextEditingController(text: resp.text);
     final selectedOutcome = (resp.outcome).obs;
-    final selectedDateTime = (resp.meetingScheduled ?? resp.callback ?? '').obs;
+    final selectedDateTime = (resp.scheduledDate ?? resp.callback ?? '').obs;
 
     Get.bottomSheet(
       Container(
@@ -416,12 +428,12 @@ class CallingController extends GetxController with BaseClass {
                           id: resp.id,
                           responseNumber: resp.responseNumber,
                           outcome: selectedOutcome.value,
-                          meetingScheduled:
+                          scheduledDate:
                               selectedOutcome.value == 'Got a meeting' ? dt : null,
                           callback:
                               selectedOutcome.value == 'Got a callback' ? dt : null,
                           text: updatedText.isEmpty ? 'No response text' : updatedText,
-                          callDate: resp.callDate,
+                          createdAt: resp.createdAt,
                         );
 
                         if (index < lead.responses.length) {

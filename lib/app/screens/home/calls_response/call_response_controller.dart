@@ -22,7 +22,7 @@ class CallResponseController extends GetxController with BaseClass {
         name: '',
         location: '',
         status: '',
-        date: '',
+        scheduledDate: '',
       );
     }
   }

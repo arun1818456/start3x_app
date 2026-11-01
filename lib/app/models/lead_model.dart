@@ -5,15 +5,13 @@ class LeadModel {
   final String passkey;
   final String rank;
   final String name;
-  final String company;
   final String location;
   final String status;
-  final String date;
+  final String scheduledDate;
   final String phoneNumber;
   final String altPhoneNumber;
   final String kw;
   final String electricityBill;
-  final String textNote;
   final RxList<LeadResponseModel> responses;
 
   LeadModel({
@@ -21,15 +19,13 @@ class LeadModel {
     this.passkey = '',
     required this.rank,
     required this.name,
-    this.company = '',
     required this.location,
     required this.status,
-    required this.date,
+    required this.scheduledDate,
     this.phoneNumber = '',
     this.altPhoneNumber = '',
     this.kw = '',
     this.electricityBill = '',
-    this.textNote = '',
     List<LeadResponseModel>? initialResponses,
   }) : responses = RxList<LeadResponseModel>(initialResponses ?? []);
 
@@ -53,14 +49,14 @@ class LeadModel {
               responseNumber: 'Response #1',
               outcome: response.toString(),
               text: '',
-              callDate: '',
+              createdAt: '',
             ),
           );
         }
       }
     }
 
-    final rawDate = (json['date'] ?? json['createdAt'] ?? '').toString();
+    final rawDate = (json['scheduledDate'] ?? json['createdAt'] ?? '').toString();
     String formattedDate = rawDate;
 
     if (rawDate.isNotEmpty) {
@@ -69,7 +65,12 @@ class LeadModel {
         final dt = parsedDate.toLocal();
         String day = dt.day.toString().padLeft(2, '0');
         String month = dt.month.toString().padLeft(2, '0');
-        formattedDate = '$day/$month/${dt.year}';
+        String hour = (dt.hour % 12 == 0 ? 12 : dt.hour % 12)
+            .toString()
+            .padLeft(2, '0');
+        String minute = dt.minute.toString().padLeft(2, '0');
+        String period = dt.hour >= 12 ? 'PM' : 'AM';
+        formattedDate = '$day/$month/${dt.year} $hour:$minute $period';
       }
     }
 
@@ -78,17 +79,15 @@ class LeadModel {
       passkey: (json['passkey'] ?? '').toString(),
       rank: (json['rank'] ?? '#1').toString(),
       name: (json['name'] ?? 'Lead').toString(),
-      company: (json['company'] ?? '').toString(),
       location: (json['location'] ?? '').toString(),
       status: (json['status'] ?? 'To-Do:').toString(),
-      date: formattedDate.isNotEmpty ? formattedDate : '05/03/2025',
+      scheduledDate: formattedDate.isNotEmpty ? formattedDate : '23/11/2026 09:00 AM',
       phoneNumber:
           (json['phoneNumber'] ?? json['phone'] ?? '').toString(),
       altPhoneNumber:
           (json['altPhoneNumber'] ?? json['altPhone'] ?? '').toString(),
       kw: (json['kw'] ?? '').toString(),
       electricityBill: (json['electricityBill'] ?? '').toString(),
-      textNote: (json['textNote'] ?? '').toString(),
       initialResponses: parsedResponses,
     );
   }
@@ -99,15 +98,13 @@ class LeadModel {
       'passkey': passkey,
       'rank': rank,
       'name': name,
-      'company': company,
       'location': location,
       'status': status,
-      'date': date,
+      'scheduledDate': scheduledDate,
       'phoneNumber': phoneNumber,
       'altPhoneNumber': altPhoneNumber,
       'kw': kw,
       'electricityBill': electricityBill,
-      'textNote': textNote,
       'responses': responses.map((r) => r.toJson()).toList(),
     };
   }

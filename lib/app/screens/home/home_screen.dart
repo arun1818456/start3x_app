@@ -231,14 +231,14 @@ class HomeScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  lead.date.split(' ').first,
+                  lead.scheduledDate.split(' ').first,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: AppTextStyles.cardTagLight,
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  lead.date.split(' ').skip(1).join(' '),
+                  lead.scheduledDate.split(' ').skip(1).join(' '),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: AppTextStyles.cardTagLight,

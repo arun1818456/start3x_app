@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:start3x_app/app/models/lead_model.dart';
 
 class AccessClientModel {
   final String id;

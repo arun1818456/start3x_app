@@ -62,6 +62,11 @@ class HomeController extends GetxController with BaseClass {
         if (dataList.isNotEmpty) {
           leads.value =
               dataList.map((item) => LeadModel.fromJson(item)).toList();
+
+          // Auto-check for past due leads on init
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            _checkPastDueLeads();
+          });
         } else {
           leads.clear();
         }
@@ -72,6 +77,73 @@ class HomeController extends GetxController with BaseClass {
       // Keep existing leads on network glitch
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  DateTime? parseLeadDateTime(String text) {
+    if (text.isEmpty) return null;
+
+    final regex = RegExp(
+        r'(\d{1,2})[/\-](\d{1,2})[/\-](\d{4})(?:\s+(\d{1,2}):(\d{2})\s*(AM|PM|am|pm)?)?');
+    final match = regex.firstMatch(text);
+    if (match != null) {
+      int day = int.parse(match.group(1)!);
+      int month = int.parse(match.group(2)!);
+      int year = int.parse(match.group(3)!);
+
+      int hour = 0;
+      int minute = 0;
+      if (match.group(4) != null && match.group(5) != null) {
+        hour = int.parse(match.group(4)!);
+        minute = int.parse(match.group(5)!);
+        final period = match.group(6)?.toUpperCase();
+        if (period == 'PM' && hour < 12) hour += 12;
+        if (period == 'AM' && hour == 12) hour = 0;
+      }
+
+      if (month >= 1 && month <= 12 && day >= 1 && day <= 31) {
+        return DateTime(year, month, day, hour, minute);
+      }
+    }
+
+    try {
+      return DateTime.parse(text).toLocal();
+    } catch (_) {}
+
+    return null;
+  }
+
+  void _checkPastDueLeads() {
+    final now = DateTime.now();
+    for (var lead in leads) {
+      if (lead.status.toLowerCase().contains('done') ||
+          lead.status.toLowerCase().contains('converted')) {
+        continue;
+      }
+
+      String dateStr = lead.scheduledDate;
+      if (lead.responses.isNotEmpty) {
+        final resp = lead.responses.first;
+        if (resp.scheduledDate != null &&
+            resp.scheduledDate!.isNotEmpty) {
+          dateStr = resp.scheduledDate!;
+        } else if (resp.callback != null && resp.callback!.isNotEmpty) {
+          dateStr = resp.callback!;
+        }
+      }
+
+      final dt = parseLeadDateTime(dateStr);
+      if (dt != null && dt.isBefore(now)) {
+        Get.toNamed(
+          AppRoutes.callingScreen,
+          arguments: {
+            'lead': lead,
+            'isPastDue': true,
+            'pastDueDate': dateStr,
+          },
+        );
+        break; // Open first past due lead
+      }
     }
   }
 
@@ -87,15 +159,14 @@ class HomeController extends GetxController with BaseClass {
       result = result
           .where((lead) =>
               lead.name.toLowerCase().contains(q) ||
-              lead.location.toLowerCase().contains(q) ||
-              lead.company.toLowerCase().contains(q))
+              lead.location.toLowerCase().contains(q))
           .toList();
     }
 
     if (selectedSortOption.value == 'Upload Date') {
       result.sort((a, b) => selectedSortDirection.value == 'Newest to Oldest'
-          ? b.date.compareTo(a.date)
-          : a.date.compareTo(b.date));
+          ? b.scheduledDate.compareTo(a.scheduledDate)
+          : a.scheduledDate.compareTo(b.scheduledDate));
     } else if (selectedSortOption.value == 'Interaction Date') {
       result.sort((a, b) => selectedSortDirection.value == 'Newest to Oldest'
           ? a.rank.compareTo(b.rank)

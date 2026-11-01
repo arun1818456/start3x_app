@@ -105,15 +105,15 @@ class TaskController extends GetxController with BaseClass {
     final tomorrowDate = todayDate.add(const Duration(days: 1));
 
     for (var lead in leads) {
-      String dateStr = lead.date;
+      String dateStr = lead.scheduledDate;
       String statusStr = lead.status;
       String timeStr = '11:30 AM';
       String reminderStr = 'At task due time';
 
       LeadResponseModel? targetResp;
       for (var resp in lead.responses) {
-        if ((resp.meetingScheduled != null &&
-                resp.meetingScheduled!.isNotEmpty) ||
+        if ((resp.scheduledDate != null &&
+                resp.scheduledDate!.isNotEmpty) ||
             (resp.callback != null && resp.callback!.isNotEmpty) ||
             resp.outcome.toLowerCase().contains('meeting') ||
             resp.outcome.toLowerCase().contains('callback')) {
@@ -127,9 +127,9 @@ class TaskController extends GetxController with BaseClass {
       }
 
       if (targetResp != null) {
-        if (targetResp.meetingScheduled != null &&
-            targetResp.meetingScheduled!.isNotEmpty) {
-          dateStr = targetResp.meetingScheduled!;
+        if (targetResp.scheduledDate != null &&
+            targetResp.scheduledDate!.isNotEmpty) {
+          dateStr = targetResp.scheduledDate!;
           statusStr = 'Meeting Scheduled:';
         } else if (targetResp.callback != null &&
             targetResp.callback!.isNotEmpty) {

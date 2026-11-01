@@ -276,6 +276,7 @@ class ClientDetailScreen extends StatelessWidget {
             _buildFieldLabel('Address / Location'),
             const SizedBox(height: 6),
             _buildDarkTextField(
+              keyboardType: TextInputType.text,
               controller: controller.addressController,
               hintText: 'Enter address / location',
               icon: Icons.location_on_outlined,

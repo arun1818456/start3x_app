@@ -22,13 +22,13 @@ class ToDoItemModel {
   }) : _lead = lead;
 
   LeadModel get lead {
-    if (_lead != null) return _lead!;
+    if (_lead != null) return _lead;
     return LeadModel(
       rank: rank,
       name: name,
       location: location,
       status: status,
-      date: date,
+      scheduledDate: date,
     );
   }
 }

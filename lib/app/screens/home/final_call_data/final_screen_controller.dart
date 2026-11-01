@@ -27,7 +27,7 @@ class FinalScreenController extends GetxController with BaseClass {
             name: '',
             location: '',
             status: '',
-            date: '',
+            scheduledDate: '',
           );
       selectedOutcome = args['outcome']?.toString() ?? 'Got a meeting';
       selectedDateTime.value = args['dateTime']?.toString();
@@ -37,7 +37,7 @@ class FinalScreenController extends GetxController with BaseClass {
         name: '',
         location: '',
         status: '',
-        date: '',
+        scheduledDate: '',
       );
     }
 
@@ -107,14 +107,15 @@ class FinalScreenController extends GetxController with BaseClass {
 
     final String hour =
         (pickedTime.hourOfPeriod == 0 ? 12 : pickedTime.hourOfPeriod)
-            .toString();
+            .toString()
+            .padLeft(2, '0');
     final String minute = pickedTime.minute.toString().padLeft(2, '0');
     final String period = pickedTime.period == DayPeriod.am ? 'AM' : 'PM';
-    final String month = combined.month.toString().padLeft(2, '0');
     final String day = combined.day.toString().padLeft(2, '0');
+    final String month = combined.month.toString().padLeft(2, '0');
     final String year = combined.year.toString();
 
-    selectedDateTime.value = '$hour:$minute $period, $month/$day/$year';
+    selectedDateTime.value = '$day/$month/$year $hour:$minute $period';
   }
 
   void showReminderBottomSheet(BuildContext context) {
@@ -130,7 +131,7 @@ class FinalScreenController extends GetxController with BaseClass {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Sheet Header Title matching screenshot
+              // Sheet Header Title
               const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
                 child: Text(
@@ -227,25 +228,28 @@ class FinalScreenController extends GetxController with BaseClass {
 
     final String hour =
         (pickedTime.hourOfPeriod == 0 ? 12 : pickedTime.hourOfPeriod)
-            .toString();
+            .toString()
+            .padLeft(2, '0');
     final String minute = pickedTime.minute.toString().padLeft(2, '0');
     final String period = pickedTime.period == DayPeriod.am ? 'AM' : 'PM';
-    final String month = pickedDate.month.toString().padLeft(2, '0');
     final String day = pickedDate.day.toString().padLeft(2, '0');
+    final String month = pickedDate.month.toString().padLeft(2, '0');
 
-    return '$month/$day $hour:$minute $period';
+    return '$day/$month/${pickedDate.year} $hour:$minute $period';
   }
 
   String _getFormattedCurrentDateTime() {
     final now = DateTime.now();
-    final int hour12 = now.hour % 12 == 0 ? 12 : now.hour % 12;
+    final String day = now.day.toString().padLeft(2, '0');
+    final String month = now.month.toString().padLeft(2, '0');
+    final String year = now.year.toString();
+    final String hour = (now.hour % 12 == 0 ? 12 : now.hour % 12)
+        .toString()
+        .padLeft(2, '0');
     final String minute = now.minute.toString().padLeft(2, '0');
     final String period = now.hour >= 12 ? 'PM' : 'AM';
-    final String month = now.month.toString().padLeft(2, '0');
-    final String day = now.day.toString().padLeft(2, '0');
-    final String year = now.year.toString();
 
-    return '$hour12:$minute $period, $month/$day/$year';
+    return '$day/$month/$year $hour:$minute $period';
   }
 
   Future<void> saveResponse() async {
@@ -292,11 +296,11 @@ class FinalScreenController extends GetxController with BaseClass {
         final newResponse = LeadResponseModel(
           responseNumber: 'Response #${lead.responses.length + 1}',
           outcome: selectedOutcome,
-          meetingScheduled: selectedOutcome == 'Got a meeting' ? dt : null,
+          scheduledDate: selectedOutcome == 'Got a meeting' ? dt : null,
           callback: selectedOutcome == 'Got a callback' ? dt : null,
           text: noteText.isEmpty ? 'Follow-up response' : noteText,
           reminder: selectedReminder.value,
-          callDate: formattedCallDate,
+          createdAt: formattedCallDate,
         );
         lead.responses.insert(0, newResponse);
       }

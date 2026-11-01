@@ -138,11 +138,12 @@ class ClientDetailController extends GetxController with BaseClass {
 
     final String hour =
         (pickedTime.hourOfPeriod == 0 ? 12 : pickedTime.hourOfPeriod)
-            .toString();
+            .toString()
+            .padLeft(2, '0');
     final String minute = pickedTime.minute.toString().padLeft(2, '0');
     final String period = pickedTime.period == DayPeriod.am ? 'AM' : 'PM';
-    final String month = pickedDate.month.toString().padLeft(2, '0');
     final String day = pickedDate.day.toString().padLeft(2, '0');
+    final String month = pickedDate.month.toString().padLeft(2, '0');
     final String year = pickedDate.year.toString();
 
     selectedDateTime.value = '$day/$month/$year $hour:$minute $period';
@@ -161,51 +162,42 @@ class ClientDetailController extends GetxController with BaseClass {
 
     try {
       showCircularLoader();
-      await httpRequest(
+      var res = await httpRequest(
         REQUEST.post,
         createLeadApiEndPoint,
         {
           "passkey": client.passkey,
           "name": leadName,
           "phoneNumber": phoneVal,
-          "company": client.company,
           "location": locationVal,
           "kw": kwController.text.trim(),
           "electricityBill": electricityBillController.text.trim(),
           "textNote": textController.text.trim(),
-          "date": selectedDateTime.value != 'Select date & Time'
+          "scheduledDate": selectedDateTime.value != 'Select date & Time'
               ? selectedDateTime.value
               : '',
         },
       );
       hideCircularLoader();
-
       showMySnackBar(
-        'Lead assigned to ${client.name} successfully!',
+        res["message"] ?? 'Lead assigned successfully!',
         success: true,
       );
 
       // Clear form after submission
-      nameController.clear();
-      phoneController.clear();
-      addressController.clear();
-      kwController.clear();
-      electricityBillController.clear();
-      textController.clear();
-      selectedDateTime.value = 'Select date & Time';
+      // nameController.clear();
+      // phoneController.clear();
+      // addressController.clear();
+      // kwController.clear();
+      // electricityBillController.clear();
+      // textController.clear();
+      // selectedDateTime.value = 'Select date & Time';
     } catch (e) {
       hideCircularLoader();
       showMySnackBar(
-        'Lead assigned to ${client.name} successfully!',
-        success: true,
+        e.toString(),
+        error: true,
       );
-      nameController.clear();
-      phoneController.clear();
-      addressController.clear();
-      kwController.clear();
-      electricityBillController.clear();
-      textController.clear();
-      selectedDateTime.value = 'Select date & Time';
     }
   }
 
