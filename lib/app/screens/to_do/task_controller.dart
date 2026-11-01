@@ -110,40 +110,6 @@ class TaskController extends GetxController with BaseClass {
       String timeStr = '11:30 AM';
       String reminderStr = 'At task due time';
 
-      LeadResponseModel? targetResp;
-      for (var resp in lead.responses) {
-        if ((resp.scheduledDate != null &&
-                resp.scheduledDate!.isNotEmpty) ||
-            (resp.callback != null && resp.callback!.isNotEmpty) ||
-            resp.outcome.toLowerCase().contains('meeting') ||
-            resp.outcome.toLowerCase().contains('callback')) {
-          targetResp = resp;
-          break;
-        }
-      }
-
-      if (targetResp == null && lead.responses.isNotEmpty) {
-        targetResp = lead.responses.first;
-      }
-
-      if (targetResp != null) {
-        if (targetResp.scheduledDate != null &&
-            targetResp.scheduledDate!.isNotEmpty) {
-          dateStr = targetResp.scheduledDate!;
-          statusStr = 'Meeting Scheduled:';
-        } else if (targetResp.callback != null &&
-            targetResp.callback!.isNotEmpty) {
-          dateStr = targetResp.callback!;
-          statusStr = 'Callback Scheduled:';
-        } else if (targetResp.outcome.isNotEmpty) {
-          statusStr = targetResp.outcome;
-        }
-
-        if (targetResp.reminder != null && targetResp.reminder!.isNotEmpty) {
-          reminderStr = targetResp.reminder!;
-        }
-      }
-
       final timeMatch =
           RegExp(r'\d{1,2}:\d{2}\s*(?:AM|PM|am|pm)').firstMatch(dateStr);
       if (timeMatch != null) {

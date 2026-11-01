@@ -20,7 +20,7 @@ class InsightsController extends GetxController {
   void calculateInsights() {
     if (Get.isRegistered<HomeController>()) {
       final homeCtrl = Get.find<HomeController>();
-      final leads = homeCtrl.leads;
+      final List<LeadModel> leadList = homeCtrl.leads;
 
       int cbMissed = 0;
       int cbDone = 0;
@@ -28,24 +28,22 @@ class InsightsController extends GetxController {
       int mtgDone = 0;
       int conversions = 0;
 
-      for (var lead in leads) {
-        final status = lead.status.toLowerCase();
-        for (var resp in lead.responses) {
-          final outcome = resp.outcome.toLowerCase();
-          if (outcome.contains('callback')) {
+      for (final LeadModel item in leadList) {
+        final String status = item.status.toLowerCase();
+        if (status.contains('callback')) {
+          if (status.contains('missed')) {
+            cbMissed++;
+          } else {
             cbDone++;
           }
-          if (outcome.contains('meeting')) {
+        } else if (status.contains('meeting')) {
+          if (status.contains('missed')) {
+            mtgMissed++;
+          } else {
             mtgDone++;
           }
-          if (outcome.contains('conversion') || outcome.contains('converted')) {
-            conversions++;
-          }
-        }
-
-        if (status.contains('missed')) {
-          if (status.contains('callback')) cbMissed++;
-          if (status.contains('meeting')) mtgMissed++;
+        } else if (status.contains('conversion') || status.contains('converted')) {
+          conversions++;
         }
       }
 

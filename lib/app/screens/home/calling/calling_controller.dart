@@ -3,6 +3,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 class CallingController extends GetxController with BaseClass {
   late LeadModel lead;
+  final responses = <LeadResponseModel>[].obs;
   var isLoadingResponses = false.obs;
   var showDetails = false.obs;
   var isPastDueAlertActive = false.obs;
@@ -70,11 +71,11 @@ class CallingController extends GetxController with BaseClass {
           final fetched = dataList
               .map((item) => LeadResponseModel.fromJson(item))
               .toList();
-          lead.responses.value = fetched;
+          responses.value = fetched;
         }
       }
     } catch (e) {
-      // Keep existing lead.responses on error
+      // Keep existing responses on error
     } finally {
       isLoadingResponses.value = false;
     }
@@ -404,8 +405,8 @@ class CallingController extends GetxController with BaseClass {
                   IconButton(
                     onPressed: () {
                       final targetId = resp.id;
-                      if (index < lead.responses.length) {
-                        lead.responses.removeAt(index);
+                      if (index < responses.length) {
+                        responses.removeAt(index);
                       }
                       deleteResponseFromBackend(targetId, index);
                       Get.back();
@@ -436,8 +437,8 @@ class CallingController extends GetxController with BaseClass {
                           createdAt: resp.createdAt,
                         );
 
-                        if (index < lead.responses.length) {
-                          lead.responses[index] = updatedResponse;
+                        if (index < responses.length) {
+                          responses[index] = updatedResponse;
                         }
                         updateResponseInBackend(resp.id, updatedResponse);
                         Get.back();
@@ -469,5 +470,139 @@ class CallingController extends GetxController with BaseClass {
       ),
       isScrollControlled: true,
     );
+  }
+
+  String _getFormattedCurrentDateTime() {
+    final now = DateTime.now();
+    final String day = now.day.toString().padLeft(2, '0');
+    final String month = now.month.toString().padLeft(2, '0');
+    final String year = now.year.toString();
+    final String hour = (now.hour % 12 == 0 ? 12 : now.hour % 12)
+        .toString()
+        .padLeft(2, '0');
+    final String minute = now.minute.toString().padLeft(2, '0');
+    final String period = now.hour >= 12 ? 'PM' : 'AM';
+
+    return '$day/$month/$year $hour:$minute $period';
+  }
+
+  Future<void> onYesTap() async {
+    String passkeyVal = lead.passkey;
+    if (passkeyVal.isEmpty) {
+      final userData = getUserData();
+      passkeyVal = userData.passkey ??
+          storage.read(LocalKeys.userData)?['passkey'] ??
+          '';
+    }
+
+    final formattedCallDate = _getFormattedCurrentDateTime();
+
+    final String outcomeVal =
+        responses.isNotEmpty && responses.first.outcome.isNotEmpty
+            ? responses.first.outcome
+            : 'Task Completed';
+
+    try {
+      showCircularLoader();
+
+      var responseRes = await httpRequest(
+        REQUEST.post,
+        createResponseApiEndPoint,
+        {
+          "passkey": passkeyVal,
+          "leadId": lead.id,
+          "phoneNumber": lead.phoneNumber,
+          "outcome": outcomeVal,
+          "text": 'This task has been completed.',
+          "callDate": formattedCallDate,
+          "isDone": true,
+          "isMissed": false,
+        },
+      );
+
+      hideCircularLoader();
+
+      if (responseRes != null &&
+          responseRes["success"] == true &&
+          responseRes["data"] != null) {
+        final createdResponse =
+            LeadResponseModel.fromJson(responseRes["data"]);
+        responses.insert(0, createdResponse);
+        isPastDueAlertActive.value = false;
+      } else {
+        final newResponse = LeadResponseModel(
+          responseNumber: 'Response #${responses.length + 1}',
+          outcome: outcomeVal,
+          text: 'This task has been completed.',
+          createdAt: formattedCallDate,
+          isDone: true,
+          isMissed: false,
+        );
+        responses.insert(0, newResponse);
+        isPastDueAlertActive.value = false;
+      }
+    } catch (e) {
+      hideCircularLoader();
+    }
+  }
+
+  Future<void> onNoTap() async {
+    String passkeyVal = lead.passkey;
+    if (passkeyVal.isEmpty) {
+      final userData = getUserData();
+      passkeyVal = userData.passkey ??
+          storage.read(LocalKeys.userData)?['passkey'] ??
+          '';
+    }
+
+    final formattedCallDate = _getFormattedCurrentDateTime();
+
+    final String outcomeVal =
+        responses.isNotEmpty && responses.first.outcome.isNotEmpty
+            ? responses.first.outcome
+            : 'Task Missed';
+
+    try {
+      showCircularLoader();
+
+      var responseRes = await httpRequest(
+        REQUEST.post,
+        createResponseApiEndPoint,
+        {
+          "passkey": passkeyVal,
+          "leadId": lead.id,
+          "phoneNumber": lead.phoneNumber,
+          "outcome": outcomeVal,
+          "text": 'This task has been Missed.',
+          "callDate": formattedCallDate,
+          "isMissed": true,
+          "isDone": false,
+        },
+      );
+
+      hideCircularLoader();
+
+      if (responseRes != null &&
+          responseRes["success"] == true &&
+          responseRes["data"] != null) {
+        final createdResponse =
+            LeadResponseModel.fromJson(responseRes["data"]);
+        responses.insert(0, createdResponse);
+        isPastDueAlertActive.value = false;
+      } else {
+        final newResponse = LeadResponseModel(
+          responseNumber: 'Response #${responses.length + 1}',
+          outcome: outcomeVal,
+          text: 'This task has been Missed.',
+          createdAt: formattedCallDate,
+          isDone: false,
+          isMissed: true,
+        );
+        responses.insert(0, newResponse);
+        isPastDueAlertActive.value = false;
+      }
+    } catch (e) {
+      hideCircularLoader();
+    }
   }
 }

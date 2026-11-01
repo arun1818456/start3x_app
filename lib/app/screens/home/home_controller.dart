@@ -116,23 +116,16 @@ class HomeController extends GetxController with BaseClass {
   void _checkPastDueLeads() {
     final now = DateTime.now();
     for (var lead in leads) {
-      if (lead.status.toLowerCase().contains('done') ||
+      if (lead.isCompleted == true ||
+          lead.status.toLowerCase().contains('done') ||
           lead.status.toLowerCase().contains('converted')) {
         continue;
       }
 
-      String dateStr = lead.scheduledDate;
-      if (lead.responses.isNotEmpty) {
-        final resp = lead.responses.first;
-        if (resp.scheduledDate != null &&
-            resp.scheduledDate!.isNotEmpty) {
-          dateStr = resp.scheduledDate!;
-        } else if (resp.callback != null && resp.callback!.isNotEmpty) {
-          dateStr = resp.callback!;
-        }
-      }
+      final String dateStr = lead.scheduledDate;
 
       final dt = parseLeadDateTime(dateStr);
+      // Agar isCompleted == false hai aur date past ho gayi hai, tab hi navigate hoga
       if (dt != null && dt.isBefore(now)) {
         Get.toNamed(
           AppRoutes.callingScreen,

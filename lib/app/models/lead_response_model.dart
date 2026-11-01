@@ -1,5 +1,7 @@
 class LeadResponseModel {
   final String id;
+  final String passkey;
+  final String leadId;
   final String responseNumber;
   final String outcome;
   final String? scheduledDate;
@@ -7,9 +9,13 @@ class LeadResponseModel {
   final String text;
   final String? reminder;
   final String createdAt;
+  final bool isDone;
+  final bool isMissed;
 
   LeadResponseModel({
     this.id = '',
+    this.passkey = '',
+    this.leadId = '',
     required this.responseNumber,
     required this.outcome,
     this.scheduledDate,
@@ -17,6 +23,8 @@ class LeadResponseModel {
     required this.text,
     this.reminder,
     required this.createdAt,
+    this.isDone = false,
+    this.isMissed = false,
   });
 
   static String? _formatToLocalTime(String? rawDate) {
@@ -48,9 +56,13 @@ class LeadResponseModel {
         json['meetingScheduled']?.toString();
     final rawCallback = json['callback']?.toString();
     final rawReminder = json['reminder']?.toString();
+    final isDone = json['isDone'] == true;
+    final isMissed = json['isMissed'] == true;
 
     return LeadResponseModel(
       id: json['_id']?.toString() ?? json['id']?.toString() ?? '',
+      passkey: json['passkey']?.toString() ?? '',
+      leadId: json['leadId']?.toString() ?? '',
       responseNumber: json['responseNumber']?.toString() ?? 'Response #1',
       outcome: json['outcome']?.toString() ?? '',
       scheduledDate: _formatToLocalTime(rawScheduledDate),
@@ -58,19 +70,25 @@ class LeadResponseModel {
       text: json['text']?.toString() ?? json['note']?.toString() ?? '',
       reminder: _formatToLocalTime(rawReminder),
       createdAt: _formatToLocalTime(rawCreatedAt) ?? '',
+      isDone: isDone,
+      isMissed: isMissed,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       if (id.isNotEmpty) '_id': id,
+      if (passkey.isNotEmpty) 'passkey': passkey,
+      if (leadId.isNotEmpty) 'leadId': leadId,
       'responseNumber': responseNumber,
       'outcome': outcome,
       'scheduledDate': scheduledDate,
-      'callback': callback,
+      if (callback != null) 'callback': callback,
       'text': text,
       if (reminder != null) 'reminder': reminder,
       'createdAt': createdAt,
+      'isDone': isDone,
+      'isMissed': isMissed,
     };
   }
 }

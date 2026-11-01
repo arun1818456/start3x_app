@@ -33,7 +33,7 @@ class CallingScreen extends StatelessWidget {
                       );
                     }
 
-                    final responseList = controller.lead.responses;
+                    final responseList = controller.responses;
 
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -208,11 +208,7 @@ class CallingScreen extends StatelessWidget {
                   Expanded(
                     child: InkWell(
                       onTap: () {
-                        controller.isPastDueAlertActive.value = false;
-                        Get.toNamed(
-                          AppRoutes.callResponseScreen,
-                          arguments: controller.lead,
-                        );
+                        controller.onYesTap();
                       },
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 14),
@@ -235,7 +231,7 @@ class CallingScreen extends StatelessWidget {
                   Expanded(
                     child: InkWell(
                       onTap: () {
-                        controller.isPastDueAlertActive.value = false;
+                        controller.onNoTap();
                       },
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 14),
@@ -258,7 +254,6 @@ class CallingScreen extends StatelessWidget {
                   Expanded(
                     child: InkWell(
                       onTap: () {
-                        controller.isPastDueAlertActive.value = false;
                         Get.toNamed(AppRoutes.groupScreen);
                       },
                       child: Container(
@@ -718,7 +713,6 @@ class CallingScreen extends StatelessWidget {
       CallingController controller, LeadResponseModel resp, int index) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: AppColors.primaryBlue,
         borderRadius: BorderRadius.circular(18),
@@ -730,13 +724,52 @@ class CallingScreen extends StatelessWidget {
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header: Response # and Edit Button
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(18),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Green Banner for isDone or Red Banner for isMissed
+            if (resp.isDone)
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                color: const Color(0xFF00C853),
+                child: const Text(
+                  'This task has been completed.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              )
+            else if (resp.isMissed)
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                color: const Color(0xFFFF1744),
+                child: const Text(
+                  'This task has been Missed.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+
+            Padding(
+              padding: const EdgeInsets.all(18),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Header: Response # and Edit Button
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
               Text(
                 resp.responseNumber,
                 style: const TextStyle(
@@ -865,7 +898,11 @@ class CallingScreen extends StatelessWidget {
               ),
             ],
           ),
-        ],
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

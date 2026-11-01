@@ -52,19 +52,29 @@ class GroupScreen extends StatelessWidget {
     return Container(
       width: double.infinity,
       color: AppColors.primaryBlue,
-      padding: const EdgeInsets.only(top: 48, bottom: 14, left: 16, right: 12),
+      padding: const EdgeInsets.only(top: 48, bottom: 14, left: 12, right: 12),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const Row(
+          Row(
             children: [
-              Icon(
+              IconButton(
+                onPressed: () => Get.back(),
+                icon: const Icon(
+                  Icons.arrow_back_ios_new_rounded,
+                  color: AppColors.whiteColor,
+                  size: 20,
+                ),
+                tooltip: 'Back',
+              ),
+              const SizedBox(width: 4),
+              const Icon(
                 Icons.forum_rounded,
                 color: AppColors.whiteColor,
-                size: 26,
+                size: 24,
               ),
-              SizedBox(width: 10),
-              Column(
+              const SizedBox(width: 8),
+              const Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [

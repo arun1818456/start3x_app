@@ -1,5 +1,3 @@
-import 'package:start3x_app/exports.dart';
-
 class LeadModel {
   final String id;
   final String passkey;
@@ -12,7 +10,8 @@ class LeadModel {
   final String altPhoneNumber;
   final String kw;
   final String electricityBill;
-  final RxList<LeadResponseModel> responses;
+  final String createdAt;
+  final bool isCompleted;
 
   LeadModel({
     this.id = '',
@@ -26,36 +25,11 @@ class LeadModel {
     this.altPhoneNumber = '',
     this.kw = '',
     this.electricityBill = '',
-    List<LeadResponseModel>? initialResponses,
-  }) : responses = RxList<LeadResponseModel>(initialResponses ?? []);
+    this.createdAt = '',
+    this.isCompleted = false,
+  });
 
   factory LeadModel.fromJson(Map<String, dynamic> json) {
-    final List<LeadResponseModel> parsedResponses = [];
-    final rawResponses = json['responses'];
-
-    if (rawResponses is List) {
-      for (final response in rawResponses) {
-        if (response is Map<String, dynamic>) {
-          parsedResponses.add(LeadResponseModel.fromJson(response));
-        } else if (response is Map) {
-          parsedResponses.add(
-            LeadResponseModel.fromJson(
-              Map<String, dynamic>.from(response),
-            ),
-          );
-        } else if (response != null) {
-          parsedResponses.add(
-            LeadResponseModel(
-              responseNumber: 'Response #1',
-              outcome: response.toString(),
-              text: '',
-              createdAt: '',
-            ),
-          );
-        }
-      }
-    }
-
     final rawDate = (json['scheduledDate'] ?? json['createdAt'] ?? '').toString();
     String formattedDate = rawDate;
 
@@ -81,20 +55,19 @@ class LeadModel {
       name: (json['name'] ?? 'Lead').toString(),
       location: (json['location'] ?? '').toString(),
       status: (json['status'] ?? 'To-Do:').toString(),
-      scheduledDate: formattedDate.isNotEmpty ? formattedDate : '23/11/2026 09:00 AM',
-      phoneNumber:
-          (json['phoneNumber'] ?? json['phone'] ?? '').toString(),
-      altPhoneNumber:
-          (json['altPhoneNumber'] ?? json['altPhone'] ?? '').toString(),
+      scheduledDate: formattedDate.isNotEmpty ? formattedDate : (json['scheduledDate'] ?? '23/11/2026 09:00 AM').toString(),
+      phoneNumber: (json['phoneNumber'] ?? json['phone'] ?? '').toString(),
+      altPhoneNumber: (json['altPhoneNumber'] ?? json['altPhone'] ?? '').toString(),
       kw: (json['kw'] ?? '').toString(),
       electricityBill: (json['electricityBill'] ?? '').toString(),
-      initialResponses: parsedResponses,
+      createdAt: (json['createdAt'] ?? '').toString(),
+      isCompleted: json['isCompleted'] == true,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      '_id': id,
+      if (id.isNotEmpty) '_id': id,
       'passkey': passkey,
       'rank': rank,
       'name': name,
@@ -105,7 +78,8 @@ class LeadModel {
       'altPhoneNumber': altPhoneNumber,
       'kw': kw,
       'electricityBill': electricityBill,
-      'responses': responses.map((r) => r.toJson()).toList(),
+      'createdAt': createdAt,
+      'isCompleted': isCompleted,
     };
   }
 }

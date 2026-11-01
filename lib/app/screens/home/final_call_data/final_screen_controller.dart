@@ -265,6 +265,9 @@ class FinalScreenController extends GetxController with BaseClass {
           '';
     }
 
+    final String? scheduledDateVal =
+        (dt != null && dt.trim().isNotEmpty) ? dt : null;
+
     try {
       showCircularLoader();
 
@@ -276,33 +279,36 @@ class FinalScreenController extends GetxController with BaseClass {
           "leadId": lead.id,
           "phoneNumber": lead.phoneNumber,
           "outcome": selectedOutcome,
-          "meetingScheduled": selectedOutcome == 'Got a meeting' ? dt : null,
           "callback": selectedOutcome == 'Got a callback' ? dt : null,
           "text": noteText.isEmpty ? 'Follow-up response' : noteText,
           "reminder": selectedReminder.value,
+          "scheduledDate": scheduledDateVal,
           "callDate": formattedCallDate,
         },
       );
 
       hideCircularLoader();
 
-      if (responseRes != null &&
-          responseRes["success"] == true &&
-          responseRes["data"] != null) {
-        final createdResponse =
-            LeadResponseModel.fromJson(responseRes["data"]);
-        lead.responses.insert(0, createdResponse);
-      } else {
-        final newResponse = LeadResponseModel(
-          responseNumber: 'Response #${lead.responses.length + 1}',
-          outcome: selectedOutcome,
-          scheduledDate: selectedOutcome == 'Got a meeting' ? dt : null,
-          callback: selectedOutcome == 'Got a callback' ? dt : null,
-          text: noteText.isEmpty ? 'Follow-up response' : noteText,
-          reminder: selectedReminder.value,
-          createdAt: formattedCallDate,
-        );
-        lead.responses.insert(0, newResponse);
+      if (Get.isRegistered<CallingController>()) {
+        final callingCtrl = Get.find<CallingController>();
+        if (responseRes != null &&
+            responseRes["success"] == true &&
+            responseRes["data"] != null) {
+          final createdResponse =
+              LeadResponseModel.fromJson(responseRes["data"]);
+          callingCtrl.responses.insert(0, createdResponse);
+        } else {
+          final newResponse = LeadResponseModel(
+            responseNumber: 'Response #${callingCtrl.responses.length + 1}',
+            outcome: selectedOutcome,
+            scheduledDate: scheduledDateVal,
+            callback: selectedOutcome == 'Got a callback' ? dt : null,
+            text: noteText.isEmpty ? 'Follow-up response' : noteText,
+            reminder: selectedReminder.value,
+            createdAt: formattedCallDate,
+          );
+          callingCtrl.responses.insert(0, newResponse);
+        }
       }
 
       showMySnackBar('Response added for ${lead.name}', success: true);

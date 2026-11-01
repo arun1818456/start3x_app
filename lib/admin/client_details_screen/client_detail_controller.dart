@@ -185,13 +185,13 @@ class ClientDetailController extends GetxController with BaseClass {
       );
 
       // Clear form after submission
-      // nameController.clear();
-      // phoneController.clear();
-      // addressController.clear();
-      // kwController.clear();
-      // electricityBillController.clear();
-      // textController.clear();
-      // selectedDateTime.value = 'Select date & Time';
+      nameController.clear();
+      phoneController.clear();
+      addressController.clear();
+      kwController.clear();
+      electricityBillController.clear();
+      textController.clear();
+      selectedDateTime.value = 'Select date & Time';
     } catch (e) {
       hideCircularLoader();
       showMySnackBar(
