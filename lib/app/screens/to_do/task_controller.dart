@@ -105,7 +105,7 @@ class TaskController extends GetxController with BaseClass {
     final tomorrowDate = todayDate.add(const Duration(days: 1));
 
     for (var lead in leads) {
-      String dateStr = lead.scheduledDate;
+      String dateStr = lead.scheduledDate??lead.createdAt;
       String statusStr = lead.status;
       String timeStr = '11:30 AM';
       String reminderStr = 'At task due time';

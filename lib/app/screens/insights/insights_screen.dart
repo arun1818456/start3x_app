@@ -27,14 +27,27 @@ class InsightsScreen extends StatelessWidget {
               const SizedBox(height: 16),
               Expanded(
                 child: Obx(
-                  () => ListView.separated(
-                    itemCount: controller.insightItems.length,
-                    separatorBuilder: (context, index) =>
-                        const SizedBox(height: 10),
-                    itemBuilder: (context, index) {
-                      return _buildInsightCard(controller.insightItems[index]);
-                    },
-                  ),
+                  () {
+                    if (controller.isLoading.value) {
+                      return const Center(
+                        child: CircularProgressIndicator(
+                          color: AppColors.primaryBlue,
+                        ),
+                      );
+                    }
+
+                    return RefreshIndicator(
+                      onRefresh: () => controller.fetchInsightsFromApi(),
+                      child: ListView.separated(
+                        itemCount: controller.insightItems.length,
+                        separatorBuilder: (context, index) =>
+                            const SizedBox(height: 10),
+                        itemBuilder: (context, index) {
+                          return _buildInsightCard(controller.insightItems[index]);
+                        },
+                      ),
+                    );
+                  },
                 ),
               ),
             ],
@@ -105,39 +118,49 @@ class InsightsScreen extends StatelessWidget {
   }
 
   Widget _buildInsightCard(InsightItemModel item) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
-      decoration: BoxDecoration(
-        color: AppColors.primaryBlue,
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Row(
-        children: [
-          const Icon(
-            Icons.folder_open_rounded,
-            color: AppColors.whiteColor,
-            size: 28,
+    return GestureDetector(
+      onTap: () {
+        Get.to(
+          () => InsightFolderScreen(
+            title: item.title,
+            folderType: item.title,
           ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Text(
-              item.title,
-              style: const TextStyle(
-                color: AppColors.whiteColor,
-                fontSize: 15,
-                fontWeight: FontWeight.w600,
+        );
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
+        decoration: BoxDecoration(
+          color: AppColors.primaryBlue,
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Row(
+          children: [
+            const Icon(
+              Icons.folder_open_rounded,
+              color: AppColors.whiteColor,
+              size: 28,
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Text(
+                item.title,
+                style: const TextStyle(
+                  color: AppColors.whiteColor,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
-          ),
-          Text(
-            item.count,
-            style: const TextStyle(
-              color: AppColors.whiteColor,
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
+            Text(
+              item.count,
+              style: const TextStyle(
+                color: AppColors.whiteColor,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

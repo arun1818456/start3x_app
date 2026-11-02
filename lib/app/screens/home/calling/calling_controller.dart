@@ -26,7 +26,7 @@ class CallingController extends GetxController with BaseClass {
             LeadModel(rank: '', name: '', location: '', status: '', scheduledDate: '');
         if (args['isPastDue'] == true) {
           isPastDueAlertActive.value = true;
-          pastDueDateStr = args['pastDueDate']?.toString() ?? lead.scheduledDate;
+          pastDueDateStr = (args['pastDueDate']?.toString() ?? lead.scheduledDate)!;
         }
       } else if (Get.arguments is LeadModel) {
         lead = Get.arguments as LeadModel;
@@ -472,19 +472,7 @@ class CallingController extends GetxController with BaseClass {
     );
   }
 
-  String _getFormattedCurrentDateTime() {
-    final now = DateTime.now();
-    final String day = now.day.toString().padLeft(2, '0');
-    final String month = now.month.toString().padLeft(2, '0');
-    final String year = now.year.toString();
-    final String hour = (now.hour % 12 == 0 ? 12 : now.hour % 12)
-        .toString()
-        .padLeft(2, '0');
-    final String minute = now.minute.toString().padLeft(2, '0');
-    final String period = now.hour >= 12 ? 'PM' : 'AM';
 
-    return '$day/$month/$year $hour:$minute $period';
-  }
 
   Future<void> onYesTap() async {
     String passkeyVal = lead.passkey;
@@ -495,7 +483,7 @@ class CallingController extends GetxController with BaseClass {
           '';
     }
 
-    final formattedCallDate = _getFormattedCurrentDateTime();
+    final formattedCallDate = getFormattedCurrentDateTime();
 
     final String outcomeVal =
         responses.isNotEmpty && responses.first.outcome.isNotEmpty
@@ -511,10 +499,10 @@ class CallingController extends GetxController with BaseClass {
         {
           "passkey": passkeyVal,
           "leadId": lead.id,
-          "phoneNumber": lead.phoneNumber,
           "outcome": outcomeVal,
           "text": 'This task has been completed.',
           "callDate": formattedCallDate,
+          "scheduledDate": lead.scheduledDate,
           "isDone": true,
           "isMissed": false,
         },
@@ -529,17 +517,10 @@ class CallingController extends GetxController with BaseClass {
             LeadResponseModel.fromJson(responseRes["data"]);
         responses.insert(0, createdResponse);
         isPastDueAlertActive.value = false;
-      } else {
-        final newResponse = LeadResponseModel(
-          responseNumber: 'Response #${responses.length + 1}',
-          outcome: outcomeVal,
-          text: 'This task has been completed.',
-          createdAt: formattedCallDate,
-          isDone: true,
-          isMissed: false,
-        );
-        responses.insert(0, newResponse);
-        isPastDueAlertActive.value = false;
+      }
+
+      if (Get.isRegistered<InsightsController>()) {
+        Get.find<InsightsController>().fetchInsightsFromApi();
       }
     } catch (e) {
       hideCircularLoader();
@@ -555,7 +536,7 @@ class CallingController extends GetxController with BaseClass {
           '';
     }
 
-    final formattedCallDate = _getFormattedCurrentDateTime();
+    final formattedCallDate = getFormattedCurrentDateTime();
 
     final String outcomeVal =
         responses.isNotEmpty && responses.first.outcome.isNotEmpty
@@ -571,8 +552,8 @@ class CallingController extends GetxController with BaseClass {
         {
           "passkey": passkeyVal,
           "leadId": lead.id,
-          "phoneNumber": lead.phoneNumber,
           "outcome": outcomeVal,
+          "scheduledDate": lead.scheduledDate,
           "text": 'This task has been Missed.',
           "callDate": formattedCallDate,
           "isMissed": true,
@@ -589,17 +570,10 @@ class CallingController extends GetxController with BaseClass {
             LeadResponseModel.fromJson(responseRes["data"]);
         responses.insert(0, createdResponse);
         isPastDueAlertActive.value = false;
-      } else {
-        final newResponse = LeadResponseModel(
-          responseNumber: 'Response #${responses.length + 1}',
-          outcome: outcomeVal,
-          text: 'This task has been Missed.',
-          createdAt: formattedCallDate,
-          isDone: false,
-          isMissed: true,
-        );
-        responses.insert(0, newResponse);
-        isPastDueAlertActive.value = false;
+      }
+
+      if (Get.isRegistered<InsightsController>()) {
+        Get.find<InsightsController>().fetchInsightsFromApi();
       }
     } catch (e) {
       hideCircularLoader();

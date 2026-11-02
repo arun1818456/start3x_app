@@ -31,10 +31,18 @@ class HomeController extends GetxController with BaseClass {
     }
 
     if (clientPasskey.isEmpty) {
+      clientPasskey = storage.read('clientPasskey')?.toString() ?? '';
+    }
+
+    if (clientPasskey.isEmpty) {
       final userData = getUserData();
       clientPasskey = userData.passkey ??
           storage.read(LocalKeys.userData)?['passkey'] ??
           '';
+    }
+
+    if (clientPasskey.isNotEmpty) {
+      storage.write('clientPasskey', clientPasskey);
     }
   }
 
@@ -116,17 +124,10 @@ class HomeController extends GetxController with BaseClass {
   void _checkPastDueLeads() {
     final now = DateTime.now();
     for (var lead in leads) {
-      if (lead.isCompleted == true ||
-          lead.status.toLowerCase().contains('done') ||
-          lead.status.toLowerCase().contains('converted')) {
-        continue;
-      }
-
-      final String dateStr = lead.scheduledDate;
-
+      final String? dateStr = lead.scheduledDate;
+      if(dateStr == null) return;
       final dt = parseLeadDateTime(dateStr);
-      // Agar isCompleted == false hai aur date past ho gayi hai, tab hi navigate hoga
-      if (dt != null && dt.isBefore(now)) {
+      if (dt != null && dt.isBefore(now) && (lead.isCompleted == false) ) {
         Get.toNamed(
           AppRoutes.callingScreen,
           arguments: {
@@ -158,8 +159,8 @@ class HomeController extends GetxController with BaseClass {
 
     if (selectedSortOption.value == 'Upload Date') {
       result.sort((a, b) => selectedSortDirection.value == 'Newest to Oldest'
-          ? b.scheduledDate.compareTo(a.scheduledDate)
-          : a.scheduledDate.compareTo(b.scheduledDate));
+          ? b.createdAt.compareTo(a.createdAt)
+          : a.createdAt.compareTo(b.createdAt));
     } else if (selectedSortOption.value == 'Interaction Date') {
       result.sort((a, b) => selectedSortDirection.value == 'Newest to Oldest'
           ? a.rank.compareTo(b.rank)

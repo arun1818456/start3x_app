@@ -52,4 +52,17 @@ mixin BaseClass {
       ),
     );
   }
+  String getFormattedCurrentDateTime() {
+    final now = DateTime.now();
+    final String day = now.day.toString().padLeft(2, '0');
+    final String month = now.month.toString().padLeft(2, '0');
+    final String year = now.year.toString();
+    final String hour = (now.hour % 12 == 0 ? 12 : now.hour % 12)
+        .toString()
+        .padLeft(2, '0');
+    final String minute = now.minute.toString().padLeft(2, '0');
+    final String period = now.hour >= 12 ? 'PM' : 'AM';
+
+    return '$day/$month/$year $hour:$minute $period';
+  }
 }

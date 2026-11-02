@@ -53,5 +53,17 @@ class AppPages {
       name: AppRoutes.addCallData,
       page: () => const FinalScreen(),
     ),
+    GetPage(
+      name: AppRoutes.groupScreen,
+      page: () => const GroupScreen(),
+    ),
+    GetPage(
+      name: AppRoutes.insightsScreen,
+      page: () => const InsightsScreen(),
+    ),
+    GetPage(
+      name: AppRoutes.toDoScreen,
+      page: () => const ToDoScreen(),
+    ),
   ];
 }

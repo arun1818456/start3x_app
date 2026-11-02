@@ -30,3 +30,7 @@ const String sendChatMessageApiEndPoint = "/api/chat/send";
 const String getChatMessagesApiEndPoint = "/api/chat/get";
 const String deleteChatMessageApiEndPoint = "/api/chat/delete/";
 
+// Insight API Endpoints
+const String getInsightsSummaryApiEndPoint = "/api/insight/get";
+const String getInsightFolderLeadsApiEndPoint = "/api/insight/get-leads";
+

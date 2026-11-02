@@ -59,6 +59,7 @@ export 'package:start3x_app/app/screens/home/home_controller.dart';
 export 'package:start3x_app/app/screens/home/home_screen.dart';
 export 'package:start3x_app/app/screens/insights/insights_controller.dart';
 export 'package:start3x_app/app/screens/insights/insights_screen.dart';
+export 'package:start3x_app/app/screens/insights/insight_folder_screen.dart';
 export 'package:start3x_app/app/screens/to_do/task_controller.dart';
 export 'package:start3x_app/app/screens/to_do/to_do_screen.dart';
 
@@ -69,5 +70,6 @@ export 'package:start3x_app/app/routes/routes.dart';
 export 'package:start3x_app/app/widgets/button.dart';
 export 'package:start3x_app/app/widgets/common_dialogs.dart';
 export 'package:start3x_app/app/widgets/full_screen_loader.dart';
+export 'package:start3x_app/app/widgets/lead_card.dart';
 export 'package:start3x_app/app/widgets/side_menu.dart';
 export 'package:start3x_app/app/widgets/text_field.dart';
