@@ -2,14 +2,16 @@ import 'package:start3x_app/exports.dart';
 
 class InsightsController extends GetxController with BaseClass {
   var isLoading = false.obs;
-  var selectedFilter = 'Select by date'.obs;
+  var selectedFilter = 'Today'.obs;
+  DateTime? customStartDate;
+  DateTime? customEndDate;
 
   final RxList<InsightItemModel> insightItems = <InsightItemModel>[
     InsightItemModel(title: 'Callback Missed', count: '00'),
     InsightItemModel(title: 'Callback Done', count: '00'),
     InsightItemModel(title: 'Meetings Missed', count: '00'),
     InsightItemModel(title: 'Meetings Done', count: '00'),
-    InsightItemModel(title: 'Conversions', count: '00'),
+    InsightItemModel(title: 'Conversions / Tasks Done', count: '00'),
   ].obs;
 
   final folderLeads = <LeadModel>[].obs;
@@ -19,6 +21,41 @@ class InsightsController extends GetxController with BaseClass {
   void onInit() {
     super.onInit();
     fetchInsightsFromApi();
+  }
+
+  String _formatDate(DateTime dt) {
+    return "${dt.year}-${dt.month.toString().padLeft(2, '0')}-${dt.day.toString().padLeft(2, '0')}";
+  }
+
+  String _buildDateQueryString() {
+    if (selectedFilter.value == 'All Time') return "";
+
+    final now = DateTime.now();
+    DateTime? start;
+    DateTime? end;
+
+    if (selectedFilter.value == 'Today') {
+      start = now;
+      end = now;
+    } else if (selectedFilter.value == 'Yesterday') {
+      final y = now.subtract(const Duration(days: 1));
+      start = y;
+      end = y;
+    } else if (selectedFilter.value == 'Last 7 Days') {
+      start = now.subtract(const Duration(days: 6));
+      end = now;
+    } else if (selectedFilter.value == 'Last Month') {
+      start = DateTime(now.year, now.month - 1, 1);
+      end = DateTime(now.year, now.month, 0);
+    } else if (customStartDate != null && customEndDate != null) {
+      start = customStartDate;
+      end = customEndDate;
+    }
+
+    if (start != null && end != null) {
+      return "&startDate=${_formatDate(start)}&endDate=${_formatDate(end)}";
+    }
+    return "";
   }
 
   String _resolvePasskey() {
@@ -62,7 +99,10 @@ class InsightsController extends GetxController with BaseClass {
     try {
       isLoading.value = true;
       final String passkeyVal = _resolvePasskey();
-      String query = passkeyVal.isNotEmpty ? "passkey=$passkeyVal" : "";
+      final String dateQuery = _buildDateQueryString();
+      String query = passkeyVal.isNotEmpty
+          ? "passkey=$passkeyVal$dateQuery"
+          : (dateQuery.startsWith('&') ? dateQuery.substring(1) : dateQuery);
 
       var res = await httpRequest(
         REQUEST.get,
@@ -132,7 +172,8 @@ class InsightsController extends GetxController with BaseClass {
         categoryKey = 'task_done';
       }
 
-      String query = "passkey=$passkeyVal&category=$categoryKey";
+      final String dateQuery = _buildDateQueryString();
+      String query = "passkey=$passkeyVal&category=$categoryKey$dateQuery";
 
       var res = await httpRequest(
         REQUEST.get,
@@ -149,7 +190,7 @@ class InsightsController extends GetxController with BaseClass {
         return;
       }
 
-      // Fallback: fetch leads and responses and filter locally
+      // Fallback: fetch leads and responses and filter locally based strictly on LATEST response
       List<LeadModel> allLeads = [];
       if (Get.isRegistered<HomeController>()) {
         allLeads = Get.find<HomeController>().leads.toList();
@@ -178,26 +219,35 @@ class InsightsController extends GetxController with BaseClass {
         responses = dataList.map((item) => LeadResponseModel.fromJson(item)).toList();
       }
 
-      final Set<String> matchedLeadIds = {};
+      // Keep ONLY the single latest response for each lead!
+      final Map<String, LeadResponseModel> latestMap = {};
       for (var resp in responses) {
+        if (resp.leadId.isEmpty) continue;
+        if (!latestMap.containsKey(resp.leadId)) {
+          latestMap[resp.leadId] = resp;
+        }
+      }
+
+      final Set<String> matchedLeadIds = {};
+      for (var entry in latestMap.entries) {
+        final resp = entry.value;
         final outcome = resp.outcome.toLowerCase();
-        final text = resp.text.toLowerCase();
         bool isMatch = false;
 
         if (categoryKey == 'meetings_done') {
-          isMatch = resp.isDone && (outcome.contains('meeting') || text.contains('completed'));
+          isMatch = resp.isDone && outcome.contains('meeting');
         } else if (categoryKey == 'meetings_missed') {
-          isMatch = resp.isMissed && (outcome.contains('meeting') || text.contains('missed'));
+          isMatch = resp.isMissed && outcome.contains('meeting');
         } else if (categoryKey == 'callback_done') {
           isMatch = resp.isDone && outcome.contains('callback');
         } else if (categoryKey == 'callback_missed') {
           isMatch = resp.isMissed && outcome.contains('callback');
         } else if (categoryKey == 'task_done') {
-          isMatch = resp.isDone;
+          isMatch = resp.isDone && !outcome.contains('meeting') && !outcome.contains('callback');
         }
 
-        if (isMatch && resp.leadId.isNotEmpty) {
-          matchedLeadIds.add(resp.leadId);
+        if (isMatch) {
+          matchedLeadIds.add(entry.key);
         }
       }
 
@@ -258,35 +308,38 @@ class InsightsController extends GetxController with BaseClass {
   }
 
   void _processResponses(List<LeadResponseModel> responses) {
+    // Keep ONLY the single latest response for each lead!
+    final Map<String, LeadResponseModel> latestMap = {};
+    for (var resp in responses) {
+      if (resp.leadId.isEmpty) continue;
+      if (!latestMap.containsKey(resp.leadId)) {
+        latestMap[resp.leadId] = resp;
+      }
+    }
+
     int cbMissed = 0;
     int cbDone = 0;
     int mtgMissed = 0;
     int mtgDone = 0;
     int conversions = 0;
 
-    for (var resp in responses) {
+    for (var resp in latestMap.values) {
       final outcome = resp.outcome.toLowerCase();
       if (resp.isDone) {
-        if (outcome.contains('callback')) {
-          cbDone++;
-        } else if (outcome.contains('meeting')) {
+        if (outcome.contains('meeting')) {
           mtgDone++;
+        } else if (outcome.contains('callback')) {
+          cbDone++;
         } else {
           conversions++;
         }
       } else if (resp.isMissed) {
-        if (outcome.contains('callback')) {
-          cbMissed++;
-        } else if (outcome.contains('meeting')) {
+        if (outcome.contains('meeting')) {
           mtgMissed++;
+        } else if (outcome.contains('callback')) {
+          cbMissed++;
         } else {
           cbMissed++;
-        }
-      } else {
-        if (outcome.contains('callback')) {
-          cbDone++;
-        } else if (outcome.contains('meeting')) {
-          mtgDone++;
         }
       }
     }
@@ -300,7 +353,38 @@ class InsightsController extends GetxController with BaseClass {
     ];
   }
 
+  Future<void> pickCustomDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: customStartDate ?? DateTime.now(),
+      firstDate: DateTime(2020),
+      lastDate: DateTime(2030),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: AppColors.primaryBlue,
+              surface: Colors.white,
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (picked != null) {
+      customStartDate = picked;
+      customEndDate = picked;
+      final String formattedDate =
+          "${picked.day.toString().padLeft(2, '0')}/${picked.month.toString().padLeft(2, '0')}/${picked.year}";
+      selectedFilter.value = formattedDate;
+      fetchInsightsFromApi();
+    }
+  }
+
   void updateFilter(String filter) {
+    customStartDate = null;
+    customEndDate = null;
     selectedFilter.value = filter;
     fetchInsightsFromApi();
   }

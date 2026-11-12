@@ -6,5 +6,9 @@ class SplashBinding extends Bindings {
     Get.lazyPut<SplashController>(
       () => SplashController(),
     );
+    Get.put<MySocketController>(
+      MySocketController(),
+      permanent: true,
+    );
   }
 }

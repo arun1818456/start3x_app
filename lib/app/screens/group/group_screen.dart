@@ -40,6 +40,38 @@ class GroupScreen extends StatelessWidget {
               ),
             ),
 
+            // --- Real-time Typing Indicator ---
+            Obx(() {
+              if (!controller.isTyping.value) return const SizedBox.shrink();
+              return Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                color: Colors.white,
+                child: Row(
+                  children: [
+                    const SizedBox(
+                      width: 10,
+                      height: 10,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 1.5,
+                        color: AppColors.primaryBlue,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      '${controller.typingUser.value} is typing...',
+                      style: const TextStyle(
+                        color: AppColors.primaryBlue,
+                        fontSize: 12,
+                        fontStyle: FontStyle.italic,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }),
+
             // --- Bottom WhatsApp Style Input Bar ---
             _buildWhatsAppInputBar(controller),
           ],
@@ -74,11 +106,11 @@ class GroupScreen extends StatelessWidget {
                 size: 24,
               ),
               const SizedBox(width: 8),
-              const Column(
+              Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(
+                  const Text(
                     'Group Chat',
                     style: TextStyle(
                       color: AppColors.whiteColor,
@@ -86,12 +118,31 @@ class GroupScreen extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  Text(
-                    'Team Discussion',
-                    style: TextStyle(
-                      color: Colors.white70,
-                      fontSize: 12,
-                    ),
+                  Row(
+                    children: [
+                      Obx(() {
+                        final isConnected = controller.socketController.isSocketConnected.value;
+                        return Container(
+                          width: 8,
+                          height: 8,
+                          margin: const EdgeInsets.only(right: 6),
+                          decoration: BoxDecoration(
+                            color: isConnected ? const Color(0xFF4ADE80) : Colors.orangeAccent,
+                            shape: BoxShape.circle,
+                          ),
+                        );
+                      }),
+                      Obx(() {
+                        final isConnected = controller.socketController.isSocketConnected.value;
+                        return Text(
+                          isConnected ? 'Live Connected' : 'Connecting...',
+                          style: const TextStyle(
+                            color: Colors.white70,
+                            fontSize: 12,
+                          ),
+                        );
+                      }),
+                    ],
                   ),
                 ],
               ),
@@ -147,15 +198,40 @@ class GroupScreen extends StatelessWidget {
           children: [
             // Sender Name (Only shown for incoming messages from others)
             if (!isMe) ...[
-              Text(
-                item.senderName,
-                style: TextStyle(
-                  color: item.messageType == 'welcome'
-                      ? Colors.purple.shade700
-                      : AppColors.primaryBlue,
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    item.senderName,
+                    style: TextStyle(
+                      color: item.senderName.toLowerCase() == 'admin'
+                          ? Colors.orange.shade800
+                          : item.messageType == 'welcome'
+                              ? Colors.purple.shade700
+                              : AppColors.primaryBlue,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  if (item.senderName.toLowerCase() == 'admin') ...[
+                    const SizedBox(width: 4),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+                      decoration: BoxDecoration(
+                        color: Colors.orange.shade100,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        'ADMIN',
+                        style: TextStyle(
+                          color: Colors.orange.shade900,
+                          fontSize: 9,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
               ),
               const SizedBox(height: 3),
             ],

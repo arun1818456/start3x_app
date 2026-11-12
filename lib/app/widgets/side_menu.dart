@@ -180,6 +180,9 @@ class SideMenuBar extends StatelessWidget with BaseClass {
                     yesButtonText: "Logout",
                     noButtonText: "Cancel",
                     onTapYes: () async {
+                      if (Get.isRegistered<MySocketController>()) {
+                        Get.find<MySocketController>().disconnectSocket();
+                      }
                       await storage.erase();
                       Get.offAllNamed(AppRoutes.loginScreen);
                       showMySnackBar("Logged out successfully", success: true);

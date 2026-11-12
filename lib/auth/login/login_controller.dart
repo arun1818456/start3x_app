@@ -39,13 +39,19 @@ class LoginController extends GetxController with BaseClass {
           await storage.write(LocalKeys.userData, userData);
         }
         showMySnackBar("Login successful", success: true);
+        if (Get.isRegistered<MySocketController>()) {
+          Get.find<MySocketController>().initializeSocket();
+        } else {
+          Get.put(MySocketController(), permanent: true);
+        }
+
         if (userData != null && (userData["role"] == "admin")) {
           Get.offAll(() => const AdminDashboardScreen());
         } else {
           if (userData["isSetupComplete"] ?? false) {
-            Get.offAllNamed(AppRoutes.clientSetupScreen);
-          } else {
             Get.offAllNamed(AppRoutes.mainScreen);
+          } else {
+            Get.offAllNamed(AppRoutes.clientSetupScreen);
           }
         }
       } else {
@@ -196,9 +202,14 @@ class LoginController extends GetxController with BaseClass {
                       if (regRes != null && regRes["success"] == true) {
                         final userData = regRes["data"];
                         await storage.write(LocalKeys.userData, userData);
+                        if (Get.isRegistered<MySocketController>()) {
+                          Get.find<MySocketController>().initializeSocket();
+                        } else {
+                          Get.put(MySocketController(), permanent: true);
+                        }
                         Get.back(); // Close Dialog
                         if(userData["isSetupComplete"] ?? false) {
-                          Get.offAllNamed(AppRoutes.homeScreen);
+                          Get.offAllNamed(AppRoutes.mainScreen);
                         }else{
                           Get.offAllNamed(AppRoutes.clientSetupScreen);
                         }

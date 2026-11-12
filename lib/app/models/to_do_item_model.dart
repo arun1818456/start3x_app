@@ -9,6 +9,8 @@ class ToDoItemModel {
   final String date;
   final String time;
   final String reminderTime;
+  final DateTime? dateTime;
+  final bool isOverdue;
 
   ToDoItemModel({
     LeadModel? lead,
@@ -19,6 +21,8 @@ class ToDoItemModel {
     required this.date,
     required this.time,
     required this.reminderTime,
+    this.dateTime,
+    this.isOverdue = false,
   }) : _lead = lead;
 
   LeadModel get lead {

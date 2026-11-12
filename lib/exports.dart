@@ -16,6 +16,7 @@ export 'package:start3x_app/app/constants/text_styles.dart';
 // App Services
 export 'package:start3x_app/app/services/api_handler.dart';
 export 'package:start3x_app/app/services/app_exception.dart';
+export 'package:start3x_app/app/services/socket_controller.dart';
 
 // App Mixin
 export 'package:start3x_app/app/mixin/base_class.dart';

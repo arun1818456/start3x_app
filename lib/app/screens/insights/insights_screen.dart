@@ -61,7 +61,11 @@ class InsightsScreen extends StatelessWidget {
       BuildContext context, InsightsController controller) {
     return PopupMenuButton<String>(
       onSelected: (String value) {
-        controller.updateFilter(value);
+        if (value == 'Select by date') {
+          controller.pickCustomDate(context);
+        } else {
+          controller.updateFilter(value);
+        }
       },
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
@@ -83,6 +87,10 @@ class InsightsScreen extends StatelessWidget {
           const PopupMenuItem<String>(
             value: 'Last Month',
             child: Text('Last Month'),
+          ),
+          const PopupMenuItem<String>(
+            value: 'All Time',
+            child: Text('All Time'),
           ),
           const PopupMenuItem<String>(
             value: 'Select by date',
