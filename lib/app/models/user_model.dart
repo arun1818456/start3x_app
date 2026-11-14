@@ -8,6 +8,7 @@ class UserDataModel {
   String? role;
   String? passkey;
   bool? isSetupComplete;
+  String? profileUrl;
 
   UserDataModel({
     this.id,
@@ -18,6 +19,7 @@ class UserDataModel {
     this.role,
     this.passkey,
     this.isSetupComplete,
+    this.profileUrl,
   });
 
   UserDataModel.fromJson(Map<String, dynamic> json) {
@@ -28,7 +30,8 @@ class UserDataModel {
     createdAt = json['createdAt'];
     role = json['role'];
     passkey = json['passkey'];
-    isSetupComplete= json['isSetupComplete'];
+    isSetupComplete = json['isSetupComplete'];
+    profileUrl = json['profileUrl'];
   }
 
   Map<String, dynamic> toJson() {
@@ -40,7 +43,8 @@ class UserDataModel {
     data['createdAt'] = createdAt;
     data['role'] = role;
     data['passkey'] = passkey;
-   data['isSetupComplete']=isSetupComplete;
+    data['isSetupComplete'] = isSetupComplete;
+    data['profileUrl'] = profileUrl;
     return data;
   }
 }

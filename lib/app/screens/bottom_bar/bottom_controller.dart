@@ -6,7 +6,7 @@ class BottomController extends GetxController {
   final List<Widget> pages = const [
     HomeScreen(),
     ToDoScreen(),
-    GroupScreen(),
+    GroupScreen(showBackButton: false),
     InsightsScreen(),
   ];
 

@@ -12,7 +12,9 @@ class CallingScreen extends StatelessWidget {
         canPop: !controller.isPastDueAlertActive.value,
         child: Scaffold(
           backgroundColor: Colors.grey.shade100,
-          body: Column(
+          body: SafeArea(
+            top: false,
+            child: Column(
             children: [
               // --- Top Start3X Past Due Alert Banner ---
               if (controller.isPastDueAlertActive.value)
@@ -121,6 +123,7 @@ class CallingScreen extends StatelessWidget {
             ],
           ),
         ),
+      ),
       ),
     );
   }
@@ -254,7 +257,10 @@ class CallingScreen extends StatelessWidget {
                   Expanded(
                     child: InkWell(
                       onTap: () {
-                        Get.toNamed(AppRoutes.groupScreen);
+                        Get.toNamed(
+                          AppRoutes.groupScreen,
+                          arguments: {'showBackButton': true},
+                        );
                       },
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 14),

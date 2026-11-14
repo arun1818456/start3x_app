@@ -5,6 +5,9 @@ export 'package:flutter/material.dart';
 export 'package:get/get.dart' hide Response, MultipartFile, FormData;
 export 'package:get_storage/get_storage.dart';
 export 'package:http/http.dart';
+export 'package:firebase_core/firebase_core.dart';
+export 'package:firebase_auth/firebase_auth.dart';
+export 'package:google_sign_in/google_sign_in.dart';
 
 // App Constants
 export 'package:start3x_app/app/constants/api_constant.dart';
@@ -17,6 +20,7 @@ export 'package:start3x_app/app/constants/text_styles.dart';
 export 'package:start3x_app/app/services/api_handler.dart';
 export 'package:start3x_app/app/services/app_exception.dart';
 export 'package:start3x_app/app/services/socket_controller.dart';
+export 'package:start3x_app/app/services/auth_services.dart';
 
 // App Mixin
 export 'package:start3x_app/app/mixin/base_class.dart';

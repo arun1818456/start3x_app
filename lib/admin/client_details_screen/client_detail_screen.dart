@@ -9,16 +9,19 @@ class ClientDetailScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: AppColors.whiteColor,
-      body: Column(
-        children: [
-          // --- Top Header ---
-          _buildTopHeader(context, controller),
+      body: SafeArea(
+        top: false,
+        child: Column(
+          children: [
+            // --- Top Header ---
+            _buildTopHeader(context, controller),
 
-          // --- Assign Lead Main Body (Fixed Screen Content) ---
-          Expanded(
-            child: _buildAssignLeadView(context, controller),
-          ),
-        ],
+            // --- Assign Lead Main Body (Fixed Screen Content) ---
+            Expanded(
+              child: _buildAssignLeadView(context, controller),
+            ),
+          ],
+        ),
       ),
     );
   }

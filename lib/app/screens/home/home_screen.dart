@@ -84,35 +84,47 @@ class HomeScreen extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        // Back Button if Admin viewing Client Profile, else Drawer Menu Icon
-        if (isAdmin)
-          GestureDetector(
-            onTap: () => Get.offAll(() => const AdminDashboardScreen()),
-            behavior: HitTestBehavior.opaque,
-            child: const Padding(
-              padding: EdgeInsets.all(4.0),
-              child: Icon(
-                Icons.arrow_back_ios_new_rounded,
-                size: 22,
-                color: AppColors.textDark,
+        // Left side: Back Button (if Admin) + Side Menu Drawer Icon
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (isAdmin) ...[
+              GestureDetector(
+                onTap: () {
+                  if (Navigator.of(context).canPop()) {
+                    Get.back();
+                  } else {
+                    Get.offAll(() => const AdminDashboardScreen());
+                  }
+                },
+                behavior: HitTestBehavior.opaque,
+                child: const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 6.0, vertical: 4.0),
+                  child: Icon(
+                    Icons.arrow_back_ios_new_rounded,
+                    size: 20,
+                    color: AppColors.textDark,
+                  ),
+                ),
               ),
-            ),
-          )
-        else
-          Builder(
-            builder: (ctx) => GestureDetector(
-              onTap: () => Scaffold.of(ctx).openDrawer(),
-              behavior: HitTestBehavior.opaque,
-              child: const Padding(
-                padding: EdgeInsets.all(4.0),
-                child: Icon(
-                  Icons.menu_rounded,
-                  size: 28,
-                  color: AppColors.textDark,
+              const SizedBox(width: 8),
+            ],
+            Builder(
+              builder: (ctx) => GestureDetector(
+                onTap: () => Scaffold.of(ctx).openDrawer(),
+                behavior: HitTestBehavior.opaque,
+                child: const Padding(
+                  padding: EdgeInsets.all(4.0),
+                  child: Icon(
+                    Icons.menu_rounded,
+                    size: 28,
+                    color: AppColors.textDark,
+                  ),
                 ),
               ),
             ),
-          ),
+          ],
+        ),
 
         // Centered Home Title
         const Text(

@@ -1,11 +1,15 @@
 import 'package:start3x_app/exports.dart';
 
 class GroupScreen extends StatelessWidget {
-  const GroupScreen({super.key});
+  final bool? showBackButton;
+  const GroupScreen({super.key, this.showBackButton});
 
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(GroupController());
+    final bool canBack = (showBackButton == true) ||
+        (Get.arguments is Map && Get.arguments['showBackButton'] == true);
+
     return Scaffold(
       backgroundColor: const Color(0xFFF4F6F9),
       body: SafeArea(
@@ -13,7 +17,7 @@ class GroupScreen extends StatelessWidget {
         child: Column(
           children: [
             // --- Header ---
-            _buildHeader(controller),
+            _buildHeader(controller, canBack),
 
             // --- Chat Messages Area ---
             Expanded(
@@ -80,26 +84,33 @@ class GroupScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader(GroupController controller) {
+  Widget _buildHeader(GroupController controller, bool canBack) {
     return Container(
       width: double.infinity,
       color: AppColors.primaryBlue,
-      padding: const EdgeInsets.only(top: 48, bottom: 14, left: 12, right: 12),
+      padding: EdgeInsets.only(
+        top: 48,
+        bottom: 14,
+        left: canBack ? 12 : 16,
+        right: 12,
+      ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Row(
             children: [
-              IconButton(
-                onPressed: () => Get.back(),
-                icon: const Icon(
-                  Icons.arrow_back_ios_new_rounded,
-                  color: AppColors.whiteColor,
-                  size: 20,
+              if (canBack) ...[
+                IconButton(
+                  onPressed: () => Get.back(),
+                  icon: const Icon(
+                    Icons.arrow_back_ios_new_rounded,
+                    color: AppColors.whiteColor,
+                    size: 20,
+                  ),
+                  tooltip: 'Back',
                 ),
-                tooltip: 'Back',
-              ),
-              const SizedBox(width: 4),
+                const SizedBox(width: 4),
+              ],
               const Icon(
                 Icons.forum_rounded,
                 color: AppColors.whiteColor,
@@ -306,7 +317,6 @@ class GroupScreen extends StatelessWidget {
 
   Widget _buildWhatsAppInputBar(GroupController controller) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: [
@@ -317,62 +327,68 @@ class GroupScreen extends StatelessWidget {
           ),
         ],
       ),
-      child: Row(
-        children: [
-          // Text Input Box
-          Expanded(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              decoration: BoxDecoration(
-                color: Colors.grey.shade100,
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: Colors.grey.shade300),
-              ),
-              child: TextField(
-                controller: controller.messageController,
-                textCapitalization: TextCapitalization.sentences,
-                minLines: 1,
-                maxLines: 4,
-                style: const TextStyle(
-                  color: AppColors.textDark,
-                  fontSize: 15,
-                ),
-                decoration: const InputDecoration(
-                  hintText: 'Type a message...',
-                  hintStyle: TextStyle(
-                    color: AppColors.textGrey,
-                    fontSize: 14,
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          child: Row(
+            children: [
+              // Text Input Box
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade100,
+                    borderRadius: BorderRadius.circular(24),
+                    border: Border.all(color: Colors.grey.shade300),
                   ),
-                  border: InputBorder.none,
-                  isDense: true,
-                  contentPadding: EdgeInsets.symmetric(vertical: 10),
+                  child: TextField(
+                    controller: controller.messageController,
+                    textCapitalization: TextCapitalization.sentences,
+                    minLines: 1,
+                    maxLines: 4,
+                    style: const TextStyle(
+                      color: AppColors.textDark,
+                      fontSize: 15,
+                    ),
+                    decoration: const InputDecoration(
+                      hintText: 'Type a message...',
+                      hintStyle: TextStyle(
+                        color: AppColors.textGrey,
+                        fontSize: 14,
+                      ),
+                      border: InputBorder.none,
+                      isDense: true,
+                      contentPadding: EdgeInsets.symmetric(vertical: 10),
+                    ),
+                    onSubmitted: (_) => controller.sendMessage(),
+                  ),
                 ),
-                onSubmitted: (_) => controller.sendMessage(),
               ),
-            ),
-          ),
 
-          const SizedBox(width: 8),
+              const SizedBox(width: 8),
 
-          // Send Button
-          GestureDetector(
-            onTap: () => controller.sendMessage(),
-            behavior: HitTestBehavior.opaque,
-            child: Container(
-              width: 44,
-              height: 44,
-              decoration: const BoxDecoration(
-                color: AppColors.primaryBlue,
-                shape: BoxShape.circle,
+              // Send Button
+              GestureDetector(
+                onTap: () => controller.sendMessage(),
+                behavior: HitTestBehavior.opaque,
+                child: Container(
+                  width: 44,
+                  height: 44,
+                  decoration: const BoxDecoration(
+                    color: AppColors.primaryBlue,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.send_rounded,
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                ),
               ),
-              child: const Icon(
-                Icons.send_rounded,
-                color: Colors.white,
-                size: 20,
-              ),
-            ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

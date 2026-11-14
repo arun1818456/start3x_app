@@ -81,6 +81,8 @@ class ClientSetupController extends GetxController with BaseClass {
       "hybrid5kW": hybrid5kW,
       "inverterSpec": inverterSpec,
       "batterySpec": batterySpec,
+      "inverterName": inverterSpec,
+      "batteryName": batterySpec,
     };
 
     try {

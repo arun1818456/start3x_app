@@ -5,6 +5,7 @@ const String appVersion = "1.0.0";
 const String loginApiEndPoint = "/api/user/login";
 const String logoutApiEndPoint = "/api/user/logout";
 const String signUpApiEndPoint = "/api/user/create";
+const String googleLoginApiEndPoint = "/api/user/google";
 
 
 // Passkey API Endpoints

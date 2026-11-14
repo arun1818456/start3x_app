@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "704177767512",
+    "project_id": "strat3x-app",
+    "storage_bucket": "strat3x-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:704177767512:android:52ec35e91b41c4fa45362d",
+        "android_client_info": {
+          "package_name": "com.aruninnovationstudio.start3x_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "704177767512-hqu8ru0gedanhpaamtr7r1b6c3ma2l0s.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.aruninnovationstudio.start3x_app",
+            "certificate_hash": "7d94c64611ced5ae99521efada704a61bed136fa"
+          }
+        },
+        {
+          "client_id": "704177767512-i1h3085ieeqcdeef254k8ocaamkukaq3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD0pOsTtXR6s9fmXgRgvAxrUGSRKJ14p6E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "704177767512-i1h3085ieeqcdeef254k8ocaamkukaq3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

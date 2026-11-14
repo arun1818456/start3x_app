@@ -112,8 +112,8 @@ class ClientSetupScreen extends StatelessWidget {
                 _buildSectionCard(
                   title: '5. HARDWARE SPECS',
                   children: [
-                    _buildFormRow('Inverter Spec:', controller.inverterSpecController, 'Inverter details'),
-                    _buildFormRow('Battery Spec:', controller.batterySpecController, 'Battery details'),
+                    _buildFormRow('Inverter Name:', controller.inverterSpecController, 'Enter Inverter Name'),
+                    _buildFormRow('Battery Name:', controller.batterySpecController, 'Enter Battery Name'),
                   ],
                 ),
 

@@ -94,7 +94,237 @@ class LoginController extends GetxController with BaseClass {
   }
 
   Future<void> onTapGoogleLogin() async {
-    // showPasskeyDialog();
+    showCircularLoader();
+    try {
+      UserCredential? res = await SocialAuth().signInWithGoogle();
+      if (res == null || res.user == null) {
+        hideCircularLoader();
+        return;
+      }
+
+      final request = {
+        "name": res.user!.displayName ??
+            (res.user!.email?.split('@').first ?? "User"),
+        "email": res.user!.email,
+        "profileUrl": res.user!.photoURL ?? "",
+        "uid": res.user!.uid,
+      };
+
+      var response = await httpRequest(
+        REQUEST.post,
+        googleLoginApiEndPoint,
+        request,
+      );
+
+      hideCircularLoader();
+
+      if (response != null && response["success"] == true) {
+        final data = response["data"];
+
+        // 🔑 CHECK IF USER REQUIRES PASSKEY (First time signup or missing passkey)
+        if (data != null && data["requiresPasskey"] == true) {
+          showGooglePasskeyDialog(
+            name: request["name"] ?? "User",
+            email: request["email"] ?? "",
+            profileUrl: request["profileUrl"] ?? "",
+            uid: request["uid"] ?? "",
+          );
+          return;
+        }
+
+        // 🚀 DIRECT LOGIN (User already exists with passkey or Admin)
+        final userData = data;
+        if (userData != null) {
+          await storage.write(LocalKeys.userData, userData);
+        }
+        showMySnackBar("Login successful", success: true);
+        if (Get.isRegistered<MySocketController>()) {
+          Get.find<MySocketController>().initializeSocket();
+        } else {
+          Get.put(MySocketController(), permanent: true);
+        }
+
+        if (userData != null && (userData["role"] == "admin")) {
+          Get.offAll(() => const AdminDashboardScreen());
+        } else {
+          if (userData != null && (userData["isSetupComplete"] ?? false)) {
+            Get.offAllNamed(AppRoutes.mainScreen);
+          } else {
+            Get.offAllNamed(AppRoutes.clientSetupScreen);
+          }
+        }
+      } else {
+        showMySnackBar(
+          response?["message"] ?? "Google login failed",
+          alert: true,
+        );
+      }
+    } catch (error) {
+      hideCircularLoader();
+      debugPrint(">> Google Login Error >> $error");
+      if (error.toString().contains(
+        "At least one of ID token and access token is required",
+      )) {
+        // User cancelled Google sign in dialog
+      } else {
+        showMySnackBar(error.toString(), error: true);
+      }
+    }
+  }
+
+  // 🔑 PASSKEY DIALOG FOR GOOGLE SIGNUP / LINKING
+  void showGooglePasskeyDialog({
+    required String name,
+    required String email,
+    required String profileUrl,
+    required String uid,
+  }) {
+    final passkeyController = TextEditingController();
+
+    Get.dialog(
+      Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        backgroundColor: Colors.white,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Key Icon Header
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryBlue.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.vpn_key_rounded,
+                    color: AppColors.primaryBlue,
+                    size: 36,
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // Title
+                const Text(
+                  'Enter Passkey',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textDark,
+                  ),
+                ),
+                const SizedBox(height: 6),
+
+                // Subtitle
+                Text(
+                  'Enter your passkey to verify and link your account ($email)',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 13, color: AppColors.textGrey),
+                ),
+                const SizedBox(height: 20),
+
+                // Passkey Field
+                MyTextFieldForm(
+                  controller: passkeyController,
+                  label: 'Passkey',
+                  hintText: 'Enter passkey',
+                  isPassword: true,
+                  prefixIcon: const Icon(
+                    Icons.key_rounded,
+                    color: AppColors.primaryBlue,
+                    size: 22,
+                  ),
+                  formRadius: 12,
+                ),
+                const SizedBox(height: 24),
+
+                // Verify & Create Account Button
+                CustomButton(
+                  text: 'Verify & Continue',
+                  color: AppColors.primaryBlue,
+                  radius: 12,
+                  buttonHeight: 50,
+                  onPressed: () async {
+                    final passkey = passkeyController.text.trim();
+                    if (passkey.isEmpty) {
+                      showMySnackBar('Please enter passkey', alert: true);
+                      return;
+                    }
+
+                    try {
+                      showCircularLoader();
+                      var res = await httpRequest(
+                        REQUEST.post,
+                        googleLoginApiEndPoint,
+                        {
+                          "name": name,
+                          "email": email,
+                          "profileUrl": profileUrl,
+                          "uid": uid,
+                          "passkey": passkey,
+                        },
+                      );
+
+                      hideCircularLoader();
+
+                      if (res != null && res["success"] == true) {
+                        final userData = res["data"];
+                        if (userData != null) {
+                          await storage.write(LocalKeys.userData, userData);
+                        }
+                        if (Get.isRegistered<MySocketController>()) {
+                          Get.find<MySocketController>().initializeSocket();
+                        } else {
+                          Get.put(MySocketController(), permanent: true);
+                        }
+
+                        Get.back(); // Close Dialog
+                        showMySnackBar("Account verified successfully", success: true);
+
+                        if (userData != null && (userData["role"] == "admin")) {
+                          Get.offAll(() => const AdminDashboardScreen());
+                        } else {
+                          if (userData != null && (userData["isSetupComplete"] ?? false)) {
+                            Get.offAllNamed(AppRoutes.mainScreen);
+                          } else {
+                            Get.offAllNamed(AppRoutes.clientSetupScreen);
+                          }
+                        }
+                      } else {
+                        showMySnackBar(
+                          res?["message"] ?? "Verification failed",
+                          alert: true,
+                        );
+                      }
+                    } catch (error) {
+                      hideCircularLoader();
+                      showMySnackBar(error.toString(), error: true);
+                    }
+                  },
+                ),
+                const SizedBox(height: 10),
+
+                // Cancel Button
+                TextButton(
+                  onPressed: () => Get.back(),
+                  child: const Text(
+                    'Cancel',
+                    style: TextStyle(
+                      color: AppColors.textGrey,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+      barrierDismissible: false,
+    );
   }
 
   void showPasskeyDialog() {

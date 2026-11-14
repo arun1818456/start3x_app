@@ -38,7 +38,11 @@ class BottomBar extends StatelessWidget with BaseClass {
               index: controller.selectedIndex,
               children: controller.pages,
             ),
-            bottomNavigationBar: _buildFloatingBottomNav(controller),
+            bottomNavigationBar: SafeArea(
+              top: false,
+              maintainBottomViewPadding: true,
+              child: _buildFloatingBottomNav(controller),
+            ),
           );
         },
       ),
@@ -47,8 +51,8 @@ class BottomBar extends StatelessWidget with BaseClass {
 
   Widget _buildFloatingBottomNav(BottomController controller) {
     return Container(
-      margin: const EdgeInsets.only(left: 20, right: 20, bottom: 24, top: 8),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      margin: const EdgeInsets.only(left: 20, right: 20, bottom: 12, top: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
         color: AppColors.primaryBlue,
         borderRadius: BorderRadius.circular(35),
@@ -81,7 +85,7 @@ class BottomBar extends StatelessWidget with BaseClass {
             index: 2,
             icon: Icons.forum_outlined,
             selectedIcon: Icons.forum_rounded,
-            label: 'Group',
+            label: 'Chat',
             controller: controller,
           ),
           _buildNavItem(
