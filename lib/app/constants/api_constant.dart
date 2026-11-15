@@ -13,6 +13,8 @@ const String generatePasskeyApiEndPoint = "/api/passkey/generate";
 const String listPasskeysApiEndPoint = "/api/passkey/list";
 const String togglePasskeyApiEndPoint = "/api/passkey/toggle/";
 const String updateClientInfoApiEndPoint = "/api/passkey/update-client-info";
+const String getPasskeyUsersApiEndPoint = "/api/passkey/users/";
+const String getPasskeyDetailsApiEndPoint = "/api/passkey/details/";
 
 // Lead API Endpoints
 const String createLeadApiEndPoint = "/api/lead/create";

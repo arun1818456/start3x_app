@@ -82,4 +82,36 @@ class LeadModel {
       'isCompleted': isCompleted,
     };
   }
+
+  LeadModel copyWith({
+    String? id,
+    String? passkey,
+    String? rank,
+    String? name,
+    String? location,
+    String? status,
+    String? scheduledDate,
+    String? phoneNumber,
+    String? altPhoneNumber,
+    String? kw,
+    String? electricityBill,
+    String? createdAt,
+    bool? isCompleted,
+  }) {
+    return LeadModel(
+      id: id ?? this.id,
+      passkey: passkey ?? this.passkey,
+      rank: rank ?? this.rank,
+      name: name ?? this.name,
+      location: location ?? this.location,
+      status: status ?? this.status,
+      scheduledDate: scheduledDate ?? this.scheduledDate,
+      phoneNumber: phoneNumber ?? this.phoneNumber,
+      altPhoneNumber: altPhoneNumber ?? this.altPhoneNumber,
+      kw: kw ?? this.kw,
+      electricityBill: electricityBill ?? this.electricityBill,
+      createdAt: createdAt ?? this.createdAt,
+      isCompleted: isCompleted ?? this.isCompleted,
+    );
+  }
 }

@@ -67,6 +67,8 @@ export 'package:start3x_app/app/screens/insights/insights_screen.dart';
 export 'package:start3x_app/app/screens/insights/insight_folder_screen.dart';
 export 'package:start3x_app/app/screens/to_do/task_controller.dart';
 export 'package:start3x_app/app/screens/to_do/to_do_screen.dart';
+export 'package:start3x_app/app/screens/team/team_controller.dart';
+export 'package:start3x_app/app/screens/team/team_screen.dart';
 
 // App Routes
 export 'package:start3x_app/app/routes/routes.dart';

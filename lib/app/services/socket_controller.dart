@@ -167,6 +167,7 @@ class MySocketController extends GetxController with BaseClass {
     String? passkey,
     String? leadId,
     String? leadRank,
+    List<String>? leadIds,
   }) {
     if (socket.value == null || !socket.value!.connected) {
       initializeSocket();
@@ -190,6 +191,7 @@ class MySocketController extends GetxController with BaseClass {
       "messageType": messageType,
       if (leadId != null && leadId.isNotEmpty) "leadId": leadId,
       if (leadRank != null && leadRank.isNotEmpty) "leadRank": leadRank,
+      if (leadIds != null && leadIds.isNotEmpty) "leadIds": leadIds,
     };
     debugPrint(">>>> Socket send_message: $data");
     socket.value?.emit("send_message", data);

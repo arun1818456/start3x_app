@@ -98,6 +98,8 @@ class ClientDetailScreen extends StatelessWidget {
                 onSelected: (value) {
                   if (value == 'View Profile') {
                     controller.navigateToProfile();
+                  } else if (value == 'Edit Client') {
+                    controller.editClient();
                   } else {
                     controller.showMySnackBar('Option: $value', alert: true);
                   }

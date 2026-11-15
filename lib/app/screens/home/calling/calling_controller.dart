@@ -2,7 +2,17 @@ import 'package:start3x_app/exports.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class CallingController extends GetxController with BaseClass {
-  late LeadModel lead;
+  final Rx<LeadModel> _lead = LeadModel(
+    rank: '',
+    name: '',
+    location: '',
+    status: '',
+    scheduledDate: '',
+  ).obs;
+
+  LeadModel get lead => _lead.value;
+  set lead(LeadModel value) => _lead.value = value;
+
   final responses = <LeadResponseModel>[].obs;
   var isLoadingResponses = false.obs;
   var showDetails = false.obs;
@@ -26,7 +36,7 @@ class CallingController extends GetxController with BaseClass {
             LeadModel(rank: '', name: '', location: '', status: '', scheduledDate: '');
         if (args['isPastDue'] == true) {
           isPastDueAlertActive.value = true;
-          pastDueDateStr = (args['pastDueDate']?.toString() ?? lead.scheduledDate)!;
+          pastDueDateStr = (args['pastDueDate']?.toString() ?? lead.scheduledDate);
         }
       } else if (Get.arguments is LeadModel) {
         lead = Get.arguments as LeadModel;
@@ -578,5 +588,368 @@ class CallingController extends GetxController with BaseClass {
     } catch (e) {
       hideCircularLoader();
     }
+  }
+
+  /// Share lead directly into group chat with this lead flagged
+  void shareLeadToChat() {
+    Get.toNamed(
+      AppRoutes.groupScreen,
+      arguments: {
+        'showBackButton': true,
+        'initialFlaggedLead': lead,
+        'passkey': lead.passkey,
+      },
+    );
+  }
+
+  /// Open edit lead dialog to modify lead details and update DB
+  void openEditLeadDialog(BuildContext context) {
+    final nameController = TextEditingController(text: lead.name);
+    final phoneController = TextEditingController(text: lead.phoneNumber);
+    final altPhoneController = TextEditingController(text: lead.altPhoneNumber);
+    final locationController = TextEditingController(text: lead.location);
+    final kwController = TextEditingController(text: lead.kw);
+    final billController = TextEditingController(text: lead.electricityBill);
+    final isSaving = false.obs;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) {
+        return Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(ctx).viewInsets.bottom + 20,
+            top: 12,
+            left: 20,
+            right: 20,
+          ),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Drag handle
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade300,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // Header
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Row(
+                      children: [
+                        Icon(
+                          Icons.edit_note_rounded,
+                          color: AppColors.primaryBlue,
+                          size: 26,
+                        ),
+                        SizedBox(width: 8),
+                        Text(
+                          'Edit Lead Details',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.textDark,
+                          ),
+                        ),
+                      ],
+                    ),
+                    IconButton(
+                      onPressed: () => Navigator.pop(ctx),
+                      icon: const Icon(Icons.close_rounded,
+                          color: AppColors.textGrey),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Update lead contact and system information for ${lead.rank}',
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: AppColors.textGrey,
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // Form Fields
+                _buildEditTextField(
+                  label: 'Lead Name *',
+                  controller: nameController,
+                  icon: Icons.person_outline_rounded,
+                  hint: 'Enter client name',
+                ),
+                const SizedBox(height: 14),
+
+                _buildEditTextField(
+                  label: 'Phone Number',
+                  controller: phoneController,
+                  icon: Icons.phone_outlined,
+                  keyboardType: TextInputType.phone,
+                  hint: 'Enter phone number',
+                ),
+                const SizedBox(height: 14),
+
+                _buildEditTextField(
+                  label: 'Alternate Phone Number',
+                  controller: altPhoneController,
+                  icon: Icons.phone_forwarded_outlined,
+                  keyboardType: TextInputType.phone,
+                  hint: 'Enter alternate phone number',
+                ),
+                const SizedBox(height: 14),
+
+                _buildEditTextField(
+                  label: 'Location / City',
+                  controller: locationController,
+                  icon: Icons.location_on_outlined,
+                  hint: 'e.g. Chandigarh',
+                ),
+                const SizedBox(height: 14),
+
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildEditTextField(
+                        label: 'Capacity (KW)',
+                        controller: kwController,
+                        icon: Icons.bolt_rounded,
+                        keyboardType: TextInputType.number,
+                        hint: 'e.g. 5KW',
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _buildEditTextField(
+                        label: 'Electricity Bill',
+                        controller: billController,
+                        icon: Icons.receipt_long_rounded,
+                        keyboardType: TextInputType.number,
+                        hint: 'e.g. ₹5,000',
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+
+                // Action Buttons
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () => Navigator.pop(ctx),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          side: BorderSide(color: Colors.grey.shade300),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: const Text(
+                          'Cancel',
+                          style: TextStyle(
+                            color: AppColors.textGrey,
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Obx(
+                        () => ElevatedButton(
+                          onPressed: isSaving.value
+                              ? null
+                              : () async {
+                                  final name = nameController.text.trim();
+                                  if (name.isEmpty) {
+                                    showMySnackBar('Lead name cannot be empty',
+                                        alert: true);
+                                    return;
+                                  }
+
+                                  if (lead.id.isEmpty) {
+                                    showMySnackBar(
+                                        'Lead ID missing, cannot update in DB',
+                                        alert: true);
+                                    return;
+                                  }
+
+                                  try {
+                                    isSaving.value = true;
+                                    final body = {
+                                      'name': name,
+                                      'phoneNumber':
+                                          phoneController.text.trim(),
+                                      'altPhoneNumber':
+                                          altPhoneController.text.trim(),
+                                      'location':
+                                          locationController.text.trim(),
+                                      'kw': kwController.text.trim(),
+                                      'electricityBill':
+                                          billController.text.trim(),
+                                    };
+
+                                    final res = await httpRequest(
+                                      REQUEST.put,
+                                      "$updateLeadApiEndPoint${lead.id}",
+                                      body,
+                                    );
+
+                                    if (res != null &&
+                                        res['success'] == true) {
+                                      final updatedLead = lead.copyWith(
+                                        name: name,
+                                        phoneNumber:
+                                            phoneController.text.trim(),
+                                        altPhoneNumber:
+                                            altPhoneController.text.trim(),
+                                        location:
+                                            locationController.text.trim(),
+                                        kw: kwController.text.trim(),
+                                        electricityBill:
+                                            billController.text.trim(),
+                                      );
+
+                                      lead = updatedLead;
+
+                                      // Also sync in HomeController if active
+                                      if (Get.isRegistered<HomeController>()) {
+                                        final home =
+                                            Get.find<HomeController>();
+                                        final idx = home.leads.indexWhere(
+                                            (l) =>
+                                                (l.id.isNotEmpty &&
+                                                    l.id == updatedLead.id) ||
+                                                (l.rank.isNotEmpty &&
+                                                    l.rank ==
+                                                        updatedLead.rank));
+                                        if (idx != -1) {
+                                          home.leads[idx] = updatedLead;
+                                          home.leads.refresh();
+                                        }
+                                      }
+
+                                      if (ctx.mounted) Navigator.pop(ctx);
+                                      showMySnackBar(
+                                          'Lead updated successfully',
+                                          success: true);
+                                    } else {
+                                      showMySnackBar(
+                                          res?['message'] ??
+                                              'Failed to update lead',
+                                          alert: true);
+                                    }
+                                  } catch (e) {
+                                    showMySnackBar('Error updating lead: $e',
+                                        alert: true);
+                                  } finally {
+                                    isSaving.value = false;
+                                  }
+                                },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primaryBlue,
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: isSaving.value
+                              ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Colors.white,
+                                  ),
+                                )
+                              : const Text(
+                                  'Save Changes',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildEditTextField({
+    required String label,
+    required TextEditingController controller,
+    required IconData icon,
+    TextInputType keyboardType = TextInputType.text,
+    String hint = '',
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: AppColors.textDark,
+          ),
+        ),
+        const SizedBox(height: 6),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          decoration: BoxDecoration(
+            color: Colors.grey.shade100,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.grey.shade300),
+          ),
+          child: Row(
+            children: [
+              Icon(icon, color: AppColors.primaryBlue, size: 20),
+              const SizedBox(width: 10),
+              Expanded(
+                child: TextField(
+                  controller: controller,
+                  keyboardType: keyboardType,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: AppColors.textDark,
+                  ),
+                  decoration: InputDecoration(
+                    border: InputBorder.none,
+                    hintText: hint,
+                    hintStyle: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey.shade400,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
   }
 }

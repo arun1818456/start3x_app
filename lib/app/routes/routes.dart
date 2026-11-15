@@ -14,4 +14,5 @@ abstract class AppRoutes {
   static const toDoScreen = '/toDoScreen';
   static const groupScreen = '/groupScreen';
   static const insightsScreen = '/insightsScreen';
+  static const teamScreen = '/teamScreen';
 }

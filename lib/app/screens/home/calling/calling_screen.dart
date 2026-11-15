@@ -257,10 +257,7 @@ class CallingScreen extends StatelessWidget {
                   Expanded(
                     child: InkWell(
                       onTap: () {
-                        Get.toNamed(
-                          AppRoutes.groupScreen,
-                          arguments: {'showBackButton': true},
-                        );
+                        controller.shareLeadToChat();
                       },
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 14),
@@ -326,49 +323,51 @@ class CallingScreen extends StatelessWidget {
 
               // Title Name & Location
               Expanded(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      controller.lead.name.isNotEmpty
-                          ? controller.lead.name
-                          : 'Lead Name',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        color: AppColors.whiteColor,
-                        fontSize: 17,
-                        fontWeight: FontWeight.bold,
+                child: Obx(
+                  () => Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        controller.lead.name.isNotEmpty
+                            ? controller.lead.name
+                            : 'Lead Name',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          color: AppColors.whiteColor,
+                          fontSize: 17,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                    if (controller.lead.location.isNotEmpty) ...[
-                      const SizedBox(height: 2),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(
-                            Icons.location_on_outlined,
-                            color: Colors.white70,
-                            size: 13,
-                          ),
-                          const SizedBox(width: 2),
-                          Flexible(
-                            child: Text(
-                              controller.lead.location,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                color: Colors.white70,
-                                fontSize: 12,
+                      if (controller.lead.location.isNotEmpty) ...[
+                        const SizedBox(height: 2),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.location_on_outlined,
+                              color: Colors.white70,
+                              size: 13,
+                            ),
+                            const SizedBox(width: 2),
+                            Flexible(
+                              child: Text(
+                                controller.lead.location,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 12,
+                                ),
                               ),
                             ),
-                          ),
-                        ],
-                      ),
+                          ],
+                        ),
+                      ],
                     ],
-                  ],
+                  ),
                 ),
               ),
               const SizedBox(width: 8),
@@ -428,8 +427,10 @@ class CallingScreen extends StatelessWidget {
                       onSelected: (value) {
                         if (value == 'Details') {
                           controller.showDetails.toggle();
-                        } else {
-                          controller.showMySnackBar('Option: $value', alert: true);
+                        } else if (value == 'Edit Lead') {
+                          controller.openEditLeadDialog(context);
+                        } else if (value == 'Share Lead') {
+                          controller.shareLeadToChat();
                         }
                       },
                       itemBuilder: (context) => [
@@ -462,17 +463,6 @@ class CallingScreen extends StatelessWidget {
                                   color: AppColors.textDark, size: 20),
                               SizedBox(width: 10),
                               Text('Edit Lead', style: TextStyle(fontSize: 14)),
-                            ],
-                          ),
-                        ),
-                        const PopupMenuItem(
-                          value: 'Block Lead',
-                          child: Row(
-                            children: [
-                              Icon(Icons.block_rounded, color: Colors.red, size: 20),
-                              SizedBox(width: 10),
-                              Text('Block Lead',
-                                  style: TextStyle(fontSize: 14, color: Colors.red)),
                             ],
                           ),
                         ),

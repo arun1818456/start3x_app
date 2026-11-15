@@ -7,6 +7,7 @@ class GroupMessageModel {
   final String messageText;
   final String messageType;
   final LeadModel? flaggedLead;
+  final List<LeadModel> flaggedLeads;
   final String createdAt;
   final bool? _isMe;
 
@@ -19,9 +20,11 @@ class GroupMessageModel {
     required this.messageText,
     this.messageType = 'text',
     this.flaggedLead,
+    List<LeadModel>? flaggedLeads,
     this.createdAt = '',
     bool isMe = false,
-  }) : _isMe = isMe;
+  })  : flaggedLeads = flaggedLeads ?? (flaggedLead != null ? [flaggedLead] : const []),
+        _isMe = isMe;
 
   factory GroupMessageModel.fromJson(
     Map<String, dynamic> json, {
@@ -29,20 +32,26 @@ class GroupMessageModel {
     bool isCurrentUserAdmin = false,
     String currentUserId = '',
   }) {
-    LeadModel? lead;
-    if (json['flaggedLead'] != null) {
-      if (json['flaggedLead'] is Map<String, dynamic>) {
-        lead = LeadModel.fromJson(json['flaggedLead']);
-      }
+    LeadModel? singleLead;
+    if (json['flaggedLead'] != null && json['flaggedLead'] is Map<String, dynamic>) {
+      singleLead = LeadModel.fromJson(json['flaggedLead']);
+    }
+
+    List<LeadModel> multipleLeads = [];
+    if (json['flaggedLeads'] != null && json['flaggedLeads'] is List) {
+      multipleLeads = (json['flaggedLeads'] as List)
+          .whereType<Map<String, dynamic>>()
+          .map((item) => LeadModel.fromJson(item))
+          .toList();
+    }
+
+    if (multipleLeads.isEmpty && singleLead != null) {
+      multipleLeads.add(singleLead);
     }
 
     final sender = json['senderName']?.toString() ?? 'User';
     final sId = json['senderId']?.toString() ?? '';
 
-    // Robust isMe determination:
-    // 1. If senderId matches logged-in user id -> definitely ME!
-    // 2. If current user is Admin and sender is "Admin" -> definitely ME!
-    // 3. If senderName matches currentUserName -> ME!
     bool me = false;
     if (currentUserId.isNotEmpty && sId.isNotEmpty && currentUserId == sId) {
       me = true;
@@ -58,8 +67,10 @@ class GroupMessageModel {
       senderId: sId,
       senderName: sender,
       messageText: json['messageText']?.toString() ?? '',
-      messageType: json['messageType']?.toString() ?? (lead != null ? 'flagged_lead' : 'text'),
-      flaggedLead: lead,
+      messageType: json['messageType']?.toString() ??
+          (multipleLeads.isNotEmpty ? 'flagged_lead' : 'text'),
+      flaggedLead: singleLead ?? (multipleLeads.isNotEmpty ? multipleLeads.first : null),
+      flaggedLeads: multipleLeads,
       createdAt: json['createdAt']?.toString() ?? '',
       isMe: me,
     );
@@ -72,8 +83,8 @@ class GroupMessageModel {
       'senderName': senderName,
       'messageText': messageText,
       'messageType': messageType,
-      if (flaggedLead != null) 'leadId': flaggedLead!.id,
-      if (flaggedLead != null) 'leadRank': flaggedLead!.rank,
+      if (flaggedLeads.isNotEmpty)
+        'leadIds': flaggedLeads.map((e) => e.id).toList(),
     };
   }
 }

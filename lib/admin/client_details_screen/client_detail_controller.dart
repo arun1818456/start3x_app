@@ -52,6 +52,17 @@ class ClientDetailController extends GetxController with BaseClass {
     );
   }
 
+  void editClient() {
+    Get.toNamed(
+      AppRoutes.clientSetupScreen,
+      arguments: {
+        'fromMenu': true,
+        'passkey': client.passkey,
+        'client': client,
+      },
+    );
+  }
+
   Future<void> makePhoneCall([String? number]) async {
     final phone = (number != null && number.isNotEmpty) ? number : client.phone;
     if (phone.isEmpty) {

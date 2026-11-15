@@ -17,21 +17,72 @@ class SideMenuBar extends StatelessWidget with BaseClass {
                 ? 'Passkey: ${user.passkey}'
                 : '');
 
+    String activePasskey = '';
+    dynamic activeClientObj;
+
+    // Resolve active client/passkey if Admin is viewing a client
     if (Get.arguments != null) {
       if (Get.arguments is Map) {
-        final clientObj = Get.arguments['client'];
-        if (clientObj != null) {
-          if (clientObj is ClientModel) {
-            if (clientObj.name.isNotEmpty) displayName = clientObj.name;
-            if (clientObj.passkey.isNotEmpty) {
-              displaySubtitle = 'Passkey: ${clientObj.passkey}';
-            }
-          } else if (clientObj is AccessClientModel) {
-            if (clientObj.name.isNotEmpty) displayName = clientObj.name;
-            displaySubtitle = 'Passkey: ${clientObj.id}';
+        if (Get.arguments['client'] != null) {
+          activeClientObj = Get.arguments['client'];
+          if (activeClientObj is ClientModel) {
+            if (activeClientObj.name.isNotEmpty) displayName = activeClientObj.name;
+            activePasskey = activeClientObj.passkey;
+            if (activePasskey.isNotEmpty) displaySubtitle = 'Passkey: $activePasskey';
+          } else if (activeClientObj is AccessClientModel) {
+            if (activeClientObj.name.isNotEmpty) displayName = activeClientObj.name;
+            activePasskey = activeClientObj.id;
+            if (activePasskey.isNotEmpty) displaySubtitle = 'Passkey: $activePasskey';
           }
-        } else if (Get.arguments['passkey'] != null) {
-          displaySubtitle = 'Passkey: ${Get.arguments['passkey']}';
+        }
+        if (activePasskey.isEmpty && Get.arguments['passkey'] != null) {
+          activePasskey = Get.arguments['passkey'].toString();
+          displaySubtitle = 'Passkey: $activePasskey';
+        }
+      } else if (Get.arguments is ClientModel) {
+        activeClientObj = Get.arguments as ClientModel;
+        displayName = (Get.arguments as ClientModel).name;
+        activePasskey = (Get.arguments as ClientModel).passkey;
+        displaySubtitle = 'Passkey: $activePasskey';
+      } else if (Get.arguments is AccessClientModel) {
+        activeClientObj = Get.arguments as AccessClientModel;
+        displayName = (Get.arguments as AccessClientModel).name;
+        activePasskey = (Get.arguments as AccessClientModel).id;
+        displaySubtitle = 'Passkey: $activePasskey';
+      } else if (Get.arguments is String) {
+        activePasskey = Get.arguments as String;
+        displaySubtitle = 'Passkey: $activePasskey';
+      }
+    }
+
+    if (activePasskey.isEmpty && Get.isRegistered<HomeController>()) {
+      activePasskey = Get.find<HomeController>().clientPasskey;
+    }
+
+    if (activePasskey.isEmpty) {
+      activePasskey = storage.read('clientPasskey')?.toString() ?? '';
+    }
+
+    if (activePasskey.isEmpty) {
+      activePasskey = user.passkey ?? '';
+    }
+
+    // If Admin is viewing a client screen but client object was not in arguments, try fetching from storage
+    if (user.role == 'admin' && activePasskey.isNotEmpty && activePasskey != user.passkey) {
+      displaySubtitle = 'Passkey: $activePasskey';
+      final storedInfo = storage.read('clientInfo_$activePasskey');
+      if (storedInfo != null && storedInfo is Map) {
+        final compName = storedInfo['companyName'] ?? storedInfo['name'] ?? storedInfo['legalName'];
+        if (compName != null && compName.toString().isNotEmpty) {
+          displayName = compName.toString();
+        }
+      }
+    } else if (user.role != 'admin') {
+      final storedInfo = storage.read('clientInfo') ?? storage.read('savedClientSetup');
+      if (storedInfo != null && storedInfo is Map) {
+        final compName = storedInfo['companyName'] ?? storedInfo['name'] ?? storedInfo['legalName'];
+        if (compName != null && compName.toString().isNotEmpty) {
+          displayName = compName.toString();
         }
       }
     }
@@ -118,32 +169,32 @@ class SideMenuBar extends StatelessWidget with BaseClass {
                     },
                   ),
                   _buildMenuItem(
-                    icon: Icons.assignment_rounded,
-                    title: "To-Do List",
+                    icon: Icons.business_rounded,
+                    title: 'Business Details',
                     onTap: () {
                       Get.back();
+                      Get.toNamed(
+                        AppRoutes.clientSetupScreen,
+                        arguments: {
+                          'fromMenu': true,
+                          'passkey': activePasskey,
+                          'client': activeClientObj,
+                        },
+                      );
                     },
                   ),
                   _buildMenuItem(
-                    icon: Icons.forum_rounded,
-                    title: 'Group Chat',
+                    icon: Icons.groups_rounded,
+                    title: 'Team',
                     onTap: () {
                       Get.back();
-                    },
-                  ),
-                  _buildMenuItem(
-                    icon: Icons.bar_chart_rounded,
-                    title: 'Insights',
-                    onTap: () {
-                      Get.back();
-                    },
-                  ),
-                  const Divider(indent: 20, endIndent: 20),
-                  _buildMenuItem(
-                    icon: Icons.settings_rounded,
-                    title: 'Settings',
-                    onTap: () {
-                      Get.back();
+                      Get.toNamed(
+                        AppRoutes.teamScreen,
+                        arguments: {
+                          'passkey': activePasskey,
+                          'client': activeClientObj,
+                        },
+                      );
                     },
                   ),
                 ],

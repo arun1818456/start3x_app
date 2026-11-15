@@ -6,19 +6,27 @@ class ClientSetupScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(ClientSetupController());
+    controller.initializeWithArguments(Get.arguments);
 
     return PopScope(
-      canPop: false,
+      canPop: controller.isFromMenu,
       child: Scaffold(
         backgroundColor: Colors.grey.shade50,
         appBar: AppBar(
-          automaticallyImplyLeading: false,
+          automaticallyImplyLeading: controller.isFromMenu,
+          leading: controller.isFromMenu
+              ? IconButton(
+                  icon: const Icon(Icons.arrow_back_ios_new_rounded,
+                      color: Colors.white, size: 20),
+                  onPressed: () => Get.back(),
+                )
+              : null,
           elevation: 0,
           backgroundColor: AppColors.primaryBlue,
           centerTitle: true,
-          title: const Text(
-            'Details Setup',
-            style: TextStyle(
+          title: Text(
+            controller.isFromMenu ? 'Business Details' : 'Details Setup',
+            style: const TextStyle(
               color: Colors.white,
               fontSize: 20,
               fontWeight: FontWeight.bold,
@@ -31,9 +39,11 @@ class ClientSetupScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Please fill the required client details to proceed.',
-                  style: TextStyle(
+                Text(
+                  controller.isFromMenu
+                      ? 'View and update your business details below.'
+                      : 'Please fill the required client details to proceed.',
+                  style: const TextStyle(
                     fontSize: 14,
                     color: AppColors.textGrey,
                     fontWeight: FontWeight.w500,
@@ -43,14 +53,21 @@ class ClientSetupScreen extends StatelessWidget {
 
                 // SECTION 1: CLIENT INFO
                 _buildSectionCard(
-                  title: '1.  INFO',
+                  title: '1. INFO',
                   children: [
-                    _buildFormRow('Legal Name:', controller.legalNameController, 'Enter Legal Name'),
-                    _buildFormRow('Company Name:', controller.companyNameController, 'Enter Company Name'),
-                    _buildFormRow('GST Name:', controller.gstNameController, 'Enter GST Name'),
-                    _buildFormRow('GST Number:', controller.gstNumberController, 'Enter GST Number'),
-                    _buildFormRow('Phone Number:', controller.phoneController, 'Enter Phone Number', keyboardType: TextInputType.phone),
-                    _buildFormRow('Targeted Location:', controller.targetedLocationController, 'Enter Location'),
+                    _buildFormRow('Legal Name:', controller.legalNameController,
+                        'Enter Legal Name'),
+                    _buildFormRow('Company Name:',
+                        controller.companyNameController, 'Enter Company Name'),
+                    _buildFormRow('GST Name:', controller.gstNameController,
+                        'Enter GST Name'),
+                    _buildFormRow('GST Number:', controller.gstNumberController,
+                        'Enter GST Number'),
+                    _buildFormRow(
+                        'Phone Number:', controller.phoneController, 'Enter Phone Number',
+                        keyboardType: TextInputType.phone),
+                    _buildFormRow('Targeted Location:',
+                        controller.targetedLocationController, 'Enter Location'),
                     const SizedBox(height: 10),
                     const Text(
                       'Full Address:',
@@ -62,7 +79,8 @@ class ClientSetupScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 6),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 4),
                       decoration: BoxDecoration(
                         color: Colors.grey.shade100,
                         borderRadius: BorderRadius.circular(10),
@@ -71,11 +89,13 @@ class ClientSetupScreen extends StatelessWidget {
                       child: TextField(
                         controller: controller.fullAddressController,
                         maxLines: 3,
-                        style: const TextStyle(fontSize: 14, color: AppColors.textDark),
+                        style: const TextStyle(
+                            fontSize: 14, color: AppColors.textDark),
                         decoration: const InputDecoration(
                           border: InputBorder.none,
                           hintText: 'Enter complete address here...',
-                          hintStyle: TextStyle(fontSize: 13, color: Colors.black38),
+                          hintStyle: TextStyle(
+                              fontSize: 13, color: Colors.black38),
                         ),
                       ),
                     ),
@@ -86,11 +106,17 @@ class ClientSetupScreen extends StatelessWidget {
 
                 // SECTION 2: ON-GRID PRICES
                 _buildSectionCard(
-                  title: '3. ON-GRID PRICES',
+                  title: '2. ON-GRID PRICES',
                   children: [
-                    _buildFormRow('On-Grid 3 kW:', controller.onGrid3kWController, 'Price (₹)', keyboardType: TextInputType.number),
-                    _buildFormRow('On-Grid 4 kW:', controller.onGrid4kWController, 'Price (₹)', keyboardType: TextInputType.number),
-                    _buildFormRow('On-Grid 5 kW:', controller.onGrid5kWController, 'Price (₹)', keyboardType: TextInputType.number),
+                    _buildFormRow('On-Grid 3 kW:',
+                        controller.onGrid3kWController, 'Price (₹)',
+                        keyboardType: TextInputType.number),
+                    _buildFormRow('On-Grid 4 kW:',
+                        controller.onGrid4kWController, 'Price (₹)',
+                        keyboardType: TextInputType.number),
+                    _buildFormRow('On-Grid 5 kW:',
+                        controller.onGrid5kWController, 'Price (₹)',
+                        keyboardType: TextInputType.number),
                   ],
                 ),
 
@@ -98,11 +124,17 @@ class ClientSetupScreen extends StatelessWidget {
 
                 // SECTION 3: HYBRID PRICES
                 _buildSectionCard(
-                  title: '4. HYBRID PRICES',
+                  title: '3. HYBRID PRICES',
                   children: [
-                    _buildFormRow('Hybrid 3 kW:', controller.hybrid3kWController, 'Price (₹)', keyboardType: TextInputType.number),
-                    _buildFormRow('Hybrid 4 kW:', controller.hybrid4kWController, 'Price (₹)', keyboardType: TextInputType.number),
-                    _buildFormRow('Hybrid 5 kW:', controller.hybrid5kWController, 'Price (₹)', keyboardType: TextInputType.number),
+                    _buildFormRow('Hybrid 3 kW:', controller.hybrid3kWController,
+                        'Price (₹)',
+                        keyboardType: TextInputType.number),
+                    _buildFormRow('Hybrid 4 kW:', controller.hybrid4kWController,
+                        'Price (₹)',
+                        keyboardType: TextInputType.number),
+                    _buildFormRow('Hybrid 5 kW:', controller.hybrid5kWController,
+                        'Price (₹)',
+                        keyboardType: TextInputType.number),
                   ],
                 ),
 
@@ -110,10 +142,12 @@ class ClientSetupScreen extends StatelessWidget {
 
                 // SECTION 4: HARDWARE SPECS
                 _buildSectionCard(
-                  title: '5. HARDWARE SPECS',
+                  title: '4. HARDWARE SPECS',
                   children: [
-                    _buildFormRow('Inverter Name:', controller.inverterSpecController, 'Enter Inverter Name'),
-                    _buildFormRow('Battery Name:', controller.batterySpecController, 'Enter Battery Name'),
+                    _buildFormRow('Inverter Name:',
+                        controller.inverterSpecController, 'Enter Inverter Name'),
+                    _buildFormRow('Battery Name:',
+                        controller.batterySpecController, 'Enter Battery Name'),
                   ],
                 ),
 
@@ -121,7 +155,9 @@ class ClientSetupScreen extends StatelessWidget {
 
                 // SUBMIT BUTTON
                 CustomButton(
-                  text: 'SAVE CLIENT DETAILS',
+                  text: controller.isFromMenu
+                      ? 'UPDATE BUSINESS DETAILS'
+                      : 'SAVE CLIENT DETAILS',
                   color: AppColors.primaryBlue,
                   radius: 12,
                   buttonHeight: 52,
@@ -212,7 +248,8 @@ class ClientSetupScreen extends StatelessWidget {
                 decoration: InputDecoration(
                   border: InputBorder.none,
                   hintText: hintText,
-                  hintStyle: const TextStyle(fontSize: 13, color: Colors.black38),
+                  hintStyle:
+                      const TextStyle(fontSize: 13, color: Colors.black38),
                   isDense: true,
                   contentPadding: const EdgeInsets.symmetric(vertical: 10),
                 ),

@@ -65,5 +65,9 @@ class AppPages {
       name: AppRoutes.toDoScreen,
       page: () => const ToDoScreen(),
     ),
+    GetPage(
+      name: AppRoutes.teamScreen,
+      page: () => const TeamScreen(),
+    ),
   ];
 }

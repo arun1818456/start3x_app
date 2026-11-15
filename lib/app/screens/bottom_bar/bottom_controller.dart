@@ -12,6 +12,9 @@ class BottomController extends GetxController {
 
   void onItemTapped(int index) {
     selectedIndex = index;
+    if (index == 2 && Get.isRegistered<GroupController>()) {
+      Get.find<GroupController>().fetchChatMessagesFromApi();
+    }
     update();
   }
 }

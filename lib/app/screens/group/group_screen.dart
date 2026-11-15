@@ -7,6 +7,9 @@ class GroupScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(GroupController());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      controller.checkIncomingArguments();
+    });
     final bool canBack = (showBackButton == true) ||
         (Get.arguments is Map && Get.arguments['showBackButton'] == true);
 
@@ -76,8 +79,8 @@ class GroupScreen extends StatelessWidget {
               );
             }),
 
-            // --- Bottom WhatsApp Style Input Bar ---
-            _buildWhatsAppInputBar(controller),
+            // --- Bottom WhatsApp Style Input Bar with Flag Leads Option ---
+            _buildWhatsAppInputBar(context, controller),
           ],
         ),
       ),
@@ -248,66 +251,90 @@ class GroupScreen extends StatelessWidget {
             ],
 
             // Message Text
-            Text(
-              item.messageText,
-              style: TextStyle(
-                color: isMe ? Colors.white : AppColors.textDark,
-                fontSize: 14.5,
-                height: 1.35,
-              ),
-            ),
-
-            // Optional Flagged Lead Card
-            if (item.flaggedLead != null) ...[
-              const SizedBox(height: 8),
-              GestureDetector(
-                onTap: () => controller.openLeadDetails(item.flaggedLead!),
-                behavior: HitTestBehavior.opaque,
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: isMe
-                        ? Colors.white.withValues(alpha: 0.2)
-                        : Colors.white,
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(
-                      color: isMe
-                          ? Colors.white30
-                          : AppColors.primaryBlue.withValues(alpha: 0.3),
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.person_pin_rounded,
-                        color: isMe ? Colors.white : AppColors.primaryBlue,
-                        size: 18,
-                      ),
-                      const SizedBox(width: 6),
-                      Flexible(
-                        child: Text(
-                          '${item.flaggedLead!.rank} ${item.flaggedLead!.name}',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            color: isMe ? Colors.white : AppColors.textDark,
-                            fontSize: 13,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 4),
-                      Icon(
-                        Icons.arrow_forward_ios_rounded,
-                        color: isMe ? Colors.white70 : AppColors.textGrey,
-                        size: 10,
-                      ),
-                    ],
-                  ),
+            if (item.messageText.isNotEmpty)
+              Text(
+                item.messageText,
+                style: TextStyle(
+                  color: isMe ? Colors.white : AppColors.textDark,
+                  fontSize: 14.5,
+                  height: 1.35,
                 ),
               ),
+
+            // Flagged Lead Cards (Single or Multiple)
+            if (item.flaggedLeads.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              ...item.flaggedLeads.map((lead) {
+                return Padding(
+                  padding: const EdgeInsets.only(top: 4.0),
+                  child: GestureDetector(
+                    onTap: () => controller.openLeadDetails(lead),
+                    behavior: HitTestBehavior.opaque,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: isMe
+                            ? Colors.white.withValues(alpha: 0.2)
+                            : Colors.white,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: isMe
+                              ? Colors.white30
+                              : AppColors.primaryBlue.withValues(alpha: 0.3),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.person_pin_rounded,
+                            color: isMe ? Colors.white : AppColors.primaryBlue,
+                            size: 18,
+                          ),
+                          const SizedBox(width: 6),
+                          Flexible(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  '${lead.rank} ${lead.name}',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    color: isMe ? Colors.white : AppColors.textDark,
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                if (lead.location.isNotEmpty) ...[
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    lead.location,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      color: isMe ? Colors.white70 : AppColors.textGrey,
+                                      fontSize: 11,
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Icon(
+                            Icons.arrow_forward_ios_rounded,
+                            color: isMe ? Colors.white70 : AppColors.textGrey,
+                            size: 10,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              }),
             ],
           ],
         ),
@@ -315,7 +342,7 @@ class GroupScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildWhatsAppInputBar(GroupController controller) {
+  Widget _buildWhatsAppInputBar(BuildContext context, GroupController controller) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -329,65 +356,212 @@ class GroupScreen extends StatelessWidget {
       ),
       child: SafeArea(
         top: false,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          child: Row(
-            children: [
-              // Text Input Box
-              Expanded(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade100,
-                    borderRadius: BorderRadius.circular(24),
-                    border: Border.all(color: Colors.grey.shade300),
-                  ),
-                  child: TextField(
-                    controller: controller.messageController,
-                    textCapitalization: TextCapitalization.sentences,
-                    minLines: 1,
-                    maxLines: 4,
-                    style: const TextStyle(
-                      color: AppColors.textDark,
-                      fontSize: 15,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Selected Flagged Leads Chips Bar (if any selected)
+            Obx(() {
+              if (controller.selectedLeads.isEmpty) return const SizedBox.shrink();
+              return Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                color: const Color(0xFFF1F5F9),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.flag_rounded,
+                      color: AppColors.primaryBlue,
+                      size: 18,
                     ),
-                    decoration: const InputDecoration(
-                      hintText: 'Type a message...',
-                      hintStyle: TextStyle(
-                        color: AppColors.textGrey,
-                        fontSize: 14,
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: controller.selectedLeads.map((lead) {
+                            return Container(
+                              margin: const EdgeInsets.only(right: 6),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(
+                                  color: AppColors.primaryBlue.withValues(alpha: 0.3),
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    '${lead.rank} ${lead.name}',
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                      color: AppColors.primaryBlue,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 4),
+                                  GestureDetector(
+                                    onTap: () => controller.removeSelectedLead(lead),
+                                    child: const Icon(
+                                      Icons.close_rounded,
+                                      size: 14,
+                                      color: AppColors.textGrey,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }).toList(),
+                        ),
                       ),
-                      border: InputBorder.none,
-                      isDense: true,
-                      contentPadding: EdgeInsets.symmetric(vertical: 10),
                     ),
-                    onSubmitted: (_) => controller.sendMessage(),
-                  ),
+                    GestureDetector(
+                      onTap: controller.clearSelectedLeads,
+                      child: const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 4.0),
+                        child: Text(
+                          'Clear',
+                          style: TextStyle(
+                            color: Colors.redAccent,
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ),
+              );
+            }),
 
-              const SizedBox(width: 8),
+            // Input Row: Flag Button + Text Input + Send Button
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+              child: Row(
+                children: [
+                  // Flag Lead Button with counter badge
+                  GestureDetector(
+                    onTap: () => controller.openFlagLeadPicker(context),
+                    behavior: HitTestBehavior.opaque,
+                    child: Obx(() {
+                      final count = controller.selectedLeads.length;
+                      final bool hasSelected = count > 0;
+                      return Stack(
+                        clipBehavior: Clip.none,
+                        children: [
+                          Container(
+                            width: 42,
+                            height: 42,
+                            decoration: BoxDecoration(
+                              color: hasSelected
+                                  ? AppColors.primaryBlue.withValues(alpha: 0.12)
+                                  : Colors.grey.shade100,
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: hasSelected
+                                    ? AppColors.primaryBlue
+                                    : Colors.grey.shade300,
+                              ),
+                            ),
+                            child: Icon(
+                              Icons.flag_rounded,
+                              color: hasSelected
+                                  ? AppColors.primaryBlue
+                                  : AppColors.textDark,
+                              size: 20,
+                            ),
+                          ),
+                          if (hasSelected)
+                            Positioned(
+                              top: -2,
+                              right: -2,
+                              child: Container(
+                                padding: const EdgeInsets.all(4),
+                                decoration: const BoxDecoration(
+                                  color: Colors.redAccent,
+                                  shape: BoxShape.circle,
+                                ),
+                                constraints: const BoxConstraints(
+                                  minWidth: 18,
+                                  minHeight: 18,
+                                ),
+                                child: Text(
+                                  '$count',
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 9,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ),
+                        ],
+                      );
+                    }),
+                  ),
 
-              // Send Button
-              GestureDetector(
-                onTap: () => controller.sendMessage(),
-                behavior: HitTestBehavior.opaque,
-                child: Container(
-                  width: 44,
-                  height: 44,
-                  decoration: const BoxDecoration(
-                    color: AppColors.primaryBlue,
-                    shape: BoxShape.circle,
+                  const SizedBox(width: 8),
+
+                  // Text Input Box
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 14),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade100,
+                        borderRadius: BorderRadius.circular(24),
+                        border: Border.all(color: Colors.grey.shade300),
+                      ),
+                      child: TextField(
+                        controller: controller.messageController,
+                        textCapitalization: TextCapitalization.sentences,
+                        minLines: 1,
+                        maxLines: 4,
+                        style: const TextStyle(
+                          color: AppColors.textDark,
+                          fontSize: 15,
+                        ),
+                        decoration: const InputDecoration(
+                          hintText: 'Type a message...',
+                          hintStyle: TextStyle(
+                            color: AppColors.textGrey,
+                            fontSize: 14,
+                          ),
+                          border: InputBorder.none,
+                          isDense: true,
+                          contentPadding: EdgeInsets.symmetric(vertical: 10),
+                        ),
+                        onSubmitted: (_) => controller.sendMessage(),
+                      ),
+                    ),
                   ),
-                  child: const Icon(
-                    Icons.send_rounded,
-                    color: Colors.white,
-                    size: 20,
+
+                  const SizedBox(width: 8),
+
+                  // Send Button
+                  GestureDetector(
+                    onTap: () => controller.sendMessage(),
+                    behavior: HitTestBehavior.opaque,
+                    child: Container(
+                      width: 44,
+                      height: 44,
+                      decoration: const BoxDecoration(
+                        color: AppColors.primaryBlue,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.send_rounded,
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                    ),
                   ),
-                ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
