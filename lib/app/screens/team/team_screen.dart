@@ -187,149 +187,159 @@ class TeamScreen extends StatelessWidget {
                       final String initial = displayName[0].toUpperCase();
                       final bool isSetup = user.isSetupComplete == true;
 
-                      return Container(
-                        padding: const EdgeInsets.all(14),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(14),
-                          border: Border.all(color: Colors.grey.shade200),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.03),
-                              blurRadius: 8,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Row(
-                          children: [
-                            // Profile Avatar
-                            CircleAvatar(
-                              radius: 24,
-                              backgroundColor: AppColors.primaryBlue
-                                  .withValues(alpha: 0.12),
-                              backgroundImage: (user.profileUrl != null &&
-                                      user.profileUrl!.isNotEmpty)
-                                  ? NetworkImage(user.profileUrl!)
-                                  : null,
-                              child: (user.profileUrl == null ||
-                                      user.profileUrl!.isEmpty)
-                                  ? Text(
-                                      initial,
-                                      style: const TextStyle(
-                                        color: AppColors.primaryBlue,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 20,
-                                      ),
-                                    )
-                                  : null,
-                            ),
-                            const SizedBox(width: 14),
+                      return InkWell(
+                        onTap: () => controller.openMemberProgressDialog(context, user),
+                        borderRadius: BorderRadius.circular(14),
+                        child: Container(
+                          padding: const EdgeInsets.all(14),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(color: Colors.grey.shade200),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.03),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: Row(
+                            children: [
+                              // Profile Avatar
+                              CircleAvatar(
+                                radius: 24,
+                                backgroundColor: AppColors.primaryBlue
+                                    .withValues(alpha: 0.12),
+                                backgroundImage: (user.profileUrl != null &&
+                                        user.profileUrl!.isNotEmpty)
+                                    ? NetworkImage(user.profileUrl!)
+                                    : null,
+                                child: (user.profileUrl == null ||
+                                        user.profileUrl!.isEmpty)
+                                    ? Text(
+                                        initial,
+                                        style: const TextStyle(
+                                          color: AppColors.primaryBlue,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 20,
+                                        ),
+                                      )
+                                    : null,
+                              ),
+                              const SizedBox(width: 14),
 
-                            // User Info
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        child: Text(
-                                          displayName,
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: const TextStyle(
-                                            fontSize: 15,
-                                            fontWeight: FontWeight.bold,
-                                            color: AppColors.textDark,
+                              // User Info
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: Text(
+                                            displayName,
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: const TextStyle(
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.bold,
+                                              color: AppColors.textDark,
+                                            ),
                                           ),
                                         ),
+                                        if (user.role != null &&
+                                            user.role!.isNotEmpty) ...[
+                                          const SizedBox(width: 6),
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 8, vertical: 2),
+                                            decoration: BoxDecoration(
+                                              color: user.role == 'admin'
+                                                  ? Colors.orange.shade100
+                                                  : AppColors.primaryBlue
+                                                      .withValues(alpha: 0.1),
+                                              borderRadius:
+                                                  BorderRadius.circular(6),
+                                            ),
+                                            child: Text(
+                                              user.role!.toUpperCase(),
+                                              style: TextStyle(
+                                                fontSize: 10,
+                                                fontWeight: FontWeight.bold,
+                                                color: user.role == 'admin'
+                                                    ? Colors.orange.shade900
+                                                    : AppColors.primaryBlue,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ],
+                                    ),
+                                    if (user.email != null &&
+                                        user.email!.isNotEmpty) ...[
+                                      const SizedBox(height: 3),
+                                      Text(
+                                        user.email!,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(
+                                          fontSize: 13,
+                                          color: AppColors.textGrey,
+                                        ),
                                       ),
-                                      if (user.role != null &&
-                                          user.role!.isNotEmpty) ...[
-                                        const SizedBox(width: 6),
+                                    ],
+                                    const SizedBox(height: 6),
+                                    Row(
+                                      children: [
+                                        Icon(
+                                          Icons.calendar_today_rounded,
+                                          size: 12,
+                                          color: Colors.grey.shade600,
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          'Joined: ${controller.formatDate(user.createdAt)}',
+                                          style: TextStyle(
+                                            fontSize: 11,
+                                            color: Colors.grey.shade600,
+                                          ),
+                                        ),
+                                        const Spacer(),
                                         Container(
                                           padding: const EdgeInsets.symmetric(
-                                              horizontal: 8, vertical: 2),
+                                              horizontal: 6, vertical: 2),
                                           decoration: BoxDecoration(
-                                            color: user.role == 'admin'
-                                                ? Colors.orange.shade100
-                                                : AppColors.primaryBlue
-                                                    .withValues(alpha: 0.1),
+                                            color: isSetup
+                                                ? Colors.green.shade50
+                                                : Colors.amber.shade50,
                                             borderRadius:
-                                                BorderRadius.circular(6),
+                                                BorderRadius.circular(4),
                                           ),
                                           child: Text(
-                                            user.role!.toUpperCase(),
+                                            isSetup ? 'Active' : 'Pending',
                                             style: TextStyle(
                                               fontSize: 10,
-                                              fontWeight: FontWeight.bold,
-                                              color: user.role == 'admin'
-                                                  ? Colors.orange.shade900
-                                                  : AppColors.primaryBlue,
+                                              fontWeight: FontWeight.w600,
+                                              color: isSetup
+                                                  ? Colors.green.shade700
+                                                  : Colors.amber.shade800,
                                             ),
                                           ),
                                         ),
                                       ],
-                                    ],
-                                  ),
-                                  if (user.email != null &&
-                                      user.email!.isNotEmpty) ...[
-                                    const SizedBox(height: 3),
-                                    Text(
-                                      user.email!,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: const TextStyle(
-                                        fontSize: 13,
-                                        color: AppColors.textGrey,
-                                      ),
                                     ),
                                   ],
-                                  const SizedBox(height: 6),
-                                  Row(
-                                    children: [
-                                      Icon(
-                                        Icons.calendar_today_rounded,
-                                        size: 12,
-                                        color: Colors.grey.shade600,
-                                      ),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        'Joined: ${controller.formatDate(user.createdAt)}',
-                                        style: TextStyle(
-                                          fontSize: 11,
-                                          color: Colors.grey.shade600,
-                                        ),
-                                      ),
-                                      const Spacer(),
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 6, vertical: 2),
-                                        decoration: BoxDecoration(
-                                          color: isSetup
-                                              ? Colors.green.shade50
-                                              : Colors.amber.shade50,
-                                          borderRadius:
-                                              BorderRadius.circular(4),
-                                        ),
-                                        child: Text(
-                                          isSetup ? 'Active' : 'Pending',
-                                          style: TextStyle(
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.w600,
-                                            color: isSetup
-                                                ? Colors.green.shade700
-                                                : Colors.amber.shade800,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
+                                ),
                               ),
-                            ),
-                          ],
+                              const SizedBox(width: 8),
+                              const Icon(
+                                Icons.arrow_forward_ios_rounded,
+                                size: 14,
+                                color: Colors.black26,
+                              ),
+                            ],
+                          ),
                         ),
                       );
                     },

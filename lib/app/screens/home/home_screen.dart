@@ -16,11 +16,15 @@ class HomeScreen extends StatelessWidget {
             children: [
               // --- Top App Bar / Header ---
               _buildTopHeader(context, controller),
-              const SizedBox(height: 16),
+              const SizedBox(height: 14),
 
               // --- Search Bar ---
               _buildSearchBar(controller),
-              const SizedBox(height: 20),
+              const SizedBox(height: 12),
+
+              // --- Quick Filter Chips Bar ---
+              _buildFilterChips(controller),
+              const SizedBox(height: 14),
 
               // --- Dynamic Cards List with Pull-to-Refresh ---
               Expanded(
@@ -39,18 +43,63 @@ class HomeScreen extends StatelessWidget {
 
                       final leadsList = controller.filteredLeads;
                       if (leadsList.isEmpty) {
+                        String emptyText = 'No leads assigned yet';
+                        if (controller.searchQuery.value.trim().isNotEmpty) {
+                          emptyText =
+                              'No leads matching "${controller.searchQuery.value}"';
+                        } else if (controller.selectedSortOption.value ==
+                            'Uncontacted Leads') {
+                          emptyText = 'No uncontacted leads found';
+                        } else if (controller.selectedSortOption.value ==
+                            'Missed Tasks') {
+                          emptyText = 'No missed tasks found';
+                        }
+
                         return ListView(
                           physics: const AlwaysScrollableScrollPhysics(),
-                          children: const [
-                            SizedBox(height: 100),
+                          children: [
+                            const SizedBox(height: 80),
                             Center(
-                              child: Text(
-                                'No leads assigned yet',
-                                style: TextStyle(
-                                  color: AppColors.textGrey,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
-                                ),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.filter_list_off_rounded,
+                                    size: 48,
+                                    color: Colors.grey.shade400,
+                                  ),
+                                  const SizedBox(height: 12),
+                                  Text(
+                                    emptyText,
+                                    style: const TextStyle(
+                                      color: AppColors.textGrey,
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  if (controller.selectedSortOption.value ==
+                                          'Uncontacted Leads' ||
+                                      controller.selectedSortOption.value ==
+                                          'Missed Tasks' ||
+                                      controller.searchQuery.value
+                                          .trim()
+                                          .isNotEmpty) ...[
+                                    const SizedBox(height: 14),
+                                    TextButton.icon(
+                                      onPressed: () {
+                                        controller.searchQuery.value = '';
+                                        controller.selectedSortOption.value =
+                                            'Interaction Date';
+                                      },
+                                      icon: const Icon(Icons.refresh_rounded,
+                                          size: 18),
+                                      label: const Text('Reset Filters'),
+                                      style: TextButton.styleFrom(
+                                        foregroundColor: AppColors.primaryBlue,
+                                      ),
+                                    ),
+                                  ],
+                                ],
                               ),
                             ),
                           ],
@@ -99,7 +148,8 @@ class HomeScreen extends StatelessWidget {
                 },
                 behavior: HitTestBehavior.opaque,
                 child: const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 6.0, vertical: 4.0),
+                  padding:
+                      EdgeInsets.symmetric(horizontal: 6.0, vertical: 4.0),
                   child: Icon(
                     Icons.arrow_back_ios_new_rounded,
                     size: 20,
@@ -141,19 +191,24 @@ class HomeScreen extends StatelessWidget {
               color: Colors.grey.shade200,
               borderRadius: BorderRadius.circular(18),
             ),
-            child: const Row(
+            child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  'Sorted by',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.textDark,
-                  ),
-                ),
-                SizedBox(width: 4),
-                Icon(
+                Obx(() {
+                  String label = controller.selectedSortOption.value;
+                  if (label == 'Uncontacted Leads') label = 'Uncontacted';
+                  if (label == 'Missed Tasks') label = 'Missed';
+                  return Text(
+                    label,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textDark,
+                    ),
+                  );
+                }),
+                const SizedBox(width: 4),
+                const Icon(
                   Icons.tune_rounded,
                   size: 15,
                   color: AppColors.textDark,
@@ -179,13 +234,108 @@ class HomeScreen extends StatelessWidget {
         style: const TextStyle(fontSize: 14),
         decoration: const InputDecoration(
           icon: Icon(Icons.search, color: AppColors.textDark, size: 20),
-          hintText: 'Search',
-          hintStyle: TextStyle(fontSize: 14, color: AppColors.textGrey),
+          hintText: 'Search leads by name, location, rank...',
+          hintStyle: TextStyle(fontSize: 13, color: AppColors.textGrey),
           border: InputBorder.none,
           isDense: true,
           contentPadding: EdgeInsets.symmetric(vertical: 11),
         ),
       ),
+    );
+  }
+
+  Widget _buildFilterChips(HomeController controller) {
+    final options = [
+      {'label': 'All', 'value': 'All Leads'},
+      {'label': 'Uncontacted', 'value': 'Uncontacted Leads'},
+      {'label': 'Missed Tasks', 'value': 'Missed Tasks'},
+      {'label': 'Interaction Date', 'value': 'Interaction Date'},
+      {'label': 'Upload Date', 'value': 'Upload Date'},
+    ];
+
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      physics: const BouncingScrollPhysics(),
+      child: Obx(() {
+        final current = controller.selectedSortOption.value;
+        return Row(
+          children: options.map((item) {
+            final val = item['value']!;
+            final label = item['label']!;
+            final bool isSelected = (val == 'All Leads' &&
+                    (current == 'Interaction Date' || current == 'All Leads')) ||
+                current == val;
+
+            // Get badge count if applicable
+            String countSuffix = '';
+            if (val == 'Uncontacted Leads') {
+              countSuffix = ' (${controller.uncontactedCount})';
+            } else if (val == 'Missed Tasks') {
+              countSuffix = ' (${controller.missedCount})';
+            }
+
+            return Padding(
+              padding: const EdgeInsets.only(right: 8.0),
+              child: GestureDetector(
+                onTap: () {
+                  if (val == 'All Leads') {
+                    controller.selectedSortOption.value = 'Interaction Date';
+                  } else {
+                    if (controller.selectedSortOption.value == val) {
+                      controller.toggleSortDirection();
+                    } else {
+                      controller.selectedSortOption.value = val;
+                    }
+                  }
+                },
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 150),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+                  decoration: BoxDecoration(
+                    color:
+                        isSelected ? AppColors.primaryBlue : Colors.grey.shade100,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: isSelected
+                          ? AppColors.primaryBlue
+                          : Colors.grey.shade300,
+                      width: 1,
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        '$label$countSuffix',
+                        style: TextStyle(
+                          fontSize: 12.5,
+                          fontWeight:
+                              isSelected ? FontWeight.bold : FontWeight.w500,
+                          color: isSelected ? Colors.white : AppColors.textDark,
+                        ),
+                      ),
+                      if (isSelected &&
+                          (val == 'Upload Date' ||
+                              val == 'Interaction Date')) ...[
+                        const SizedBox(width: 4),
+                        Icon(
+                          controller.selectedSortDirection.value ==
+                                  'Newest to Oldest'
+                              ? Icons.arrow_downward_rounded
+                              : Icons.arrow_upward_rounded,
+                          size: 13,
+                          color: Colors.white,
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+            );
+          }).toList(),
+        );
+      }),
     );
   }
 }

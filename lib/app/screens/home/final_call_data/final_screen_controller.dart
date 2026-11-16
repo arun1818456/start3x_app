@@ -257,13 +257,17 @@ class FinalScreenController extends GetxController with BaseClass {
     final dt = selectedDateTime.value;
     final formattedCallDate = _getFormattedCurrentDateTime();
 
+    final userData = getUserData();
     String passkeyVal = lead.passkey;
     if (passkeyVal.isEmpty) {
-      final userData = getUserData();
       passkeyVal = userData.passkey ??
           storage.read(LocalKeys.userData)?['passkey'] ??
           '';
     }
+
+    final callerName = (userData.name != null && userData.name!.trim().isNotEmpty)
+        ? userData.name!.trim()
+        : (userData.role == 'admin' ? 'Admin' : 'User');
 
     final String? scheduledDateVal =
         (dt != null && dt.trim().isNotEmpty) ? dt : null;
@@ -284,6 +288,8 @@ class FinalScreenController extends GetxController with BaseClass {
           "reminder": selectedReminder.value,
           "scheduledDate": scheduledDateVal,
           "callDate": formattedCallDate,
+          "userName": callerName,
+          "callerName": callerName,
         },
       );
 
@@ -306,6 +312,7 @@ class FinalScreenController extends GetxController with BaseClass {
             text: noteText.isEmpty ? 'Follow-up response' : noteText,
             reminder: selectedReminder.value,
             createdAt: formattedCallDate,
+            userName: callerName,
           );
           callingCtrl.responses.insert(0, newResponse);
         }
@@ -319,6 +326,8 @@ class FinalScreenController extends GetxController with BaseClass {
 
     Get.until((route) =>
         route.settings.name == AppRoutes.callingScreen || route.isFirst);
+
+    DealClosedPromptHelper.checkAndPromptDealClosed();
   }
 
   @override

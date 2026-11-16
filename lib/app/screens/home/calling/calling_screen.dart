@@ -762,138 +762,223 @@ class CallingScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Header: Response # and Edit Button
+                  // Header: Response #, Caller Name & Edit Button
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-              Text(
-                resp.responseNumber,
-                style: const TextStyle(
-                  color: AppColors.whiteColor,
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              GestureDetector(
-                onTap: () =>
-                    controller.showEditResponseBottomSheet(index, resp),
-                behavior: HitTestBehavior.opaque,
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: const Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.edit_rounded,
-                        color: AppColors.whiteColor,
-                        size: 15,
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            resp.responseNumber,
+                            style: const TextStyle(
+                              color: AppColors.whiteColor,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          if (resp.userName != null &&
+                              resp.userName!.trim().isNotEmpty) ...[
+                            const SizedBox(width: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.2),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: Colors.white.withValues(alpha: 0.3),
+                                  width: 0.8,
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(
+                                    Icons.person_rounded,
+                                    color: Color(0xFFFFCC00),
+                                    size: 13,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  ConstrainedBox(
+                                    constraints:
+                                        const BoxConstraints(maxWidth: 110),
+                                    child: Text(
+                                      resp.userName!,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ],
                       ),
-                      SizedBox(width: 4),
-                      Text(
-                        'Edit',
-                        style: TextStyle(
-                          color: AppColors.whiteColor,
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
+                      GestureDetector(
+                        onTap: () =>
+                            controller.showEditResponseBottomSheet(index, resp),
+                        behavior: HitTestBehavior.opaque,
+                        child: Container(
+                          padding:
+                              const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.2),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.edit_rounded,
+                                color: AppColors.whiteColor,
+                                size: 15,
+                              ),
+                              SizedBox(width: 4),
+                              Text(
+                                'Edit',
+                                style: TextStyle(
+                                  color: AppColors.whiteColor,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ],
                   ),
-                ),
-              ),
-            ],
-          ),
 
-          const SizedBox(height: 14),
+                  const SizedBox(height: 14),
 
-          // Meeting or Callback Details
-          if (resp.scheduledDate != null &&
-              resp.scheduledDate!.isNotEmpty) ...[
-            _buildDetailTile(
-              icon: Icons.event_available_rounded,
-              label: 'Meeting Scheduled: ',
-              value: resp.scheduledDate!,
-            ),
-            const SizedBox(height: 8),
-          ],
-          if (resp.callback != null && resp.callback!.isNotEmpty) ...[
-            _buildDetailTile(
-              icon: Icons.phone_callback_rounded,
-              label: 'Callback: ',
-              value: resp.callback!,
-            ),
-            const SizedBox(height: 8),
-          ],
-
-          // Outcome
-          _buildDetailTile(
-            icon: Icons.check_circle_outline_rounded,
-            label: 'Outcome: ',
-            value: resp.outcome,
-          ),
-
-          const SizedBox(height: 8),
-
-          // Response Text
-          if (resp.text.isNotEmpty) ...[
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.black.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                resp.text,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 13,
-                  height: 1.35,
-                ),
-              ),
-            ),
-            const SizedBox(height: 12),
-          ],
-
-          // Call Date Footer
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              const Icon(
-                Icons.access_time_rounded,
-                color: Color(0xFFFFCC00),
-                size: 14,
-              ),
-              const SizedBox(width: 4),
-              RichText(
-                text: TextSpan(
-                  children: [
-                    const TextSpan(
-                      text: 'Call Date: ',
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w400,
-                      ),
+                  // Caller Detail Tile (if available)
+                  if (resp.userName != null &&
+                      resp.userName!.trim().isNotEmpty) ...[
+                    _buildDetailTile(
+                      icon: Icons.person_outline_rounded,
+                      label: 'Called By: ',
+                      value: resp.userName!,
                     ),
-                    TextSpan(
-                      text: resp.createdAt,
-                      style: const TextStyle(
-                        color: Color(0xFFFFCC00),
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                    const SizedBox(height: 8),
                   ],
-                ),
-              ),
-            ],
-          ),
+
+                  // Meeting or Callback Details
+                  if (resp.scheduledDate != null &&
+                      resp.scheduledDate!.isNotEmpty) ...[
+                    _buildDetailTile(
+                      icon: Icons.event_available_rounded,
+                      label: 'Meeting Scheduled: ',
+                      value: resp.scheduledDate!,
+                    ),
+                    const SizedBox(height: 8),
+                  ],
+                  if (resp.callback != null && resp.callback!.isNotEmpty) ...[
+                    _buildDetailTile(
+                      icon: Icons.phone_callback_rounded,
+                      label: 'Callback: ',
+                      value: resp.callback!,
+                    ),
+                    const SizedBox(height: 8),
+                  ],
+
+                  // Outcome
+                  _buildDetailTile(
+                    icon: Icons.check_circle_outline_rounded,
+                    label: 'Outcome: ',
+                    value: resp.outcome,
+                  ),
+
+                  const SizedBox(height: 8),
+
+                  // Response Text
+                  if (resp.text.isNotEmpty) ...[
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        resp.text,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 13,
+                          height: 1.35,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                  ],
+
+                  // Call Date Footer
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      if (resp.userName != null &&
+                          resp.userName!.trim().isNotEmpty)
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.account_circle_outlined,
+                              color: Colors.white70,
+                              size: 15,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              resp.userName!,
+                              style: const TextStyle(
+                                color: Colors.white70,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        )
+                      else
+                        const SizedBox.shrink(),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.access_time_rounded,
+                            color: Color(0xFFFFCC00),
+                            size: 14,
+                          ),
+                          const SizedBox(width: 4),
+                          RichText(
+                            text: TextSpan(
+                              children: [
+                                const TextSpan(
+                                  text: 'Call Date: ',
+                                  style: TextStyle(
+                                    color: Colors.white70,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                ),
+                                TextSpan(
+                                  text: resp.createdAt,
+                                  style: const TextStyle(
+                                    color: Color(0xFFFFCC00),
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),

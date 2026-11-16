@@ -9,6 +9,8 @@ class HomeController extends GetxController with BaseClass {
   String clientPasskey = '';
 
   final RxList<LeadModel> leads = <LeadModel>[].obs;
+  final RxMap<String, List<LeadResponseModel>> leadResponsesMap =
+      <String, List<LeadResponseModel>>{}.obs;
 
   @override
   void onInit() {
@@ -65,6 +67,27 @@ class HomeController extends GetxController with BaseClass {
         {},
       );
 
+      // Also fetch all responses for this passkey to track accurate interaction dates and uncontacted status
+      var respRes = await httpRequest(
+        REQUEST.get,
+        "$getResponsesApiEndPoint?passkey=$clientPasskey",
+        {},
+      );
+
+      if (respRes != null &&
+          respRes["success"] == true &&
+          respRes["data"] != null) {
+        List dataList = respRes["data"];
+        final Map<String, List<LeadResponseModel>> map = {};
+        for (var item in dataList) {
+          final resp = LeadResponseModel.fromJson(item);
+          if (resp.leadId.isNotEmpty) {
+            map.putIfAbsent(resp.leadId, () => []).add(resp);
+          }
+        }
+        leadResponsesMap.value = map;
+      }
+
       if (res != null && res["success"] == true && res["data"] != null) {
         List dataList = res["data"];
         if (dataList.isNotEmpty) {
@@ -74,6 +97,7 @@ class HomeController extends GetxController with BaseClass {
           // Auto-check for past due leads on init
           WidgetsBinding.instance.addPostFrameCallback((_) {
             _checkPastDueLeads();
+            DealClosedPromptHelper.checkAndPromptDealClosed();
           });
         } else {
           leads.clear();
@@ -124,10 +148,10 @@ class HomeController extends GetxController with BaseClass {
   void _checkPastDueLeads() {
     final now = DateTime.now();
     for (var lead in leads) {
-      final String? dateStr = lead.scheduledDate;
-      if(dateStr == null) return;
+      final dateStr = lead.scheduledDate;
+      if (dateStr.isEmpty) continue;
       final dt = parseLeadDateTime(dateStr);
-      if (dt != null && dt.isBefore(now) && (lead.isCompleted == false) ) {
+      if (dt != null && dt.isBefore(now) && (lead.isCompleted == false)) {
         Get.toNamed(
           AppRoutes.callingScreen,
           arguments: {
@@ -145,30 +169,154 @@ class HomeController extends GetxController with BaseClass {
     await fetchLeads();
   }
 
+  // --- Filter Count Getters ---
+  int get uncontactedCount => leads.where((l) => _isUncontactedLead(l)).length;
+  int get missedCount => leads.where((l) => _isMissedLead(l)).length;
+
+  void toggleSortDirection() {
+    selectedSortDirection.value =
+        selectedSortDirection.value == 'Newest to Oldest'
+            ? 'Oldest to Newest'
+            : 'Newest to Oldest';
+  }
+
+  bool _isUncontactedLead(LeadModel lead) {
+    // 1. If lead has any logged call responses, it is already contacted
+    final responses = leadResponsesMap[lead.id];
+    if (responses != null && responses.isNotEmpty) {
+      return false;
+    }
+
+    // 2. If status or isCompleted indicates an interaction already occurred
+    if (lead.isCompleted) return false;
+
+    final status = lead.status.toLowerCase();
+    if (status.contains('done') ||
+        status.contains('callback') ||
+        status.contains('meeting') ||
+        status.contains('deal') ||
+        status.contains('conversion')) {
+      return false;
+    }
+
+    return true;
+  }
+
+  bool _isMissedLead(LeadModel lead) {
+    // 1. Check if status explicitly says missed
+    final status = lead.status.toLowerCase();
+    if (status.contains('missed')) return true;
+
+    // 2. Check if latest response was missed
+    final responses = leadResponsesMap[lead.id];
+    if (responses != null && responses.isNotEmpty) {
+      if (responses.first.isMissed) return true;
+    }
+
+    // 3. Check if scheduled date was in the past and task is not completed
+    if (!lead.isCompleted && lead.scheduledDate.isNotEmpty) {
+      final dt = parseLeadDateTime(lead.scheduledDate);
+      if (dt != null && dt.isBefore(DateTime.now())) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  DateTime _getLeadInteractionDate(LeadModel lead) {
+    // 1. Check if there are responses
+    final responses = leadResponsesMap[lead.id];
+    if (responses != null && responses.isNotEmpty) {
+      final latest = responses.first;
+      final dt = DateTime.tryParse(latest.createdAt) ??
+          parseLeadDateTime(latest.createdAt) ??
+          parseLeadDateTime(latest.scheduledDate ?? '');
+      if (dt != null) return dt;
+    }
+
+    // 2. Check lead's scheduledDate
+    if (lead.scheduledDate.isNotEmpty) {
+      final dt = parseLeadDateTime(lead.scheduledDate);
+      if (dt != null) return dt;
+    }
+
+    // 3. Fallback to createdAt
+    if (lead.createdAt.isNotEmpty) {
+      final dt = DateTime.tryParse(lead.createdAt) ??
+          parseLeadDateTime(lead.createdAt);
+      if (dt != null) return dt;
+    }
+
+    // 4. Default by rank number
+    final rankNum = int.tryParse(lead.rank.replaceAll(RegExp(r'\D'), '')) ?? 0;
+    return DateTime(2020).add(Duration(days: rankNum));
+  }
+
+  DateTime _getLeadUploadDate(LeadModel lead) {
+    if (lead.createdAt.isNotEmpty) {
+      final dt = DateTime.tryParse(lead.createdAt) ??
+          parseLeadDateTime(lead.createdAt);
+      if (dt != null) return dt;
+    }
+    final rankNum = int.tryParse(lead.rank.replaceAll(RegExp(r'\D'), '')) ?? 0;
+    return DateTime(2020).add(Duration(days: rankNum));
+  }
+
   List<LeadModel> get filteredLeads {
     List<LeadModel> result = leads.toList();
 
-    if (searchQuery.value.isNotEmpty) {
-      final q = searchQuery.value.toLowerCase();
-      result = result
-          .where((lead) =>
-              lead.name.toLowerCase().contains(q) ||
-              lead.location.toLowerCase().contains(q))
-          .toList();
+    // 1. Search Query Filter across name, location, rank, phone numbers, KW, bill
+    if (searchQuery.value.trim().isNotEmpty) {
+      final q = searchQuery.value.trim().toLowerCase();
+      result = result.where((lead) {
+        return lead.name.toLowerCase().contains(q) ||
+            lead.location.toLowerCase().contains(q) ||
+            lead.rank.toLowerCase().contains(q) ||
+            lead.phoneNumber.toLowerCase().contains(q) ||
+            lead.altPhoneNumber.toLowerCase().contains(q) ||
+            lead.kw.toLowerCase().contains(q) ||
+            lead.electricityBill.toLowerCase().contains(q);
+      }).toList();
     }
 
-    if (selectedSortOption.value == 'Upload Date') {
-      result.sort((a, b) => selectedSortDirection.value == 'Newest to Oldest'
-          ? b.createdAt.compareTo(a.createdAt)
-          : a.createdAt.compareTo(b.createdAt));
-    } else if (selectedSortOption.value == 'Interaction Date') {
-      result.sort((a, b) => selectedSortDirection.value == 'Newest to Oldest'
-          ? a.rank.compareTo(b.rank)
-          : b.rank.compareTo(a.rank));
-    } else if (selectedSortOption.value == 'Uncontacted Leads') {
-      result.sort((a, b) => a.status.toLowerCase().contains('to-do') ? -1 : 1);
-    } else if (selectedSortOption.value == 'Missed Tasks') {
-      result.sort((a, b) => a.status.toLowerCase().contains('missed') ? -1 : 1);
+    final isNewest = selectedSortDirection.value == 'Newest to Oldest';
+    final opt = selectedSortOption.value;
+
+    // 2. Filter / Sort by Selected Option
+    if (opt == 'Uncontacted Leads') {
+      result = result.where((lead) => _isUncontactedLead(lead)).toList();
+      result.sort((a, b) {
+        final dtA = _getLeadUploadDate(a);
+        final dtB = _getLeadUploadDate(b);
+        return isNewest ? dtB.compareTo(dtA) : dtA.compareTo(dtB);
+      });
+    } else if (opt == 'Missed Tasks') {
+      result = result.where((lead) => _isMissedLead(lead)).toList();
+      result.sort((a, b) {
+        final dtA = _getLeadInteractionDate(a);
+        final dtB = _getLeadInteractionDate(b);
+        return isNewest ? dtB.compareTo(dtA) : dtA.compareTo(dtB);
+      });
+    } else if (opt == 'Upload Date') {
+      result.sort((a, b) {
+        final dtA = _getLeadUploadDate(a);
+        final dtB = _getLeadUploadDate(b);
+        return isNewest ? dtB.compareTo(dtA) : dtA.compareTo(dtB);
+      });
+    } else if (opt == 'Interaction Date') {
+      result.sort((a, b) {
+        final dtA = _getLeadInteractionDate(a);
+        final dtB = _getLeadInteractionDate(b);
+        return isNewest ? dtB.compareTo(dtA) : dtA.compareTo(dtB);
+      });
+    } else {
+      // Default: Interaction Date
+      result.sort((a, b) {
+        final dtA = _getLeadInteractionDate(a);
+        final dtB = _getLeadInteractionDate(b);
+        return isNewest ? dtB.compareTo(dtA) : dtA.compareTo(dtB);
+      });
     }
 
     return result;

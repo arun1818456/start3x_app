@@ -2,6 +2,8 @@ class LeadResponseModel {
   final String id;
   final String passkey;
   final String leadId;
+  final String? userId;
+  final String? userName;
   final String responseNumber;
   final String outcome;
   final String? scheduledDate;
@@ -9,6 +11,7 @@ class LeadResponseModel {
   final String text;
   final String? reminder;
   final String createdAt;
+  final String? rawCreatedAt;
   final bool isDone;
   final bool isMissed;
 
@@ -16,6 +19,8 @@ class LeadResponseModel {
     this.id = '',
     this.passkey = '',
     this.leadId = '',
+    this.userId,
+    this.userName,
     required this.responseNumber,
     required this.outcome,
     this.scheduledDate,
@@ -23,6 +28,7 @@ class LeadResponseModel {
     required this.text,
     this.reminder,
     required this.createdAt,
+    this.rawCreatedAt,
     this.isDone = false,
     this.isMissed = false,
   });
@@ -59,10 +65,22 @@ class LeadResponseModel {
     final isDone = json['isDone'] == true;
     final isMissed = json['isMissed'] == true;
 
+    final rawUserId = json['userId']?.toString();
+    final rawUserName = json['userName']?.toString() ??
+        json['callerName']?.toString() ??
+        json['user']?.toString();
+    final cleanUserName = (rawUserName != null &&
+            rawUserName.trim().isNotEmpty &&
+            rawUserName.trim().toLowerCase() != 'null')
+        ? rawUserName.trim()
+        : null;
+
     return LeadResponseModel(
       id: json['_id']?.toString() ?? json['id']?.toString() ?? '',
       passkey: json['passkey']?.toString() ?? '',
       leadId: json['leadId']?.toString() ?? '',
+      userId: rawUserId,
+      userName: cleanUserName,
       responseNumber: json['responseNumber']?.toString() ?? 'Response #1',
       outcome: json['outcome']?.toString() ?? '',
       scheduledDate: _formatToLocalTime(rawScheduledDate),
@@ -70,6 +88,7 @@ class LeadResponseModel {
       text: json['text']?.toString() ?? json['note']?.toString() ?? '',
       reminder: _formatToLocalTime(rawReminder),
       createdAt: _formatToLocalTime(rawCreatedAt) ?? '',
+      rawCreatedAt: rawCreatedAt.isNotEmpty ? rawCreatedAt : null,
       isDone: isDone,
       isMissed: isMissed,
     );
@@ -80,6 +99,9 @@ class LeadResponseModel {
       if (id.isNotEmpty) '_id': id,
       if (passkey.isNotEmpty) 'passkey': passkey,
       if (leadId.isNotEmpty) 'leadId': leadId,
+      if (userId != null) 'userId': userId,
+      if (userName != null) 'userName': userName,
+      if (userName != null) 'callerName': userName,
       'responseNumber': responseNumber,
       'outcome': outcome,
       'scheduledDate': scheduledDate,
@@ -90,5 +112,41 @@ class LeadResponseModel {
       'isDone': isDone,
       'isMissed': isMissed,
     };
+  }
+
+  LeadResponseModel copyWith({
+    String? id,
+    String? passkey,
+    String? leadId,
+    String? userId,
+    String? userName,
+    String? responseNumber,
+    String? outcome,
+    String? scheduledDate,
+    String? callback,
+    String? text,
+    String? reminder,
+    String? createdAt,
+    String? rawCreatedAt,
+    bool? isDone,
+    bool? isMissed,
+  }) {
+    return LeadResponseModel(
+      id: id ?? this.id,
+      passkey: passkey ?? this.passkey,
+      leadId: leadId ?? this.leadId,
+      userId: userId ?? this.userId,
+      userName: userName ?? this.userName,
+      responseNumber: responseNumber ?? this.responseNumber,
+      outcome: outcome ?? this.outcome,
+      scheduledDate: scheduledDate ?? this.scheduledDate,
+      callback: callback ?? this.callback,
+      text: text ?? this.text,
+      reminder: reminder ?? this.reminder,
+      createdAt: createdAt ?? this.createdAt,
+      rawCreatedAt: rawCreatedAt ?? this.rawCreatedAt,
+      isDone: isDone ?? this.isDone,
+      isMissed: isMissed ?? this.isMissed,
+    );
   }
 }

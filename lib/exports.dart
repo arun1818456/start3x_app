@@ -76,6 +76,7 @@ export 'package:start3x_app/app/routes/routes.dart';
 // App Widgets
 export 'package:start3x_app/app/widgets/button.dart';
 export 'package:start3x_app/app/widgets/common_dialogs.dart';
+export 'package:start3x_app/app/widgets/deal_closed_prompt_dialog.dart';
 export 'package:start3x_app/app/widgets/full_screen_loader.dart';
 export 'package:start3x_app/app/widgets/lead_card.dart';
 export 'package:start3x_app/app/widgets/side_menu.dart';

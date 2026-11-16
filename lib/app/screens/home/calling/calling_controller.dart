@@ -445,6 +445,7 @@ class CallingController extends GetxController with BaseClass {
                               selectedOutcome.value == 'Got a callback' ? dt : null,
                           text: updatedText.isEmpty ? 'No response text' : updatedText,
                           createdAt: resp.createdAt,
+                          userName: resp.userName,
                         );
 
                         if (index < responses.length) {
@@ -485,20 +486,27 @@ class CallingController extends GetxController with BaseClass {
 
 
   Future<void> onYesTap() async {
+    final userData = getUserData();
     String passkeyVal = lead.passkey;
     if (passkeyVal.isEmpty) {
-      final userData = getUserData();
       passkeyVal = userData.passkey ??
           storage.read(LocalKeys.userData)?['passkey'] ??
           '';
     }
+
+    final callerName = (userData.name != null && userData.name!.trim().isNotEmpty)
+        ? userData.name!.trim()
+        : (userData.role == 'admin' ? 'Admin' : 'User');
 
     final formattedCallDate = getFormattedCurrentDateTime();
 
     final String outcomeVal =
         responses.isNotEmpty && responses.first.outcome.isNotEmpty
             ? responses.first.outcome
-            : 'Task Completed';
+            : ((lead.status.toLowerCase().contains('meeting') ||
+                    lead.scheduledDate.toLowerCase().contains('meeting'))
+                ? 'Meeting Completed'
+                : 'Task Completed');
 
     try {
       showCircularLoader();
@@ -515,6 +523,8 @@ class CallingController extends GetxController with BaseClass {
           "scheduledDate": lead.scheduledDate,
           "isDone": true,
           "isMissed": false,
+          "userName": callerName,
+          "callerName": callerName,
         },
       );
 
@@ -532,19 +542,25 @@ class CallingController extends GetxController with BaseClass {
       if (Get.isRegistered<InsightsController>()) {
         Get.find<InsightsController>().fetchInsightsFromApi();
       }
+
+      DealClosedPromptHelper.checkAndPromptDealClosed();
     } catch (e) {
       hideCircularLoader();
     }
   }
 
   Future<void> onNoTap() async {
+    final userData = getUserData();
     String passkeyVal = lead.passkey;
     if (passkeyVal.isEmpty) {
-      final userData = getUserData();
       passkeyVal = userData.passkey ??
           storage.read(LocalKeys.userData)?['passkey'] ??
           '';
     }
+
+    final callerName = (userData.name != null && userData.name!.trim().isNotEmpty)
+        ? userData.name!.trim()
+        : (userData.role == 'admin' ? 'Admin' : 'User');
 
     final formattedCallDate = getFormattedCurrentDateTime();
 
@@ -568,6 +584,8 @@ class CallingController extends GetxController with BaseClass {
           "callDate": formattedCallDate,
           "isMissed": true,
           "isDone": false,
+          "userName": callerName,
+          "callerName": callerName,
         },
       );
 

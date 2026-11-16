@@ -150,6 +150,7 @@ class InsightsController extends GetxController with BaseClass {
       _processResponsesFromLocalLeads();
     } finally {
       isLoading.value = false;
+      DealClosedPromptHelper.checkAndPromptDealClosed();
     }
   }
 
@@ -243,7 +244,9 @@ class InsightsController extends GetxController with BaseClass {
         } else if (categoryKey == 'callback_missed') {
           isMatch = resp.isMissed && outcome.contains('callback');
         } else if (categoryKey == 'task_done') {
-          isMatch = resp.isDone && !outcome.contains('meeting') && !outcome.contains('callback');
+          isMatch = (resp.isDone && !outcome.contains('meeting') && !outcome.contains('callback')) ||
+              outcome.contains('deal') ||
+              outcome.contains('conversion');
         }
 
         if (isMatch) {
@@ -326,7 +329,9 @@ class InsightsController extends GetxController with BaseClass {
     for (var resp in latestMap.values) {
       final outcome = resp.outcome.toLowerCase();
       if (resp.isDone) {
-        if (outcome.contains('meeting')) {
+        if (outcome.contains('deal') || outcome.contains('conversion')) {
+          conversions++;
+        } else if (outcome.contains('meeting')) {
           mtgDone++;
         } else if (outcome.contains('callback')) {
           cbDone++;
