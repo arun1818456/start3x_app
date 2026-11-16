@@ -19,6 +19,7 @@ class SplashController extends GetxController with BaseClass {
   void _navigateToNextScreen() {
     _timer = Timer(const Duration(seconds: 3), () {
       if (isLoggedIn()) {
+        _syncDeviceToken();
         UserDataModel userData = getUserData();
         if (userData.role == "admin") {
           Get.offAllNamed(AppRoutes.adminDashboardScreen);
@@ -33,5 +34,20 @@ class SplashController extends GetxController with BaseClass {
         Get.offAllNamed(AppRoutes.loginScreen);
       }
     });
+  }
+
+  void _syncDeviceToken() async {
+    try {
+      final token = await getDeviceToken();
+      if (token.isNotEmpty) {
+        await httpRequest(
+          REQUEST.put,
+          updateDeviceTokenApiEndPoint,
+          {"deviceToken": token},
+        );
+      }
+    } catch (e) {
+      debugPrint("Device token sync error: $e");
+    }
   }
 }

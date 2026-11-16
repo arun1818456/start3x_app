@@ -21,6 +21,7 @@ export 'package:start3x_app/app/services/api_handler.dart';
 export 'package:start3x_app/app/services/app_exception.dart';
 export 'package:start3x_app/app/services/socket_controller.dart';
 export 'package:start3x_app/app/services/auth_services.dart';
+export 'package:start3x_app/app/services/notification_services.dart';
 
 // App Mixin
 export 'package:start3x_app/app/mixin/base_class.dart';

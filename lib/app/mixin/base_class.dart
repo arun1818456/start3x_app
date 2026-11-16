@@ -1,3 +1,4 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
@@ -18,6 +19,28 @@ mixin BaseClass {
 
   bool isLoggedIn() {
     return storage.hasData(LocalKeys.userData);
+  }
+
+  Future<String> getDeviceToken() async {
+    try {
+      NotificationSettings settings =
+          await FirebaseMessaging.instance.requestPermission();
+      if (settings.authorizationStatus == AuthorizationStatus.authorized ||
+          settings.authorizationStatus == AuthorizationStatus.provisional) {
+        String? token = await FirebaseMessaging.instance.getToken();
+        debugPrint("🔥 FCM Device Token: $token");
+        if (token != null && token.isNotEmpty) {
+          storage.write(LocalKeys.fcmToken, token);
+        }
+        return token ?? "";
+      } else {
+        debugPrint("Notification permission denied");
+        return "";
+      }
+    } catch (e) {
+      debugPrint("Error fetching FCM token: $e");
+      return "";
+    }
   }
 
   void showCircularLoader({String message = "Please wait"}) {

@@ -9,6 +9,7 @@ class UserDataModel {
   String? passkey;
   bool? isSetupComplete;
   String? profileUrl;
+  String? deviceToken;
 
   UserDataModel({
     this.id,
@@ -20,6 +21,7 @@ class UserDataModel {
     this.passkey,
     this.isSetupComplete,
     this.profileUrl,
+    this.deviceToken,
   });
 
   UserDataModel.fromJson(Map<String, dynamic> json) {
@@ -32,6 +34,7 @@ class UserDataModel {
     passkey = json['passkey'];
     isSetupComplete = json['isSetupComplete'];
     profileUrl = json['profileUrl'];
+    deviceToken = json['deviceToken'];
   }
 
   Map<String, dynamic> toJson() {
@@ -45,6 +48,7 @@ class UserDataModel {
     data['passkey'] = passkey;
     data['isSetupComplete'] = isSetupComplete;
     data['profileUrl'] = profileUrl;
+    data['deviceToken'] = deviceToken;
     return data;
   }
 }

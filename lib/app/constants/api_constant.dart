@@ -1,4 +1,5 @@
-String baseUrl = "http://10.89.25.57:3000";
+// String baseUrl = "http://10.89.25.57:3000";
+String baseUrl = "https://start3x-backend.onrender.com";
 const String appVersion = "1.0.0";
 
 // User API Endpoints
@@ -6,6 +7,7 @@ const String loginApiEndPoint = "/api/user/login";
 const String logoutApiEndPoint = "/api/user/logout";
 const String signUpApiEndPoint = "/api/user/create";
 const String googleLoginApiEndPoint = "/api/user/google";
+const String updateDeviceTokenApiEndPoint = "/api/user/update-device-token";
 
 
 // Passkey API Endpoints

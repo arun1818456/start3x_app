@@ -26,7 +26,12 @@ class LoginController extends GetxController with BaseClass {
       return;
     }
 
-    Map<String, dynamic> data = {"email": email, "password": password};
+    final fcmToken = await getDeviceToken();
+    Map<String, dynamic> data = {
+      "email": email,
+      "password": password,
+      "deviceToken": fcmToken,
+    };
 
     try {
       showCircularLoader();
@@ -102,12 +107,14 @@ class LoginController extends GetxController with BaseClass {
         return;
       }
 
+      final fcmToken = await getDeviceToken();
       final request = {
         "name": res.user!.displayName ??
             (res.user!.email?.split('@').first ?? "User"),
         "email": res.user!.email,
         "profileUrl": res.user!.photoURL ?? "",
         "uid": res.user!.uid,
+        "deviceToken": fcmToken,
       };
 
       var response = await httpRequest(
@@ -256,6 +263,7 @@ class LoginController extends GetxController with BaseClass {
 
                     try {
                       showCircularLoader();
+                      final fcmToken = await getDeviceToken();
                       var res = await httpRequest(
                         REQUEST.post,
                         googleLoginApiEndPoint,
@@ -265,6 +273,7 @@ class LoginController extends GetxController with BaseClass {
                           "profileUrl": profileUrl,
                           "uid": uid,
                           "passkey": passkey,
+                          "deviceToken": fcmToken,
                         },
                       );
 
@@ -408,6 +417,7 @@ class LoginController extends GetxController with BaseClass {
 
                     try {
                       showCircularLoader();
+                      final fcmToken = await getDeviceToken();
                       var regRes = await httpRequest(
                         REQUEST.post,
                         signUpApiEndPoint,
@@ -424,6 +434,7 @@ class LoginController extends GetxController with BaseClass {
                               ? password
                               : "User@1234",
                           "passkey": passkey,
+                          "deviceToken": fcmToken,
                         },
                       );
 
