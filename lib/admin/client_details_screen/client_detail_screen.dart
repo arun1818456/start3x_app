@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:start3x_app/widgets/responsive_layout.dart';
 import 'package:start3x_app/exports.dart';
 
 class ClientDetailScreen extends StatelessWidget {
@@ -6,42 +8,55 @@ class ClientDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(ClientDetailController());
+    final bool isWide = kIsWeb && MediaQuery.of(context).size.width >= Breakpoints.mobile;
 
     return Scaffold(
-      backgroundColor: AppColors.whiteColor,
+      backgroundColor: const Color(0xFFF8FAFC),
       body: SafeArea(
         top: false,
-        child: Column(
-          children: [
-            // --- Top Header ---
-            _buildTopHeader(context, controller),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: isWide ? 900 : double.infinity),
+            child: Container(
+              color: Colors.white,
+              child: Column(
+                children: [
+                  // --- Top Header ---
+                  _buildTopHeader(context, controller, isWide),
 
-            // --- Assign Lead Main Body (Fixed Screen Content) ---
-            Expanded(
-              child: _buildAssignLeadView(context, controller),
+                  // --- Assign Lead Main Body ---
+                  Expanded(
+                    child: _buildAssignLeadView(context, controller, isWide),
+                  ),
+                ],
+              ),
             ),
-          ],
+          ),
         ),
       ),
     );
   }
 
   Widget _buildTopHeader(
-      BuildContext context, ClientDetailController controller) {
+      BuildContext context, ClientDetailController controller, bool isWide) {
     return Container(
       width: double.infinity,
       color: AppColors.darkCardBg,
-      padding: const EdgeInsets.only(top: 44, bottom: 20, left: 18, right: 18),
+      padding: EdgeInsets.only(
+        top: isWide ? 24 : 44,
+        bottom: 20,
+        left: 20,
+        right: 20,
+      ),
       child: Column(
         children: [
-          // Top Navigation Row with Back Button, Title & 3-Dots Menu
+          // Top Navigation Row
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              GestureDetector(
-                onTap: () => Get.back(),
-                behavior: HitTestBehavior.opaque,
-                child: const CircleAvatar(
+              IconButton(
+                onPressed: () => Get.back(),
+                icon: const CircleAvatar(
                   radius: 18,
                   backgroundColor: AppColors.whiteColor,
                   child: Icon(
@@ -50,6 +65,9 @@ class ClientDetailScreen extends StatelessWidget {
                     size: 16,
                   ),
                 ),
+                tooltip: 'Back',
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
               ),
 
               // Title and Passkey info
@@ -155,7 +173,7 @@ class ClientDetailScreen extends StatelessWidget {
 
           // Action Buttons: Call | Whatsapp | Alt Num
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               _buildActionButton(
                 icon: Icons.phone_rounded,
@@ -163,12 +181,14 @@ class ClientDetailScreen extends StatelessWidget {
                 label: 'Call',
                 onTap: () => controller.makePhoneCall(),
               ),
+              const SizedBox(width: 40),
               _buildActionButton(
                 icon: Icons.chat_bubble_rounded,
                 bgColor: const Color(0xFF25D366),
                 label: 'Whatsapp',
                 onTap: () => controller.openWhatsApp(),
               ),
+              const SizedBox(width: 40),
               _buildActionButton(
                 icon: Icons.add_call,
                 bgColor: AppColors.primaryBlue,
@@ -188,39 +208,45 @@ class ClientDetailScreen extends StatelessWidget {
     required String label,
     required VoidCallback onTap,
   }) {
-    return GestureDetector(
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          CircleAvatar(
-            radius: 22,
-            backgroundColor: bgColor,
-            child: Icon(
-              icon,
-              color: AppColors.whiteColor,
-              size: 20,
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: onTap,
+        behavior: HitTestBehavior.opaque,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CircleAvatar(
+              radius: 22,
+              backgroundColor: bgColor,
+              child: Icon(
+                icon,
+                color: AppColors.whiteColor,
+                size: 20,
+              ),
             ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            label,
-            style: const TextStyle(
-              color: AppColors.whiteColor,
-              fontSize: 13,
-              fontWeight: FontWeight.w500,
+            const SizedBox(height: 6),
+            Text(
+              label,
+              style: const TextStyle(
+                color: AppColors.whiteColor,
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildAssignLeadView(
-      BuildContext context, ClientDetailController controller) {
+      BuildContext context, ClientDetailController controller, bool isWide) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
+      padding: EdgeInsets.symmetric(
+        horizontal: isWide ? 36 : 18,
+        vertical: 24,
+      ),
       child: Container(
         decoration: BoxDecoration(
           color: AppColors.darkCardBg,
@@ -228,12 +254,12 @@ class ClientDetailScreen extends StatelessWidget {
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.08),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
+              blurRadius: 16,
+              offset: const Offset(0, 6),
             ),
           ],
         ),
-        padding: const EdgeInsets.all(22),
+        padding: EdgeInsets.all(isWide ? 32 : 22),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -242,119 +268,173 @@ class ClientDetailScreen extends StatelessWidget {
               'Assign New Lead',
               style: TextStyle(
                 color: Colors.white,
-                fontSize: 18,
+                fontSize: 20,
                 fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 4),
             const Text(
-              'Fill in the lead details to assign to this client',
+              'Fill in the lead details to assign to this client account',
               style: TextStyle(
                 color: Colors.white60,
-                fontSize: 12,
+                fontSize: 13,
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 24),
 
-            // Lead Name Field
-            _buildFieldLabel('Lead Name'),
-            const SizedBox(height: 6),
-            _buildDarkTextField(
-              controller: controller.nameController,
-              hintText: 'Enter lead name',
-              icon: Icons.person_outline_rounded,
-            ),
-            const SizedBox(height: 16),
-
-            // Phone Number Field
-            _buildFieldLabel('Phone Number'),
-            const SizedBox(height: 6),
-            _buildDarkTextField(
-              controller: controller.phoneController,
-              hintText: 'Enter phone number',
-              icon: Icons.phone_rounded,
-              keyboardType: TextInputType.phone,
-            ),
-            const SizedBox(height: 16),
-
-            // Address Field
-            _buildFieldLabel('Address / Location'),
-            const SizedBox(height: 6),
-            _buildDarkTextField(
-              keyboardType: TextInputType.text,
-              controller: controller.addressController,
-              hintText: 'Enter address / location',
-              icon: Icons.location_on_outlined,
-            ),
-            const SizedBox(height: 16),
-
-            // KW Field
-            _buildFieldLabel('KW (System Size)'),
-            const SizedBox(height: 6),
-            _buildDarkTextField(
-              controller: controller.kwController,
-              hintText: 'Enter KW capacity',
-              icon: Icons.electric_bolt_rounded,
-            ),
-            const SizedBox(height: 16),
-
-            // Electricity Bill Field
-            _buildFieldLabel('Electricity Bill (Monthly)'),
-            const SizedBox(height: 6),
-            _buildDarkTextField(
-              controller: controller.electricityBillController,
-              hintText: 'Enter bill amount',
-              icon: Icons.receipt_long_rounded,
-            ),
-            const SizedBox(height: 16),
-
-            // Select Date & Time Picker
-            _buildFieldLabel('Schedule Date & Time'),
-            const SizedBox(height: 6),
-            GestureDetector(
-              onTap: () => controller.selectDateTime(context),
-              child: Container(
-                width: double.infinity,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF05161C),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Colors.white12),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(
-                      Icons.calendar_month_rounded,
-                      color: AppColors.primaryBlue,
-                      size: 20,
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Obx(
-                        () => Text(
-                          controller.selectedDateTime.value,
-                          style: TextStyle(
-                            color: controller.selectedDateTime.value ==
-                                    'Select date & Time'
-                                ? Colors.white38
-                                : Colors.white,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w400,
-                          ),
+            // Form inputs (Two-column grid on desktop, single column on mobile)
+            if (isWide) ...[
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildFieldLabel('Lead Name'),
+                        const SizedBox(height: 6),
+                        _buildDarkTextField(
+                          controller: controller.nameController,
+                          hintText: 'Enter lead name',
+                          icon: Icons.person_outline_rounded,
                         ),
-                      ),
+                      ],
                     ),
-                    const Icon(
-                      Icons.arrow_drop_down_rounded,
-                      color: Colors.white54,
-                      size: 26,
+                  ),
+                  const SizedBox(width: 20),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildFieldLabel('Phone Number'),
+                        const SizedBox(height: 6),
+                        _buildDarkTextField(
+                          controller: controller.phoneController,
+                          hintText: 'Enter phone number',
+                          icon: Icons.phone_rounded,
+                          keyboardType: TextInputType.phone,
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ),
-            const SizedBox(height: 16),
+              const SizedBox(height: 18),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildFieldLabel('Address / Location'),
+                        const SizedBox(height: 6),
+                        _buildDarkTextField(
+                          keyboardType: TextInputType.text,
+                          controller: controller.addressController,
+                          hintText: 'Enter address / location',
+                          icon: Icons.location_on_outlined,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 20),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildFieldLabel('KW (System Size)'),
+                        const SizedBox(height: 6),
+                        _buildDarkTextField(
+                          controller: controller.kwController,
+                          hintText: 'Enter KW capacity',
+                          icon: Icons.electric_bolt_rounded,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 18),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildFieldLabel('Electricity Bill (Monthly)'),
+                        const SizedBox(height: 6),
+                        _buildDarkTextField(
+                          controller: controller.electricityBillController,
+                          hintText: 'Enter bill amount',
+                          icon: Icons.receipt_long_rounded,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 20),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildFieldLabel('Schedule Date & Time'),
+                        const SizedBox(height: 6),
+                        _buildDatePickerPill(context, controller),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ] else ...[
+              _buildFieldLabel('Lead Name'),
+              const SizedBox(height: 6),
+              _buildDarkTextField(
+                controller: controller.nameController,
+                hintText: 'Enter lead name',
+                icon: Icons.person_outline_rounded,
+              ),
+              const SizedBox(height: 16),
+              _buildFieldLabel('Phone Number'),
+              const SizedBox(height: 6),
+              _buildDarkTextField(
+                controller: controller.phoneController,
+                hintText: 'Enter phone number',
+                icon: Icons.phone_rounded,
+                keyboardType: TextInputType.phone,
+              ),
+              const SizedBox(height: 16),
+              _buildFieldLabel('Address / Location'),
+              const SizedBox(height: 6),
+              _buildDarkTextField(
+                keyboardType: TextInputType.text,
+                controller: controller.addressController,
+                hintText: 'Enter address / location',
+                icon: Icons.location_on_outlined,
+              ),
+              const SizedBox(height: 16),
+              _buildFieldLabel('KW (System Size)'),
+              const SizedBox(height: 6),
+              _buildDarkTextField(
+                controller: controller.kwController,
+                hintText: 'Enter KW capacity',
+                icon: Icons.electric_bolt_rounded,
+              ),
+              const SizedBox(height: 16),
+              _buildFieldLabel('Electricity Bill (Monthly)'),
+              const SizedBox(height: 6),
+              _buildDarkTextField(
+                controller: controller.electricityBillController,
+                hintText: 'Enter bill amount',
+                icon: Icons.receipt_long_rounded,
+              ),
+              const SizedBox(height: 16),
+              _buildFieldLabel('Schedule Date & Time'),
+              const SizedBox(height: 6),
+              _buildDatePickerPill(context, controller),
+            ],
+
+            const SizedBox(height: 18),
 
             // Text Note Field
             _buildFieldLabel('Notes / Remarks'),
@@ -364,18 +444,18 @@ class ClientDetailScreen extends StatelessWidget {
               hintText: 'Enter additional text note...',
               icon: Icons.notes_rounded,
             ),
-            const SizedBox(height: 28),
+            const SizedBox(height: 32),
 
             // Submit Button
             SizedBox(
               width: double.infinity,
-              height: 50,
+              height: 52,
               child: ElevatedButton(
                 onPressed: controller.submitAssignLead,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primaryBlue,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(14),
                   ),
                   elevation: 2,
                 ),
@@ -390,6 +470,55 @@ class ClientDetailScreen extends StatelessWidget {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDatePickerPill(
+      BuildContext context, ClientDetailController controller) {
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: () => controller.selectDateTime(context),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          decoration: BoxDecoration(
+            color: const Color(0xFF05161C),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: Colors.white12),
+          ),
+          child: Row(
+            children: [
+              const Icon(
+                Icons.calendar_month_rounded,
+                color: AppColors.primaryBlue,
+                size: 20,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Obx(
+                  () => Text(
+                    controller.selectedDateTime.value,
+                    style: TextStyle(
+                      color: controller.selectedDateTime.value ==
+                              'Select date & Time'
+                          ? Colors.white38
+                          : Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                ),
+              ),
+              const Icon(
+                Icons.arrow_drop_down_rounded,
+                color: Colors.white54,
+                size: 26,
+              ),
+            ],
+          ),
         ),
       ),
     );

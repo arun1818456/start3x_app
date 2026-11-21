@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:start3x_app/widgets/responsive_layout.dart';
 import 'package:start3x_app/exports.dart';
 
 class TeamScreen extends StatelessWidget {
@@ -6,6 +8,7 @@ class TeamScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(TeamController());
+    final bool isWide = kIsWeb && MediaQuery.of(context).size.width >= Breakpoints.mobile;
 
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
@@ -44,10 +47,15 @@ class TeamScreen extends StatelessWidget {
         centerTitle: true,
       ),
       body: SafeArea(
-        child: RefreshIndicator(
-          onRefresh: controller.fetchTeamMembers,
-          color: AppColors.primaryBlue,
-          child: Column(
+        child: Center(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: isWide ? 900 : double.infinity),
+            child: Container(
+              color: Colors.grey.shade50,
+              child: RefreshIndicator(
+                onRefresh: controller.fetchTeamMembers,
+                color: AppColors.primaryBlue,
+                child: Column(
             children: [
               // Search & Header Counter Box
               Container(
@@ -350,6 +358,9 @@ class TeamScreen extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
+    ),
+  ),
+),
+);
+}
 }

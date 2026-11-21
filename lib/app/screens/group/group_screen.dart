@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:start3x_app/widgets/responsive_layout.dart';
 import 'package:start3x_app/exports.dart';
 
 class GroupScreen extends StatelessWidget {
@@ -12,12 +14,18 @@ class GroupScreen extends StatelessWidget {
     });
     final bool canBack = (showBackButton == true) ||
         (Get.arguments is Map && Get.arguments['showBackButton'] == true);
+    final bool isWide = kIsWeb && MediaQuery.of(context).size.width >= Breakpoints.mobile;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF4F6F9),
       body: SafeArea(
         top: false,
-        child: Column(
+        child: Center(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: isWide ? 900 : double.infinity),
+            child: Container(
+              color: const Color(0xFFF4F6F9),
+              child: Column(
           children: [
             // --- Header ---
             _buildHeader(controller, canBack),
@@ -84,8 +92,11 @@ class GroupScreen extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
+    ),
+  ),
+),
+);
+}
 
   Widget _buildHeader(GroupController controller, bool canBack) {
     return Container(

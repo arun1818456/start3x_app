@@ -1,6 +1,8 @@
 // Dart & External Packages
 export 'dart:convert';
-export 'dart:io' hide HeaderValue;
+// dart:io is not available on web — only import it in files that
+// are guarded with `kIsWeb` or conditional imports.
+// export 'dart:io' hide HeaderValue;
 export 'package:flutter/material.dart';
 export 'package:get/get.dart' hide Response, MultipartFile, FormData;
 export 'package:get_storage/get_storage.dart';
@@ -10,21 +12,24 @@ export 'package:firebase_auth/firebase_auth.dart';
 export 'package:google_sign_in/google_sign_in.dart';
 
 // App Constants
-export 'package:start3x_app/app/constants/api_constant.dart';
-export 'package:start3x_app/app/constants/colors.dart';
-export 'package:start3x_app/app/constants/image_constants.dart';
-export 'package:start3x_app/app/constants/local_keys.dart';
-export 'package:start3x_app/app/constants/text_styles.dart';
+export 'package:start3x_app/constants/api_constant.dart';
+export 'package:start3x_app/constants/app_fonts.dart';
+export 'package:start3x_app/constants/colors.dart';
+export 'package:start3x_app/constants/image_constants.dart';
+export 'package:start3x_app/constants/local_keys.dart';
+export 'package:start3x_app/constants/text_styles.dart';
+export 'package:start3x_app/constants/validations.dart';
 
 // App Services
-export 'package:start3x_app/app/services/api_handler.dart';
-export 'package:start3x_app/app/services/app_exception.dart';
-export 'package:start3x_app/app/services/socket_controller.dart';
-export 'package:start3x_app/app/services/auth_services.dart';
-export 'package:start3x_app/app/services/notification_services.dart';
+export 'package:start3x_app/services/api_handler.dart';
+export 'package:start3x_app/services/app_exception.dart';
+export 'package:start3x_app/services/socket_controller.dart';
+export 'package:start3x_app/services/auth_services.dart';
+export 'package:start3x_app/services/notification_services.dart';
 
 // App Mixin
-export 'package:start3x_app/app/mixin/base_class.dart';
+export 'package:start3x_app/mixin/base_class.dart';
+export 'package:start3x_app/mixin/responsive_helper.dart';
 
 // App Models
 export 'package:start3x_app/admin/models/access_model.dart';
@@ -72,13 +77,26 @@ export 'package:start3x_app/app/screens/team/team_controller.dart';
 export 'package:start3x_app/app/screens/team/team_screen.dart';
 
 // App Routes
-export 'package:start3x_app/app/routes/routes.dart';
+export 'package:start3x_app/routes/routes.dart';
+export 'package:start3x_app/routes/pages.dart';
 
 // App Widgets
-export 'package:start3x_app/app/widgets/button.dart';
-export 'package:start3x_app/app/widgets/common_dialogs.dart';
-export 'package:start3x_app/app/widgets/deal_closed_prompt_dialog.dart';
-export 'package:start3x_app/app/widgets/full_screen_loader.dart';
-export 'package:start3x_app/app/widgets/lead_card.dart';
-export 'package:start3x_app/app/widgets/side_menu.dart';
-export 'package:start3x_app/app/widgets/text_field.dart';
+export 'package:start3x_app/widgets/button.dart';
+export 'package:start3x_app/widgets/common_dialogs.dart';
+export 'package:start3x_app/widgets/deal_closed_prompt_dialog.dart';
+export 'package:start3x_app/widgets/full_screen_loader.dart';
+export 'package:start3x_app/widgets/lead_card.dart';
+export 'package:start3x_app/widgets/side_menu.dart';
+export 'package:start3x_app/widgets/text_field.dart';
+export 'package:start3x_app/widgets/responsive_layout.dart';
+export 'package:start3x_app/widgets/footer_widget.dart';
+export 'package:start3x_app/widgets/logo_text_widget.dart';
+export 'package:start3x_app/widgets/profile_name_widget.dart';
+
+// Web Marketing Landing Page & Web Features (lib/web)
+export 'package:start3x_app/web/view/home/home_screen.dart';
+export 'package:start3x_app/web/view/home/home_screen_controller.dart';
+export 'package:start3x_app/web/view/invoice_generator/invoice_generator.dart';
+export 'package:start3x_app/web/view/invoice_generator/invoice_generator_controller.dart';
+export 'package:start3x_app/web/view/profile/profile_screen.dart';
+export 'package:start3x_app/web/view/profile/profile_controller.dart';

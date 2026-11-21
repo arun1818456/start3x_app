@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:start3x_app/widgets/responsive_layout.dart';
 import 'package:start3x_app/exports.dart';
 
 class InsightsScreen extends StatelessWidget {
@@ -6,12 +8,19 @@ class InsightsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(InsightsController());
+    final bool isWide = kIsWeb && MediaQuery.of(context).size.width >= Breakpoints.mobile;
+
     return Scaffold(
-      backgroundColor: AppColors.whiteColor,
+      backgroundColor: isWide ? Colors.grey.shade50 : AppColors.whiteColor,
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 10.0),
-          child: Column(
+        child: Center(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: isWide ? 900 : double.infinity),
+            child: Container(
+              color: AppColors.whiteColor,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 10.0),
+                child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const SizedBox(height: 8),
@@ -54,8 +63,11 @@ class InsightsScreen extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
+    ),
+  ),
+),
+);
+}
 
   Widget _buildFilterButton(
       BuildContext context, InsightsController controller) {

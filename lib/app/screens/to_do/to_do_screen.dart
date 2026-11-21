@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:start3x_app/widgets/responsive_layout.dart';
 import 'package:start3x_app/exports.dart';
 
 class ToDoScreen extends StatelessWidget {
@@ -6,12 +8,19 @@ class ToDoScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(TaskController());
+    final bool isWide = kIsWeb && MediaQuery.of(context).size.width >= Breakpoints.mobile;
+
     return Scaffold(
-      backgroundColor: AppColors.whiteColor,
+      backgroundColor: isWide ? Colors.grey.shade50 : AppColors.whiteColor,
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 10.0),
-          child: Column(
+        child: Center(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: isWide ? 900 : double.infinity),
+            child: Container(
+              color: AppColors.whiteColor,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 10.0),
+                child: Column(
             children: [
               _buildTopHeader(context, controller),
               const SizedBox(height: 16),
@@ -235,8 +244,11 @@ class ToDoScreen extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
+    ),
+  ),
+),
+);
+}
 
   Widget _buildTopHeader(BuildContext context, TaskController controller) {
     return Stack(

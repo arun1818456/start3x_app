@@ -1,4 +1,6 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/services.dart';
+import 'package:start3x_app/widgets/responsive_layout.dart';
 import 'package:start3x_app/exports.dart';
 
 class BottomBar extends StatelessWidget with BaseClass {
@@ -24,7 +26,7 @@ class BottomBar extends StatelessWidget with BaseClass {
             yesButtonText: "Exit",
             noButtonText: "Cancel",
             onTapYes: () {
-              SystemNavigator.pop();
+              if (!kIsWeb) SystemNavigator.pop();
             },
           );
         }
@@ -32,19 +34,146 @@ class BottomBar extends StatelessWidget with BaseClass {
       child: GetBuilder<BottomController>(
         init: BottomController(),
         builder: (controller) {
-          return Scaffold(
-            backgroundColor: AppColors.whiteColor,
-            body: IndexedStack(
+          return LayoutBuilder(
+            builder: (context, constraints) {
+              final bool useRail =
+                  kIsWeb && constraints.maxWidth >= Breakpoints.mobile;
+
+              if (useRail) {
+                return _buildWebLayout(controller, constraints);
+              }
+              return _buildMobileLayout(controller);
+            },
+          );
+        },
+      ),
+    );
+  }
+
+  /// Web layout: NavigationRail on the left + content area
+  Widget _buildWebLayout(
+      BottomController controller, BoxConstraints constraints) {
+    final bool isDesktop = constraints.maxWidth >= Breakpoints.tablet;
+
+    return Scaffold(
+      backgroundColor: AppColors.whiteColor,
+      body: Row(
+        children: [
+          // Side Navigation Rail
+          NavigationRail(
+            backgroundColor: AppColors.primaryBlue,
+            selectedIndex: controller.selectedIndex,
+            onDestinationSelected: (index) => controller.onItemTapped(index),
+            extended: isDesktop,
+            minExtendedWidth: 200,
+            minWidth: 72,
+            labelType: isDesktop
+                ? NavigationRailLabelType.none
+                : NavigationRailLabelType.all,
+            selectedIconTheme: const IconThemeData(color: Colors.white),
+            unselectedIconTheme:
+                IconThemeData(color: Colors.white.withValues(alpha: 0.6)),
+            indicatorColor: Colors.white.withValues(alpha: 0.2),
+            leading: Padding(
+              padding: EdgeInsets.symmetric(
+                vertical: 16,
+                horizontal: isDesktop ? 16 : 8,
+              ),
+              child: Column(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Image.asset(
+                      AppImages.logo,
+                      height: isDesktop ? 40 : 30,
+                      width: isDesktop ? 40 : 30,
+                      fit: BoxFit.contain,
+                      errorBuilder: (context, error, stackTrace) =>
+                          const Icon(
+                        Icons.account_balance_wallet_rounded,
+                        color: AppColors.primaryBlue,
+                        size: 28,
+                      ),
+                    ),
+                  ),
+                  if (isDesktop) ...[
+                    const SizedBox(height: 8),
+                    const Text(
+                      "Start3x",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: 10),
+                  Divider(
+                    color: Colors.white.withValues(alpha: 0.3),
+                    thickness: 1,
+                  ),
+                ],
+              ),
+            ),
+            destinations: const [
+              NavigationRailDestination(
+                icon: Icon(Icons.home_outlined),
+                selectedIcon: Icon(Icons.home_rounded),
+                label: Text('Home'),
+              ),
+              NavigationRailDestination(
+                icon: Icon(Icons.assignment_outlined),
+                selectedIcon: Icon(Icons.assignment_rounded),
+                label: Text('To-Do'),
+              ),
+              NavigationRailDestination(
+                icon: Icon(Icons.forum_outlined),
+                selectedIcon: Icon(Icons.forum_rounded),
+                label: Text('Chat'),
+              ),
+              NavigationRailDestination(
+                icon: Icon(Icons.bar_chart_rounded),
+                selectedIcon: Icon(Icons.bar_chart_rounded),
+                label: Text('Insights'),
+              ),
+            ],
+          ),
+
+          // Vertical divider
+          Container(
+            width: 1,
+            color: Colors.grey.shade200,
+          ),
+
+          // Content area
+          Expanded(
+            child: IndexedStack(
               index: controller.selectedIndex,
               children: controller.pages,
             ),
-            bottomNavigationBar: SafeArea(
-              top: false,
-              maintainBottomViewPadding: true,
-              child: _buildFloatingBottomNav(controller),
-            ),
-          );
-        },
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Mobile layout: original bottom navigation bar
+  Widget _buildMobileLayout(BottomController controller) {
+    return Scaffold(
+      backgroundColor: AppColors.whiteColor,
+      body: IndexedStack(
+        index: controller.selectedIndex,
+        children: controller.pages,
+      ),
+      bottomNavigationBar: SafeArea(
+        top: false,
+        maintainBottomViewPadding: true,
+        child: _buildFloatingBottomNav(controller),
       ),
     );
   }

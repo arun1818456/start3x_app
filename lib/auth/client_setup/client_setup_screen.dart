@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:start3x_app/widgets/responsive_layout.dart';
 import 'package:start3x_app/exports.dart';
 
 class ClientSetupScreen extends StatelessWidget {
@@ -7,6 +9,7 @@ class ClientSetupScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = Get.put(ClientSetupController());
     controller.initializeWithArguments(Get.arguments);
+    final bool isWide = kIsWeb && MediaQuery.of(context).size.width >= Breakpoints.mobile;
 
     return PopScope(
       canPop: controller.isFromMenu,
@@ -34,9 +37,12 @@ class ClientSetupScreen extends StatelessWidget {
           ),
         ),
         body: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 20),
-            child: Column(
+          child: Center(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: isWide ? 760 : double.infinity),
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 20),
+                child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
@@ -170,8 +176,10 @@ class ClientSetupScreen extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
+    ),
+  ),
+);
+}
 
   Widget _buildSectionCard({
     required String title,

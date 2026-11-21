@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:start3x_app/widgets/responsive_layout.dart';
 import 'package:start3x_app/exports.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -6,13 +8,20 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(HomeController());
+    final bool isWide = kIsWeb && MediaQuery.of(context).size.width >= Breakpoints.mobile;
+
     return Scaffold(
-      backgroundColor: AppColors.whiteColor,
-      drawer: SideMenuBar(),
+      backgroundColor: isWide ? Colors.grey.shade50 : AppColors.whiteColor,
+      drawer: isWide ? null : SideMenuBar(),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-          child: Column(
+        child: Center(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: isWide ? 900 : double.infinity),
+            child: Container(
+              color: AppColors.whiteColor,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                child: Column(
             children: [
               // --- Top App Bar / Header ---
               _buildTopHeader(context, controller),
@@ -123,8 +132,11 @@ class HomeScreen extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
+    ),
+  ),
+),
+);
+}
 
   Widget _buildTopHeader(BuildContext context, HomeController controller) {
     final user = controller.getUserData();
