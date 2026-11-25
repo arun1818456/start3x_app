@@ -188,6 +188,7 @@ class ClientDetailController extends GetxController with BaseClass {
               ? selectedDateTime.value
               : '',
         },
+        token: getUserData().token ?? "",
       );
       hideCircularLoader();
       showMySnackBar(

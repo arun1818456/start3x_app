@@ -26,7 +26,7 @@ class TeamScreen extends StatelessWidget {
               'Team Members',
               style: TextStyle(
                 color: Colors.white,
-                fontSize: 19,
+                fontSize: 17,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -36,7 +36,7 @@ class TeamScreen extends StatelessWidget {
                       'Passkey: ${controller.passkey.value}',
                       style: const TextStyle(
                         color: Colors.white70,
-                        fontSize: 12,
+                        fontSize: 11,
                         fontWeight: FontWeight.w400,
                       ),
                     )
@@ -61,35 +61,35 @@ class TeamScreen extends StatelessWidget {
               Container(
                 color: AppColors.whiteColor,
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                 child: Column(
                   children: [
                     // Search Bar
                     Container(
                       decoration: BoxDecoration(
                         color: Colors.grey.shade100,
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(10),
                         border: Border.all(color: Colors.grey.shade300),
                       ),
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
                       child: TextField(
                         controller: controller.searchController,
                         onChanged: controller.filterMembers,
-                        style: const TextStyle(fontSize: 14),
+                        style: const TextStyle(fontSize: 13),
                         decoration: const InputDecoration(
                           icon: Icon(Icons.search_rounded,
-                              color: AppColors.primaryBlue, size: 22),
+                              color: AppColors.primaryBlue, size: 19),
                           hintText: 'Search by name, email or role...',
                           hintStyle: TextStyle(
-                              color: Colors.black38, fontSize: 13),
+                              color: Colors.black38, fontSize: 12.5),
                           border: InputBorder.none,
                           isDense: true,
                           contentPadding:
-                              EdgeInsets.symmetric(vertical: 12),
+                              EdgeInsets.symmetric(vertical: 10),
                         ),
                       ),
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 8),
                     // Member count badge
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -98,7 +98,7 @@ class TeamScreen extends StatelessWidget {
                           () => Text(
                             'Total Team Members: ${controller.filteredMembers.length}',
                             style: const TextStyle(
-                              fontSize: 13,
+                              fontSize: 12,
                               fontWeight: FontWeight.bold,
                               color: AppColors.textDark,
                             ),
@@ -106,7 +106,7 @@ class TeamScreen extends StatelessWidget {
                         ),
                         IconButton(
                           icon: const Icon(Icons.refresh_rounded,
-                              color: AppColors.primaryBlue, size: 20),
+                              color: AppColors.primaryBlue, size: 18),
                           onPressed: controller.fetchTeamMembers,
                           tooltip: 'Refresh',
                           padding: EdgeInsets.zero,
@@ -182,10 +182,10 @@ class TeamScreen extends StatelessWidget {
 
                   return ListView.separated(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 14, vertical: 12),
+                        horizontal: 12, vertical: 10),
                     itemCount: controller.filteredMembers.length,
                     separatorBuilder: (context, index) =>
-                        const SizedBox(height: 10),
+                        const SizedBox(height: 8),
                     itemBuilder: (context, index) {
                       final user = controller.filteredMembers[index];
                       final String displayName =
@@ -197,12 +197,12 @@ class TeamScreen extends StatelessWidget {
 
                       return InkWell(
                         onTap: () => controller.openMemberProgressDialog(context, user),
-                        borderRadius: BorderRadius.circular(14),
+                        borderRadius: BorderRadius.circular(12),
                         child: Container(
-                          padding: const EdgeInsets.all(14),
+                          padding: const EdgeInsets.all(11),
                           decoration: BoxDecoration(
                             color: Colors.white,
-                            borderRadius: BorderRadius.circular(14),
+                            borderRadius: BorderRadius.circular(12),
                             border: Border.all(color: Colors.grey.shade200),
                             boxShadow: [
                               BoxShadow(
@@ -216,7 +216,7 @@ class TeamScreen extends StatelessWidget {
                             children: [
                               // Profile Avatar
                               CircleAvatar(
-                                radius: 24,
+                                radius: 20,
                                 backgroundColor: AppColors.primaryBlue
                                     .withValues(alpha: 0.12),
                                 backgroundImage: (user.profileUrl != null &&
@@ -230,12 +230,12 @@ class TeamScreen extends StatelessWidget {
                                         style: const TextStyle(
                                           color: AppColors.primaryBlue,
                                           fontWeight: FontWeight.bold,
-                                          fontSize: 20,
+                                          fontSize: 17,
                                         ),
                                       )
                                     : null,
                               ),
-                              const SizedBox(width: 14),
+                              const SizedBox(width: 11),
 
                               // User Info
                               Expanded(
@@ -250,7 +250,7 @@ class TeamScreen extends StatelessWidget {
                                             maxLines: 1,
                                             overflow: TextOverflow.ellipsis,
                                             style: const TextStyle(
-                                              fontSize: 15,
+                                              fontSize: 14,
                                               fontWeight: FontWeight.bold,
                                               color: AppColors.textDark,
                                             ),
@@ -261,7 +261,7 @@ class TeamScreen extends StatelessWidget {
                                           const SizedBox(width: 6),
                                           Container(
                                             padding: const EdgeInsets.symmetric(
-                                                horizontal: 8, vertical: 2),
+                                                horizontal: 6, vertical: 2),
                                             decoration: BoxDecoration(
                                               color: user.role == 'admin'
                                                   ? Colors.orange.shade100
@@ -273,7 +273,7 @@ class TeamScreen extends StatelessWidget {
                                             child: Text(
                                               user.role!.toUpperCase(),
                                               style: TextStyle(
-                                                fontSize: 10,
+                                                fontSize: 9.5,
                                                 fontWeight: FontWeight.bold,
                                                 color: user.role == 'admin'
                                                     ? Colors.orange.shade900
@@ -286,34 +286,38 @@ class TeamScreen extends StatelessWidget {
                                     ),
                                     if (user.email != null &&
                                         user.email!.isNotEmpty) ...[
-                                      const SizedBox(height: 3),
+                                      const SizedBox(height: 2),
                                       Text(
                                         user.email!,
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                         style: const TextStyle(
-                                          fontSize: 13,
+                                          fontSize: 12,
                                           color: AppColors.textGrey,
                                         ),
                                       ),
                                     ],
-                                    const SizedBox(height: 6),
+                                    const SizedBox(height: 4),
                                     Row(
                                       children: [
                                         Icon(
                                           Icons.calendar_today_rounded,
-                                          size: 12,
+                                          size: 11,
                                           color: Colors.grey.shade600,
                                         ),
                                         const SizedBox(width: 4),
-                                        Text(
-                                          'Joined: ${controller.formatDate(user.createdAt)}',
-                                          style: TextStyle(
-                                            fontSize: 11,
-                                            color: Colors.grey.shade600,
+                                        Expanded(
+                                          child: Text(
+                                            'Joined: ${controller.formatDate(user.createdAt)}',
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: TextStyle(
+                                              fontSize: 10.5,
+                                              color: Colors.grey.shade600,
+                                            ),
                                           ),
                                         ),
-                                        const Spacer(),
+                                        const SizedBox(width: 8),
                                         Container(
                                           padding: const EdgeInsets.symmetric(
                                               horizontal: 6, vertical: 2),
@@ -327,7 +331,7 @@ class TeamScreen extends StatelessWidget {
                                           child: Text(
                                             isSetup ? 'Active' : 'Pending',
                                             style: TextStyle(
-                                              fontSize: 10,
+                                              fontSize: 9.5,
                                               fontWeight: FontWeight.w600,
                                               color: isSetup
                                                   ? Colors.green.shade700
@@ -340,10 +344,42 @@ class TeamScreen extends StatelessWidget {
                                   ],
                                 ),
                               ),
-                              const SizedBox(width: 8),
+                              if (controller.getUserData().role == 'admin' &&
+                                  user.id != null &&
+                                  user.id!.isNotEmpty) ...[
+                                const SizedBox(width: 4),
+                                IconButton(
+                                  onPressed: () {
+                                    Get.toNamed(
+                                      AppRoutes.notificationsScreen,
+                                      arguments: {
+                                        'userId': user.id,
+                                        'userName': displayName,
+                                      },
+                                    );
+                                  },
+                                  icon: Container(
+                                    padding: const EdgeInsets.all(6),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.primaryBlue
+                                          .withValues(alpha: 0.1),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: const Icon(
+                                      Icons.notifications_none_rounded,
+                                      size: 17,
+                                      color: AppColors.primaryBlue,
+                                    ),
+                                  ),
+                                  tooltip: 'View Notifications',
+                                  padding: EdgeInsets.zero,
+                                  constraints: const BoxConstraints(),
+                                ),
+                              ],
+                              const SizedBox(width: 6),
                               const Icon(
                                 Icons.arrow_forward_ios_rounded,
-                                size: 14,
+                                size: 13,
                                 color: Colors.black26,
                               ),
                             ],

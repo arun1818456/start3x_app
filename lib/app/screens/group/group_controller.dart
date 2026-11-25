@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/services.dart';
 import 'package:start3x_app/exports.dart';
 
 class GroupController extends GetxController with BaseClass {
@@ -15,6 +16,9 @@ class GroupController extends GetxController with BaseClass {
   Timer? _incomingTypingTimer;
 
   final RxList<GroupMessageModel> messages = <GroupMessageModel>[].obs;
+  final RxSet<String> selectedMessageIds = <String>{}.obs;
+
+  bool get isSelectionMode => selectedMessageIds.isNotEmpty;
 
   // Flag leads selection
   final RxList<LeadModel> availableLeads = <LeadModel>[].obs;
@@ -607,6 +611,54 @@ class GroupController extends GetxController with BaseClass {
     }
   }
 
+  /// Handle real-time message deletion broadcast from server
+  void onSocketMessageDeleted(Map<String, dynamic> data) {
+    try {
+      final deletedId = data['messageId']?.toString() ?? data['_id']?.toString() ?? '';
+      if (deletedId.isEmpty) return;
+
+      final eventPasskey = data['passkey']?.toString() ?? '';
+      final currentPasskey = resolvePasskey();
+      if (eventPasskey.isNotEmpty &&
+          currentPasskey.isNotEmpty &&
+          eventPasskey != currentPasskey) {
+        return;
+      }
+
+      messages.removeWhere((m) => m.id == deletedId);
+      selectedMessageIds.remove(deletedId);
+    } catch (e) {
+      debugPrint("Error processing socket message deletion: $e");
+    }
+  }
+
+  /// Handle real-time batch message deletion broadcast from server
+  void onSocketMessagesDeleted(Map<String, dynamic> data) {
+    try {
+      final rawIds = data['messageIds'];
+      if (rawIds is! List || rawIds.isEmpty) return;
+
+      final eventPasskey = data['passkey']?.toString() ?? '';
+      final currentPasskey = resolvePasskey();
+      if (eventPasskey.isNotEmpty &&
+          currentPasskey.isNotEmpty &&
+          eventPasskey != currentPasskey) {
+        return;
+      }
+
+      final idSet = rawIds
+          .map((e) => e?.toString() ?? '')
+          .where((id) => id.isNotEmpty)
+          .toSet();
+      if (idSet.isEmpty) return;
+
+      messages.removeWhere((m) => idSet.contains(m.id));
+      selectedMessageIds.removeAll(idSet);
+    } catch (e) {
+      debugPrint("Error processing socket batch message deletion: $e");
+    }
+  }
+
   /// Handle incoming typing indicator
   void onUserTyping(Map<String, dynamic> data) {
     final name = data["userName"]?.toString() ?? 'Someone';
@@ -686,6 +738,7 @@ class GroupController extends GetxController with BaseClass {
         isSending.value = true;
         Map<String, dynamic> body = {
           "passkey": passkey,
+          "senderId": user.id ?? "",
           "senderName": sender,
           "messageText": messageToSend,
           "messageType": leadsToSend.isNotEmpty ? "flagged_lead" : "text",
@@ -696,12 +749,15 @@ class GroupController extends GetxController with BaseClass {
           REQUEST.post,
           sendChatMessageApiEndPoint,
           body,
+          token: user.token ?? "",
         );
 
         if (res != null && res["success"] == true && res["data"] != null) {
           final serverMsg = GroupMessageModel.fromJson(
             res["data"],
             currentUserName: sender,
+            isCurrentUserAdmin: user.role?.toLowerCase() == 'admin',
+            currentUserId: user.id ?? '',
           );
           final lastIdx = messages.length - 1;
           if (lastIdx >= 0 && messages[lastIdx].id.isEmpty) {
@@ -714,6 +770,203 @@ class GroupController extends GetxController with BaseClass {
         isSending.value = false;
         scrollToBottom();
       }
+    }
+  }
+
+  bool get isCurrentUserAdmin =>
+      getUserData().role?.toLowerCase() == 'admin';
+
+  bool canDeleteMessage(GroupMessageModel item) {
+    if (item.id.isEmpty ||
+        item.id == systemWelcomeMessage.id ||
+        item.messageType == 'welcome') {
+      return false;
+    }
+    return item.isMe || isCurrentUserAdmin;
+  }
+
+  bool isMessageSelected(GroupMessageModel item) =>
+      item.id.isNotEmpty && selectedMessageIds.contains(item.id);
+
+  void onMessageLongPress(GroupMessageModel item) {
+    if (!canDeleteMessage(item)) return;
+    HapticFeedback.mediumImpact();
+    if (selectedMessageIds.contains(item.id)) {
+      selectedMessageIds.remove(item.id);
+    } else {
+      selectedMessageIds.add(item.id);
+    }
+  }
+
+  void onMessageTap(GroupMessageModel item) {
+    if (!isSelectionMode || !canDeleteMessage(item)) return;
+    HapticFeedback.selectionClick();
+    if (selectedMessageIds.contains(item.id)) {
+      selectedMessageIds.remove(item.id);
+    } else {
+      selectedMessageIds.add(item.id);
+    }
+  }
+
+  void clearMessageSelection() {
+    selectedMessageIds.clear();
+  }
+
+  void selectAllDeletableMessages() {
+    final deletableIds = messages
+        .where((m) => canDeleteMessage(m))
+        .map((m) => m.id)
+        .toList();
+    if (deletableIds.isEmpty) return;
+    final allSelected =
+        deletableIds.every((id) => selectedMessageIds.contains(id));
+    if (allSelected) {
+      selectedMessageIds.clear();
+    } else {
+      selectedMessageIds.addAll(deletableIds);
+    }
+  }
+
+  /// Confirm before deleting selected message(s) (own messages, or any for Admin)
+  void confirmDeleteSelectedMessages(BuildContext context) {
+    final count = selectedMessageIds.length;
+    if (count == 0) return;
+    HapticFeedback.mediumImpact();
+    CommonDialogs().showCustomDialog(
+      context,
+      title: count == 1 ? "Delete Message" : "Delete $count Messages",
+      description: count == 1
+          ? "Delete this message for everyone?"
+          : "Delete $count selected messages for everyone?",
+      yesButtonText: "Delete",
+      noButtonText: "Cancel",
+      onTapYes: () => deleteSelectedMessages(),
+    );
+  }
+
+  /// Confirm before deleting a single message
+  void confirmDeleteMessage(BuildContext context, GroupMessageModel item) {
+    if (!canDeleteMessage(item)) return;
+    HapticFeedback.mediumImpact();
+    CommonDialogs().showCustomDialog(
+      context,
+      title: "Delete Message",
+      description: "Delete this message for everyone?",
+      yesButtonText: "Delete",
+      noButtonText: "Cancel",
+      onTapYes: () => deleteMessage(item),
+    );
+  }
+
+  /// Delete selected messages from DB and broadcast removal to everyone
+  Future<void> deleteSelectedMessages() async {
+    final idsToDelete = selectedMessageIds
+        .where((id) => id.isNotEmpty)
+        .toList();
+    if (idsToDelete.isEmpty) return;
+
+    final idSet = idsToDelete.toSet();
+    final List<({int index, GroupMessageModel msg})> backup = [];
+    for (int i = 0; i < messages.length; i++) {
+      if (idSet.contains(messages[i].id) && canDeleteMessage(messages[i])) {
+        backup.add((index: i, msg: messages[i]));
+      }
+    }
+    if (backup.isEmpty) {
+      selectedMessageIds.clear();
+      return;
+    }
+
+    final targetIds = backup.map((b) => b.msg.id).toList();
+    selectedMessageIds.clear();
+    messages.removeWhere((m) => targetIds.contains(m.id));
+
+    try {
+      final user = getUserData();
+      dynamic res;
+      if (targetIds.length == 1) {
+        res = await httpRequest(
+          REQUEST.delete,
+          "$deleteChatMessageApiEndPoint${targetIds.first}",
+          {},
+          token: user.token ?? "",
+        );
+      } else {
+        res = await httpRequest(
+          REQUEST.post,
+          deleteMultipleChatMessagesApiEndPoint,
+          {"messageIds": targetIds},
+          token: user.token ?? "",
+        );
+      }
+
+      if (res == null || res["success"] != true) {
+        _restoreBackupMessages(backup);
+        showMySnackBar(
+          res?["message"]?.toString() ?? "Could not delete messages",
+          alert: true,
+        );
+      }
+    } catch (e) {
+      _restoreBackupMessages(backup);
+      showMySnackBar(
+        e.toString().isNotEmpty ? e.toString() : "Failed to delete messages",
+        alert: true,
+      );
+    }
+  }
+
+  void _restoreBackupMessages(
+      List<({int index, GroupMessageModel msg})> backup) {
+    for (final entry in backup) {
+      if (!messages.any((m) => m.id == entry.msg.id)) {
+        final safeIdx =
+            entry.index <= messages.length ? entry.index : messages.length;
+        messages.insert(safeIdx, entry.msg);
+      }
+    }
+  }
+
+  /// Delete single message from DB and broadcast removal to everyone
+  Future<void> deleteMessage(GroupMessageModel item) async {
+    if (!canDeleteMessage(item)) return;
+
+    final removedIndex = messages.indexWhere((m) => m.id == item.id);
+    if (removedIndex == -1) return;
+
+    selectedMessageIds.remove(item.id);
+    messages.removeAt(removedIndex);
+
+    try {
+      final user = getUserData();
+      final res = await httpRequest(
+        REQUEST.delete,
+        "$deleteChatMessageApiEndPoint${item.id}",
+        {},
+        token: user.token ?? "",
+      );
+
+      if (res == null || res["success"] != true) {
+        if (!messages.any((m) => m.id == item.id)) {
+          final safeIdx =
+              removedIndex <= messages.length ? removedIndex : messages.length;
+          messages.insert(safeIdx, item);
+        }
+        showMySnackBar(
+          res?["message"]?.toString() ?? "Could not delete message",
+          alert: true,
+        );
+      }
+    } catch (e) {
+      if (!messages.any((m) => m.id == item.id)) {
+        final safeIdx =
+            removedIndex <= messages.length ? removedIndex : messages.length;
+        messages.insert(safeIdx, item);
+      }
+      showMySnackBar(
+        e.toString().isNotEmpty ? e.toString() : "Failed to delete message",
+        alert: true,
+      );
     }
   }
 

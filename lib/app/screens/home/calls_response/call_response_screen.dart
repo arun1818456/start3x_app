@@ -47,78 +47,82 @@ class CallResponseScreen extends StatelessWidget {
             const Divider(height: 1, color: Color(0xFFE0E0E0)),
 
             // Main Content
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 28),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 18),
 
-                  // Heading Text
-                  const Text(
-                    'Choose an outcome for this call to make follow-up easier.',
-                    style: TextStyle(
-                      color: AppColors.primaryBlue,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      height: 1.35,
-                    ),
-                  ),
-
-                  const SizedBox(height: 28),
-
-                  // Outcome Options Box
-                  Container(
-                    decoration: BoxDecoration(
-                      color: AppColors.whiteColor,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: Colors.grey.shade300,
-                        width: 1,
+                    // Heading Text
+                    const Text(
+                      'Choose an outcome for this call to make follow-up easier.',
+                      style: TextStyle(
+                        color: AppColors.primaryBlue,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        height: 1.3,
                       ),
                     ),
-                    clipBehavior: Clip.antiAlias,
-                    child: ListView.separated(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: controller.outcomes.length,
-                      separatorBuilder: (context, index) => const Divider(
-                        height: 1,
-                        color: Color(0xFFE0E0E0),
+
+                    const SizedBox(height: 18),
+
+                    // Outcome Options Box
+                    Container(
+                      decoration: BoxDecoration(
+                        color: AppColors.whiteColor,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: Colors.grey.shade300,
+                          width: 1,
+                        ),
                       ),
-                      itemBuilder: (context, index) {
-                        return Obx(() {
-                          final bool isSelected =
-                              controller.selectedOutcomeIndex.value == index;
-                          return GestureDetector(
-                            onTap: () => controller.onSelectOption(index),
-                            behavior: HitTestBehavior.opaque,
-                            child: Container(
-                              width: double.infinity,
-                              padding: const EdgeInsets.symmetric(vertical: 18),
-                              color: isSelected
-                                  ? AppColors.primaryBlue
-                                  : AppColors.whiteColor,
-                              child: Text(
-                                controller.outcomes[index],
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  color: isSelected
-                                      ? AppColors.whiteColor
-                                      : AppColors.textDark,
-                                  fontSize: 16,
-                                  fontWeight: isSelected
-                                      ? FontWeight.w600
-                                      : FontWeight.w500,
+                      clipBehavior: Clip.antiAlias,
+                      child: ListView.separated(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: controller.outcomes.length,
+                        separatorBuilder: (context, index) => const Divider(
+                          height: 1,
+                          color: Color(0xFFE0E0E0),
+                        ),
+                        itemBuilder: (context, index) {
+                          return Obx(() {
+                            final bool isSelected =
+                                controller.selectedOutcomeIndex.value == index;
+                            return GestureDetector(
+                              onTap: () => controller.onSelectOption(index),
+                              behavior: HitTestBehavior.opaque,
+                              child: Container(
+                                width: double.infinity,
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 14),
+                                color: isSelected
+                                    ? AppColors.primaryBlue
+                                    : AppColors.whiteColor,
+                                child: Text(
+                                  controller.outcomes[index],
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: isSelected
+                                        ? AppColors.whiteColor
+                                        : AppColors.textDark,
+                                    fontSize: 14.5,
+                                    fontWeight: isSelected
+                                        ? FontWeight.w600
+                                        : FontWeight.w500,
+                                  ),
                                 ),
                               ),
-                            ),
-                          );
-                        });
-                      },
+                            );
+                          });
+                        },
+                      ),
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 18),
+                  ],
+                ),
               ),
             ),
           ],

@@ -18,10 +18,10 @@ class LeadCardWidget extends StatelessWidget {
             Get.toNamed(AppRoutes.callingScreen, arguments: lead);
           },
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
         decoration: BoxDecoration(
           color: AppColors.darkCardBg,
-          borderRadius: BorderRadius.circular(18),
+          borderRadius: BorderRadius.circular(14),
         ),
         child: Row(
           children: [
@@ -30,9 +30,9 @@ class LeadCardWidget extends StatelessWidget {
               style: AppTextStyles.rankText,
             ),
             Container(
-              height: 36,
+              height: 32,
               width: 1,
-              margin: const EdgeInsets.symmetric(horizontal: 5),
+              margin: const EdgeInsets.symmetric(horizontal: 8),
               color: Colors.white24,
             ),
             Expanded(
@@ -55,30 +55,34 @@ class LeadCardWidget extends StatelessWidget {
                 ],
               ),
             ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  lead.status,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTextStyles.cardTagBold,
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  (lead.scheduledDate??"").split(' ').first,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTextStyles.cardTagLight,
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  (lead.scheduledDate??"").split(' ').skip(1).join(' '),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTextStyles.cardTagLight,
-                ),
-              ],
+            const SizedBox(width: 8),
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 125),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    lead.status,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyles.cardTagBold,
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    (lead.scheduledDate??"").split(' ').first,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyles.cardTagLight,
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    (lead.scheduledDate??"").split(' ').skip(1).join(' '),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyles.cardTagLight,
+                  ),
+                ],
+              ),
             ),
           ],
         ),

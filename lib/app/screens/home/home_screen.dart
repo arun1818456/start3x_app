@@ -20,20 +20,20 @@ class HomeScreen extends StatelessWidget {
             child: Container(
               color: AppColors.whiteColor,
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 6.0),
                 child: Column(
             children: [
               // --- Top App Bar / Header ---
               _buildTopHeader(context, controller),
-              const SizedBox(height: 14),
+              const SizedBox(height: 10),
 
               // --- Search Bar ---
               _buildSearchBar(controller),
-              const SizedBox(height: 12),
+              const SizedBox(height: 10),
 
               // --- Quick Filter Chips Bar ---
               _buildFilterChips(controller),
-              const SizedBox(height: 14),
+              const SizedBox(height: 10),
 
               // --- Dynamic Cards List with Pull-to-Refresh ---
               Expanded(
@@ -119,7 +119,7 @@ class HomeScreen extends StatelessWidget {
                         physics: const AlwaysScrollableScrollPhysics(),
                         itemCount: leadsList.length,
                         separatorBuilder: (context, index) =>
-                            const SizedBox(height: 14),
+                            const SizedBox(height: 10),
                         itemBuilder: (context, index) {
                           return LeadCardWidget(lead: leadsList[index]);
                         },
@@ -188,44 +188,60 @@ class HomeScreen extends StatelessWidget {
           ],
         ),
 
+        const SizedBox(width: 8),
+
         // Centered Home Title
-        const Text(
-          'Home',
-          style: AppTextStyles.headerTitle,
+        const Expanded(
+          child: Text(
+            'Home',
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: AppTextStyles.headerTitle,
+          ),
         ),
 
+        const SizedBox(width: 8),
+
         // Sorted by Pill Button
-        GestureDetector(
-          onTap: () => controller.showSortBottomSheet(context),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade200,
-              borderRadius: BorderRadius.circular(18),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Obx(() {
-                  String label = controller.selectedSortOption.value;
-                  if (label == 'Uncontacted Leads') label = 'Uncontacted';
-                  if (label == 'Missed Tasks') label = 'Missed';
-                  return Text(
-                    label,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.textDark,
-                    ),
-                  );
-                }),
-                const SizedBox(width: 4),
-                const Icon(
-                  Icons.tune_rounded,
-                  size: 15,
-                  color: AppColors.textDark,
-                ),
-              ],
+        ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 145),
+          child: GestureDetector(
+            onTap: () => controller.showSortBottomSheet(context),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade200,
+                borderRadius: BorderRadius.circular(18),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Flexible(
+                    child: Obx(() {
+                      String label = controller.selectedSortOption.value;
+                      if (label == 'Uncontacted Leads') label = 'Uncontacted';
+                      if (label == 'Missed Tasks') label = 'Missed';
+                      return Text(
+                        label,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textDark,
+                        ),
+                      );
+                    }),
+                  ),
+                  const SizedBox(width: 4),
+                  const Icon(
+                    Icons.tune_rounded,
+                    size: 15,
+                    color: AppColors.textDark,
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -235,7 +251,7 @@ class HomeScreen extends StatelessWidget {
 
   Widget _buildSearchBar(HomeController controller) {
     return Container(
-      height: 42,
+      height: 40,
       decoration: BoxDecoration(
         color: Colors.grey.shade200,
         borderRadius: BorderRadius.circular(12),
@@ -243,14 +259,14 @@ class HomeScreen extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 12),
       child: TextField(
         onChanged: controller.updateSearch,
-        style: const TextStyle(fontSize: 14),
+        style: const TextStyle(fontSize: 13),
         decoration: const InputDecoration(
-          icon: Icon(Icons.search, color: AppColors.textDark, size: 20),
+          icon: Icon(Icons.search, color: AppColors.textDark, size: 19),
           hintText: 'Search leads by name, location, rank...',
-          hintStyle: TextStyle(fontSize: 13, color: AppColors.textGrey),
+          hintStyle: TextStyle(fontSize: 12.5, color: AppColors.textGrey),
           border: InputBorder.none,
           isDense: true,
-          contentPadding: EdgeInsets.symmetric(vertical: 11),
+          contentPadding: EdgeInsets.symmetric(vertical: 10),
         ),
       ),
     );
@@ -303,11 +319,11 @@ class HomeScreen extends StatelessWidget {
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 150),
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
                     color:
                         isSelected ? AppColors.primaryBlue : Colors.grey.shade100,
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(18),
                     border: Border.all(
                       color: isSelected
                           ? AppColors.primaryBlue
@@ -321,7 +337,7 @@ class HomeScreen extends StatelessWidget {
                       Text(
                         '$label$countSuffix',
                         style: TextStyle(
-                          fontSize: 12.5,
+                          fontSize: 11.5,
                           fontWeight:
                               isSelected ? FontWeight.bold : FontWeight.w500,
                           color: isSelected ? Colors.white : AppColors.textDark,

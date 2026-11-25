@@ -92,6 +92,7 @@ class AccessControlController extends GetxController with BaseClass {
         REQUEST.put,
         "$togglePasskeyApiEndPoint${client.id}",
         {"isActive": value},
+        token: getUserData().token ?? "",
       );
       if (res != null && res["success"] == true) {
         showMySnackBar(
@@ -398,6 +399,33 @@ class AccessControlController extends GetxController with BaseClass {
                                                   ),
                                                 ),
                                               ),
+                                              if (user.id != null && user.id!.isNotEmpty) ...[
+                                                const SizedBox(width: 6),
+                                                InkWell(
+                                                  onTap: () {
+                                                    Get.toNamed(
+                                                      AppRoutes.notificationsScreen,
+                                                      arguments: {
+                                                        'userId': user.id,
+                                                        'userName': user.name ?? 'User',
+                                                      },
+                                                    );
+                                                  },
+                                                  borderRadius: BorderRadius.circular(8),
+                                                  child: Container(
+                                                    padding: const EdgeInsets.all(5),
+                                                    decoration: BoxDecoration(
+                                                      color: AppColors.primaryBlue.withValues(alpha: 0.1),
+                                                      borderRadius: BorderRadius.circular(8),
+                                                    ),
+                                                    child: const Icon(
+                                                      Icons.notifications_none_rounded,
+                                                      size: 16,
+                                                      color: AppColors.primaryBlue,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
                                             ],
                                           ),
                                           const SizedBox(height: 2),

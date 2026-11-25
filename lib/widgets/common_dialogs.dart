@@ -27,15 +27,21 @@ class CommonDialogs with BaseClass {
           child: Center(
             child: Material(
               color: Colors.transparent,
-              child: Container(
-                width: MediaQuery.of(context).size.width,
-                margin: const EdgeInsets.symmetric(horizontal: 16),
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxWidth: 420,
+                  maxHeight: MediaQuery.of(context).size.height * 0.85,
                 ),
-                child: Column(
+                child: Container(
+                  width: MediaQuery.of(context).size.width,
+                  margin: const EdgeInsets.symmetric(horizontal: 16),
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: SingleChildScrollView(
+                    child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     const SizedBox(height: 20),
@@ -90,7 +96,9 @@ class CommonDialogs with BaseClass {
               ),
             ),
           ),
-        );
+        ),
+      ),
+    );
       },
     );
   }
@@ -117,34 +125,42 @@ class CommonDialogs with BaseClass {
         return Center(
           child: Material(
             color: Colors.transparent,
-            child: Container(
-              width: 420,
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF0F0F0),
-                borderRadius: BorderRadius.circular(24),
-              ),
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          "$planName plan (₹$price)",
-                          style: const TextStyle(
-                            fontSize: 18,
-                            color: Color(0xFF555555),
-                            fontWeight: FontWeight.bold,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 420),
+              child: Container(
+                width: MediaQuery.of(context1).size.width,
+                margin: const EdgeInsets.symmetric(horizontal: 16),
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF0F0F0),
+                  borderRadius: BorderRadius.circular(24),
+                ),
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Flexible(
+                            child: Text(
+                              "$planName plan (₹$price)",
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontSize: 18,
+                                color: Color(0xFF555555),
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                           ),
-                        ),
-                        InkWell(
-                          onTap: () => Navigator.of(context).pop(),
-                          child: const Icon(Icons.close, color: Colors.grey),
-                        ),
-                      ],
-                    ),
+                          const SizedBox(width: 8),
+                          InkWell(
+                            onTap: () => Navigator.of(context).pop(),
+                            child: const Icon(Icons.close, color: Colors.grey),
+                          ),
+                        ],
+                      ),
                     const SizedBox(height: 20),
                     _buildDialogTextField(
                       textController: controller.planBusinessController,
@@ -240,7 +256,8 @@ class CommonDialogs with BaseClass {
               ),
             ),
           ),
-        );
+        ),
+      );
       },
     );
   }

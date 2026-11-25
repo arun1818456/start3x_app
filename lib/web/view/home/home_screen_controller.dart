@@ -61,9 +61,11 @@ class HomeScreenController extends GetxController with BaseClass {
       );
 
       if (response.statusCode == 302 || response.statusCode == 200) {
+        _notifyAdminWebEnquiry(source: "Free Call Booking", business: business, name: name, phone: phone);
         showMySnackBar("Free Call booked successfully!", success: true);
         _clearCallbackForm();
       } else {
+        _notifyAdminWebEnquiry(source: "Free Call Booking", business: business, name: name, phone: phone);
         showMySnackBar("Free Call booked successfully!", success: true);
         _clearCallbackForm();
       }
@@ -131,6 +133,13 @@ class HomeScreenController extends GetxController with BaseClass {
           "gst": gst,
         }),
       );
+      _notifyAdminWebEnquiry(
+        source: "Scale Plan Request",
+        business: business,
+        name: name,
+        phone: phone,
+        planAmount: planAmount,
+      );
       Get.back();
       showMySnackBar("Plan request submitted successfully!", success: true);
       clearPlanForm();
@@ -176,6 +185,12 @@ class HomeScreenController extends GetxController with BaseClass {
       );
 
       if (response.statusCode == 302 || response.statusCode == 200) {
+        _notifyAdminWebEnquiry(
+          source: "Partner Application",
+          business: occupationController.text.trim(),
+          name: nameController.text.trim(),
+          phone: phoneController.text.trim(),
+        );
         showMySnackBar("Form submitted successfully!", success: true);
         _clearForm();
       } else {
@@ -198,6 +213,26 @@ class HomeScreenController extends GetxController with BaseClass {
     emailController.clear();
     phoneController.clear();
     occupationController.clear();
+  }
+
+  void _notifyAdminWebEnquiry({
+    required String source,
+    required String business,
+    required String name,
+    required String phone,
+    String? planAmount,
+  }) {
+    httpRequest(
+      REQUEST.post,
+      webEnquiryNotificationApiEndPoint,
+      {
+        "source": source,
+        "business": business,
+        "name": name,
+        "phone": phone,
+        "planAmount": ?planAmount,
+      },
+    ).catchError((_) {});
   }
 
   @override

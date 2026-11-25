@@ -43,7 +43,7 @@ class CallingScreen extends StatelessWidget {
                         // Section Title Row
                         Padding(
                           padding: const EdgeInsets.only(
-                              left: 20, right: 20, top: 16, bottom: 8),
+                              left: 16, right: 16, top: 12, bottom: 6),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -51,13 +51,13 @@ class CallingScreen extends StatelessWidget {
                                 'Call Responses',
                                 style: TextStyle(
                                   color: AppColors.textDark,
-                                  fontSize: 18,
+                                  fontSize: 16,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
                               Container(
                                 padding: const EdgeInsets.symmetric(
-                                    horizontal: 10, vertical: 4),
+                                    horizontal: 9, vertical: 3),
                                 decoration: BoxDecoration(
                                   color: AppColors.primaryBlue
                                       .withValues(alpha: 0.1),
@@ -67,7 +67,7 @@ class CallingScreen extends StatelessWidget {
                                   '${responseList.length} Total',
                                   style: const TextStyle(
                                     color: AppColors.primaryBlue,
-                                    fontSize: 12,
+                                    fontSize: 11,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
@@ -85,15 +85,15 @@ class CallingScreen extends StatelessWidget {
                                     children: [
                                       Icon(
                                         Icons.phonelink_ring_rounded,
-                                        size: 48,
+                                        size: 42,
                                         color: AppColors.textGrey,
                                       ),
-                                      SizedBox(height: 12),
+                                      SizedBox(height: 10),
                                       Text(
                                         'No call responses recorded yet',
                                         style: TextStyle(
                                           color: AppColors.textGrey,
-                                          fontSize: 15,
+                                          fontSize: 13.5,
                                           fontWeight: FontWeight.w500,
                                         ),
                                       ),
@@ -102,10 +102,10 @@ class CallingScreen extends StatelessWidget {
                                 )
                               : ListView.separated(
                                   padding: const EdgeInsets.symmetric(
-                                      horizontal: 18.0, vertical: 12.0),
+                                      horizontal: 14.0, vertical: 8.0),
                                   itemCount: responseList.length,
                                   separatorBuilder: (context, index) =>
-                                      const SizedBox(height: 14),
+                                      const SizedBox(height: 10),
                                   itemBuilder: (context, index) {
                                     return _buildResponseCard(
                                       controller,
@@ -288,9 +288,9 @@ class CallingScreen extends StatelessWidget {
       width: double.infinity,
       decoration: const BoxDecoration(
         color: AppColors.darkCardBg,
-        borderRadius: BorderRadius.vertical(bottom: Radius.circular(24)),
+        borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
       ),
-      padding: const EdgeInsets.only(top: 48, bottom: 16, left: 16, right: 16),
+      padding: const EdgeInsets.only(top: 42, bottom: 12, left: 14, right: 14),
       child: Column(
         children: [
           // Top Navigation Row
@@ -299,14 +299,14 @@ class CallingScreen extends StatelessWidget {
               // Back Button (Hidden if alert active to prevent back navigation)
               Obx(() {
                 if (controller.isPastDueAlertActive.value) {
-                  return const SizedBox(width: 38);
+                  return const SizedBox(width: 34);
                 }
                 return GestureDetector(
                   onTap: () => Get.back(),
                   behavior: HitTestBehavior.opaque,
                   child: Container(
-                    width: 38,
-                    height: 38,
+                    width: 34,
+                    height: 34,
                     decoration: BoxDecoration(
                       color: Colors.white.withValues(alpha: 0.15),
                       shape: BoxShape.circle,
@@ -314,12 +314,12 @@ class CallingScreen extends StatelessWidget {
                     child: const Icon(
                       Icons.arrow_back_ios_new_rounded,
                       color: AppColors.whiteColor,
-                      size: 18,
+                      size: 16,
                     ),
                   ),
                 );
               }),
-              const SizedBox(width: 12),
+              const SizedBox(width: 10),
 
               // Title Name & Location
               Expanded(
@@ -336,12 +336,12 @@ class CallingScreen extends StatelessWidget {
                         textAlign: TextAlign.center,
                         style: const TextStyle(
                           color: AppColors.whiteColor,
-                          fontSize: 17,
+                          fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       if (controller.lead.location.isNotEmpty) ...[
-                        const SizedBox(height: 2),
+                        const SizedBox(height: 1),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           mainAxisSize: MainAxisSize.min,
@@ -349,7 +349,7 @@ class CallingScreen extends StatelessWidget {
                             const Icon(
                               Icons.location_on_outlined,
                               color: Colors.white70,
-                              size: 13,
+                              size: 12,
                             ),
                             const SizedBox(width: 2),
                             Flexible(
@@ -359,7 +359,7 @@ class CallingScreen extends StatelessWidget {
                                 overflow: TextOverflow.ellipsis,
                                 style: const TextStyle(
                                   color: Colors.white70,
-                                  fontSize: 12,
+                                  fontSize: 11.5,
                                 ),
                               ),
                             ),
@@ -370,7 +370,7 @@ class CallingScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 6),
 
               // Dropdown Details Toggle Button (ALWAYS VISIBLE!)
               Obx(
@@ -378,8 +378,8 @@ class CallingScreen extends StatelessWidget {
                   onTap: () => controller.showDetails.toggle(),
                   behavior: HitTestBehavior.opaque,
                   child: Container(
-                    width: 38,
-                    height: 38,
+                    width: 34,
+                    height: 34,
                     decoration: BoxDecoration(
                       color: controller.showDetails.value
                           ? AppColors.primaryBlue
@@ -391,7 +391,7 @@ class CallingScreen extends StatelessWidget {
                           ? Icons.keyboard_arrow_up_rounded
                           : Icons.keyboard_arrow_down_rounded,
                       color: AppColors.whiteColor,
-                      size: 22,
+                      size: 20,
                     ),
                   ),
                 ),
@@ -485,7 +485,7 @@ class CallingScreen extends StatelessWidget {
             ],
           ),
 
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
 
           // Quick Actions Row (Call, WhatsApp, Alt Call)
           Row(
@@ -611,37 +611,49 @@ class CallingScreen extends StatelessWidget {
                         color: Colors.white.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(14),
                       ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      child: Wrap(
+                        alignment: WrapAlignment.spaceAround,
+                        spacing: 12,
+                        runSpacing: 6,
                         children: [
                           if (controller.lead.kw.isNotEmpty)
                             Row(
+                              mainAxisSize: MainAxisSize.min,
                               children: [
                                 const Icon(Icons.bolt_rounded,
                                     color: Color(0xFFFFCC00), size: 16),
                                 const SizedBox(width: 4),
-                                Text(
-                                  'KW: ${controller.lead.kw}',
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
+                                Flexible(
+                                  child: Text(
+                                    'KW: ${controller.lead.kw}',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                    ),
                                   ),
                                 ),
                               ],
                             ),
                           if (controller.lead.electricityBill.isNotEmpty)
                             Row(
+                              mainAxisSize: MainAxisSize.min,
                               children: [
                                 const Icon(Icons.receipt_long_rounded,
                                     color: Color(0xFFFFCC00), size: 16),
                                 const SizedBox(width: 4),
-                                Text(
-                                  'Bill: ${controller.lead.electricityBill}',
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
+                                Flexible(
+                                  child: Text(
+                                    'Bill: ${controller.lead.electricityBill}',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                    ),
                                   ),
                                 ),
                               ],
@@ -672,8 +684,8 @@ class CallingScreen extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            width: 50,
-            height: 50,
+            width: 44,
+            height: 44,
             decoration: BoxDecoration(
               color: bgColor,
               shape: BoxShape.circle,
@@ -688,15 +700,15 @@ class CallingScreen extends StatelessWidget {
             child: Icon(
               icon,
               color: AppColors.whiteColor,
-              size: 22,
+              size: 19,
             ),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 5),
           Text(
             label,
             style: const TextStyle(
               color: AppColors.whiteColor,
-              fontSize: 12,
+              fontSize: 11.5,
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -711,17 +723,17 @@ class CallingScreen extends StatelessWidget {
       width: double.infinity,
       decoration: BoxDecoration(
         color: AppColors.primaryBlue,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(15),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primaryBlue.withValues(alpha: 0.25),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
+            color: AppColors.primaryBlue.withValues(alpha: 0.22),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
           ),
         ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(15),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -729,14 +741,14 @@ class CallingScreen extends StatelessWidget {
             if (resp.isDone)
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 10),
+                padding: const EdgeInsets.symmetric(vertical: 7),
                 color: const Color(0xFF00C853),
                 child: const Text(
                   'This task has been completed.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 14,
+                    fontSize: 12.5,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -744,92 +756,51 @@ class CallingScreen extends StatelessWidget {
             else if (resp.isMissed)
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 10),
+                padding: const EdgeInsets.symmetric(vertical: 7),
                 color: const Color(0xFFFF1744),
                 child: const Text(
                   'This task has been Missed.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 14,
+                    fontSize: 12.5,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
 
             Padding(
-              padding: const EdgeInsets.all(18),
+              padding: const EdgeInsets.all(14),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Header: Response #, Caller Name & Edit Button
+                  // Header: Response # & Edit Button
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            resp.responseNumber,
-                            style: const TextStyle(
-                              color: AppColors.whiteColor,
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
+                      Expanded(
+                        child: Text(
+                          resp.responseNumber,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: AppColors.whiteColor,
+                            fontSize: 17,
+                            fontWeight: FontWeight.bold,
                           ),
-                          if (resp.userName != null &&
-                              resp.userName!.trim().isNotEmpty) ...[
-                            const SizedBox(width: 8),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 8, vertical: 3),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.2),
-                                borderRadius: BorderRadius.circular(12),
-                                border: Border.all(
-                                  color: Colors.white.withValues(alpha: 0.3),
-                                  width: 0.8,
-                                ),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Icon(
-                                    Icons.person_rounded,
-                                    color: Color(0xFFFFCC00),
-                                    size: 13,
-                                  ),
-                                  const SizedBox(width: 4),
-                                  ConstrainedBox(
-                                    constraints:
-                                        const BoxConstraints(maxWidth: 110),
-                                    child: Text(
-                                      resp.userName!,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ],
+                        ),
                       ),
+                      const SizedBox(width: 8),
                       GestureDetector(
                         onTap: () =>
                             controller.showEditResponseBottomSheet(index, resp),
                         behavior: HitTestBehavior.opaque,
                         child: Container(
                           padding:
-                              const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                              const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                           decoration: BoxDecoration(
                             color: Colors.white.withValues(alpha: 0.2),
-                            borderRadius: BorderRadius.circular(20),
+                            borderRadius: BorderRadius.circular(16),
                           ),
                           child: const Row(
                             mainAxisSize: MainAxisSize.min,
@@ -837,14 +808,14 @@ class CallingScreen extends StatelessWidget {
                               Icon(
                                 Icons.edit_rounded,
                                 color: AppColors.whiteColor,
-                                size: 15,
+                                size: 13.5,
                               ),
                               SizedBox(width: 4),
                               Text(
                                 'Edit',
                                 style: TextStyle(
                                   color: AppColors.whiteColor,
-                                  fontSize: 12,
+                                  fontSize: 11.5,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -855,7 +826,7 @@ class CallingScreen extends StatelessWidget {
                     ],
                   ),
 
-                  const SizedBox(height: 14),
+                  const SizedBox(height: 10),
 
                   // Caller Detail Tile (if available)
                   if (resp.userName != null &&
@@ -865,7 +836,7 @@ class CallingScreen extends StatelessWidget {
                       label: 'Called By: ',
                       value: resp.userName!,
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 6),
                   ],
 
                   // Meeting or Callback Details
@@ -876,7 +847,7 @@ class CallingScreen extends StatelessWidget {
                       label: 'Meeting Scheduled: ',
                       value: resp.scheduledDate!,
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 6),
                   ],
                   if (resp.callback != null && resp.callback!.isNotEmpty) ...[
                     _buildDetailTile(
@@ -884,7 +855,7 @@ class CallingScreen extends StatelessWidget {
                       label: 'Callback: ',
                       value: resp.callback!,
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 6),
                   ],
 
                   // Outcome
@@ -894,27 +865,27 @@ class CallingScreen extends StatelessWidget {
                     value: resp.outcome,
                   ),
 
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 6),
 
                   // Response Text
                   if (resp.text.isNotEmpty) ...[
                     Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.all(12),
+                      padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
                         color: Colors.black.withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(10),
                       ),
                       child: Text(
                         resp.text,
                         style: const TextStyle(
                           color: Colors.white,
-                          fontSize: 13,
-                          height: 1.35,
+                          fontSize: 12.5,
+                          height: 1.3,
                         ),
                       ),
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 10),
                   ],
 
                   // Call Date Footer
@@ -923,59 +894,90 @@ class CallingScreen extends StatelessWidget {
                     children: [
                       if (resp.userName != null &&
                           resp.userName!.trim().isNotEmpty)
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(
-                              Icons.account_circle_outlined,
-                              color: Colors.white70,
-                              size: 15,
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              resp.userName!,
-                              style: const TextStyle(
+                        Flexible(
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(
+                                Icons.account_circle_outlined,
                                 color: Colors.white70,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w500,
+                                size: 15,
                               ),
-                            ),
-                          ],
+                              const SizedBox(width: 4),
+                              Flexible(
+                                child: Text(
+                                  resp.userName!,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    color: Colors.white70,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         )
                       else
                         const SizedBox.shrink(),
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(
-                            Icons.access_time_rounded,
+                      const SizedBox(width: 8),
+                      Flexible(
+                        child: Tooltip(
+                          triggerMode: TooltipTriggerMode.tap,
+                          preferBelow: false,
+                          showDuration: const Duration(seconds: 3),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: AppColors.darkCardBg,
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: Colors.white24),
+                          ),
+                          textStyle: const TextStyle(
                             color: Color(0xFFFFCC00),
-                            size: 14,
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.w600,
                           ),
-                          const SizedBox(width: 4),
-                          RichText(
-                            text: TextSpan(
-                              children: [
-                                const TextSpan(
-                                  text: 'Call Date: ',
-                                  style: TextStyle(
-                                    color: Colors.white70,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w400,
+                          message: _formatFullCallDateTime(resp),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(
+                                Icons.access_time_rounded,
+                                color: Color(0xFFFFCC00),
+                                size: 14,
+                              ),
+                              const SizedBox(width: 4),
+                              Flexible(
+                                child: RichText(
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  text: TextSpan(
+                                    children: [
+                                      const TextSpan(
+                                        text: 'Call Date: ',
+                                        style: TextStyle(
+                                          color: Colors.white70,
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w400,
+                                        ),
+                                      ),
+                                      TextSpan(
+                                        text: resp.createdAt,
+                                        style: const TextStyle(
+                                          color: Color(0xFFFFCC00),
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                                TextSpan(
-                                  text: resp.createdAt,
-                                  style: const TextStyle(
-                                    color: Color(0xFFFFCC00),
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
-                        ],
+                        ),
                       ),
                     ],
                   ),
@@ -988,6 +990,44 @@ class CallingScreen extends StatelessWidget {
     );
   }
 
+  String _formatFullCallDateTime(LeadResponseModel resp) {
+    final raw = resp.rawCreatedAt?.trim() ?? '';
+    if (raw.isNotEmpty) {
+      final parsed = DateTime.tryParse(raw);
+      if (parsed != null) {
+        final dt = parsed.toLocal();
+        const months = [
+          'Jan',
+          'Feb',
+          'Mar',
+          'Apr',
+          'May',
+          'Jun',
+          'Jul',
+          'Aug',
+          'Sep',
+          'Oct',
+          'Nov',
+          'Dec',
+        ];
+        final day = dt.day.toString().padLeft(2, '0');
+        final month = months[dt.month - 1];
+        final year = dt.year.toString();
+        final hour = (dt.hour % 12 == 0 ? 12 : dt.hour % 12)
+            .toString()
+            .padLeft(2, '0');
+        final minute = dt.minute.toString().padLeft(2, '0');
+        final second = dt.second.toString().padLeft(2, '0');
+        final period = dt.hour >= 12 ? 'PM' : 'AM';
+        return '$day $month $year, $hour:$minute:$second $period';
+      }
+    }
+    if (resp.createdAt.trim().isNotEmpty) {
+      return resp.createdAt.trim();
+    }
+    return 'N/A';
+  }
+
   Widget _buildDetailTile({
     required IconData icon,
     required String label,
@@ -996,8 +1036,8 @@ class CallingScreen extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, color: const Color(0xFFFFCC00), size: 18),
-        const SizedBox(width: 8),
+        Icon(icon, color: const Color(0xFFFFCC00), size: 16),
+        const SizedBox(width: 7),
         Expanded(
           child: RichText(
             text: TextSpan(
@@ -1006,7 +1046,7 @@ class CallingScreen extends StatelessWidget {
                   text: label,
                   style: const TextStyle(
                     color: AppColors.whiteColor,
-                    fontSize: 14,
+                    fontSize: 12.5,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -1014,7 +1054,7 @@ class CallingScreen extends StatelessWidget {
                   text: value,
                   style: const TextStyle(
                     color: Color(0xFFFFCC00),
-                    fontSize: 14,
+                    fontSize: 12.5,
                     fontWeight: FontWeight.w600,
                   ),
                 ),

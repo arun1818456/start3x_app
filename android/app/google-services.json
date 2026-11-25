@@ -22,6 +22,14 @@
           }
         },
         {
+          "client_id": "704177767512-moc5hvs4rkk8ctrgqss63tukd01v64bh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.aruninnovationstudio.start3x_app",
+            "certificate_hash": "af596ec4642f4faf26ac6ee1f388e29dd8a3ebd4"
+          }
+        },
+        {
           "client_id": "704177767512-i1h3085ieeqcdeef254k8ocaamkukaq3.apps.googleusercontent.com",
           "client_type": 3
         }

@@ -197,6 +197,14 @@ class SideMenuBar extends StatelessWidget with BaseClass {
                       );
                     },
                   ),
+                  _buildMenuItem(
+                    icon: Icons.notifications_rounded,
+                    title: 'Notifications',
+                    onTap: () {
+                      Get.back();
+                      Get.toNamed(AppRoutes.notificationsScreen);
+                    },
+                  ),
                 ],
               ),
             ),
@@ -231,6 +239,17 @@ class SideMenuBar extends StatelessWidget with BaseClass {
                     yesButtonText: "Logout",
                     noButtonText: "Cancel",
                     onTapYes: () async {
+                      try {
+                        final jwt = getUserData().token ?? "";
+                        if (jwt.isNotEmpty) {
+                          await httpRequest(
+                            REQUEST.post,
+                            logoutApiEndPoint,
+                            {},
+                            token: jwt,
+                          );
+                        }
+                      } catch (_) {}
                       if (Get.isRegistered<MySocketController>()) {
                         Get.find<MySocketController>().disconnectSocket();
                       }

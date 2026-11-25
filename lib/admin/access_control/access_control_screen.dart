@@ -24,8 +24,8 @@ class AccessControlScreen extends StatelessWidget {
                   Container(
                     width: double.infinity,
                     padding: EdgeInsets.symmetric(
-                      vertical: 16,
-                      horizontal: isWide ? 28 : 16,
+                      vertical: 12,
+                      horizontal: isWide ? 28 : 14,
                     ),
                     decoration: BoxDecoration(
                       color: Colors.white,
@@ -46,7 +46,7 @@ class AccessControlScreen extends StatelessWidget {
                           padding: EdgeInsets.zero,
                           constraints: const BoxConstraints(),
                         ),
-                        const SizedBox(width: 14),
+                        const SizedBox(width: 12),
                         const Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -54,7 +54,7 @@ class AccessControlScreen extends StatelessWidget {
                               Text(
                                 'Access Control',
                                 style: TextStyle(
-                                  fontSize: 22,
+                                  fontSize: 18.5,
                                   fontWeight: FontWeight.bold,
                                   color: AppColors.textDark,
                                 ),
@@ -62,7 +62,7 @@ class AccessControlScreen extends StatelessWidget {
                               Text(
                                 'Generate passkeys, authorize users & revoke credentials',
                                 style: TextStyle(
-                                  fontSize: 12,
+                                  fontSize: 11.5,
                                   color: AppColors.textGrey,
                                 ),
                               ),
@@ -82,8 +82,8 @@ class AccessControlScreen extends StatelessWidget {
                       child: SingleChildScrollView(
                         physics: const AlwaysScrollableScrollPhysics(),
                         padding: EdgeInsets.symmetric(
-                          horizontal: isWide ? 28 : 20,
-                          vertical: 24,
+                          horizontal: isWide ? 28 : 14,
+                          vertical: 14,
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -105,49 +105,49 @@ class AccessControlScreen extends StatelessWidget {
                               ),
                             ] else ...[
                               Center(child: _buildCounterCard(controller)),
-                              const SizedBox(height: 20),
+                              const SizedBox(height: 12),
                               _buildPasskeyGeneratorCard(controller),
                             ],
 
-                            const SizedBox(height: 28),
+                            const SizedBox(height: 14),
 
                             // Search bar
                             Container(
-                              height: 44,
+                              height: 40,
                               decoration: BoxDecoration(
                                 color: Colors.grey.shade100,
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius: BorderRadius.circular(10),
                                 border: Border.all(color: Colors.grey.shade200),
                               ),
-                              padding: const EdgeInsets.symmetric(horizontal: 14),
+                              padding: const EdgeInsets.symmetric(horizontal: 12),
                               child: TextField(
                                 onChanged: controller.updateSearch,
-                                style: const TextStyle(fontSize: 14),
+                                style: const TextStyle(fontSize: 13),
                                 decoration: const InputDecoration(
                                   icon: Icon(Icons.search_rounded,
-                                      color: AppColors.primaryBlue, size: 20),
+                                      color: AppColors.primaryBlue, size: 19),
                                   hintText: 'Search clients by name, key...',
                                   hintStyle: TextStyle(
-                                      fontSize: 13, color: AppColors.textGrey),
+                                      fontSize: 12.5, color: AppColors.textGrey),
                                   border: InputBorder.none,
                                   isDense: true,
                                   contentPadding:
-                                      EdgeInsets.symmetric(vertical: 12),
+                                      EdgeInsets.symmetric(vertical: 10),
                                 ),
                               ),
                             ),
 
-                            const SizedBox(height: 24),
+                            const SizedBox(height: 14),
 
                             const Text(
                               'Authorized Clients & Passkeys',
                               style: TextStyle(
-                                fontSize: 16,
+                                fontSize: 14.5,
                                 fontWeight: FontWeight.bold,
                                 color: AppColors.textDark,
                               ),
                             ),
-                            const SizedBox(height: 12),
+                            const SizedBox(height: 8),
 
                             // --- Clients Cards List ---
                             Obx(
@@ -205,11 +205,11 @@ class AccessControlScreen extends StatelessWidget {
 
   Widget _buildCounterCard(AccessControlController controller) {
     return Container(
-      width: 170,
-      padding: const EdgeInsets.symmetric(vertical: 22, horizontal: 16),
+      width: 150,
+      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 14),
       decoration: BoxDecoration(
         color: AppColors.primaryBlue.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(14),
         border: Border.all(
           color: AppColors.primaryBlue.withValues(alpha: 0.2),
         ),
@@ -221,18 +221,18 @@ class AccessControlScreen extends StatelessWidget {
             () => Text(
               '${controller.clients.length}',
               style: const TextStyle(
-                fontSize: 48,
+                fontSize: 36,
                 fontWeight: FontWeight.bold,
                 color: AppColors.primaryBlue,
                 height: 1.0,
               ),
             ),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 4),
           const Text(
             'Active Passkeys',
             style: TextStyle(
-              fontSize: 13,
+              fontSize: 12,
               fontWeight: FontWeight.w600,
               color: AppColors.textDark,
             ),
@@ -244,10 +244,10 @@ class AccessControlScreen extends StatelessWidget {
 
   Widget _buildPasskeyGeneratorCard(AccessControlController controller) {
     return Container(
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(14),
         border: Border.all(color: Colors.grey.shade200),
         boxShadow: [
           BoxShadow(
@@ -267,58 +267,62 @@ class AccessControlScreen extends StatelessWidget {
               onTap: controller.copyPasskeyToClipboard,
               child: Container(
                 padding:
-                    const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                    const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
                 decoration: BoxDecoration(
                   color: Colors.grey.shade100,
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(10),
                   border: Border.all(color: Colors.grey.shade300),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const Icon(Icons.key_rounded,
-                        size: 18, color: AppColors.primaryBlue),
-                    const SizedBox(width: 8),
-                    Obx(
-                      () => Text(
-                        controller.generatedPasskey.value,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 1.2,
-                          color: AppColors.textDark,
+                        size: 16, color: AppColors.primaryBlue),
+                    const SizedBox(width: 7),
+                    Flexible(
+                      child: Obx(
+                        () => Text(
+                          controller.generatedPasskey.value,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 14.5,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 1.1,
+                            color: AppColors.textDark,
+                          ),
                         ),
                       ),
                     ),
-                    const SizedBox(width: 10),
+                    const SizedBox(width: 8),
                     const Icon(Icons.copy_rounded,
-                        size: 16, color: Colors.grey),
+                        size: 15, color: Colors.grey),
                   ],
                 ),
               ),
             ),
           ),
 
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
 
           // Click to Generate Passkey Button
           ElevatedButton.icon(
             onPressed: controller.generatePasskey,
             icon: const Icon(Icons.add_circle_outline_rounded,
-                size: 18, color: Colors.white),
+                size: 17, color: Colors.white),
             label: const Text(
               'Generate New Passkey',
               style: TextStyle(
-                fontSize: 14,
+                fontSize: 13,
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
               ),
             ),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primaryBlue,
-              padding: const EdgeInsets.symmetric(vertical: 14),
+              padding: const EdgeInsets.symmetric(vertical: 11),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(10),
               ),
               elevation: 0,
             ),
@@ -336,11 +340,11 @@ class AccessControlScreen extends StatelessWidget {
         onTap: () => controller.showPasskeyUsersDialog(context, item),
         behavior: HitTestBehavior.opaque,
         child: Container(
-          margin: const EdgeInsets.symmetric(vertical: 6.0),
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          margin: const EdgeInsets.symmetric(vertical: 4.5),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(12),
             border: Border.all(color: Colors.grey.shade200),
             boxShadow: [
               BoxShadow(
@@ -355,21 +359,21 @@ class AccessControlScreen extends StatelessWidget {
               // Rank Badge
               Container(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
                 decoration: BoxDecoration(
                   color: AppColors.primaryBlue.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(7),
                 ),
                 child: Text(
                   item.rank,
                   style: const TextStyle(
                     color: AppColors.primaryBlue,
                     fontWeight: FontWeight.bold,
-                    fontSize: 13,
+                    fontSize: 12,
                   ),
                 ),
               ),
-              const SizedBox(width: 14),
+              const SizedBox(width: 11),
 
               // User Name, Passkey ID & CreatedAt
               Expanded(
@@ -381,7 +385,7 @@ class AccessControlScreen extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
-                        fontSize: 15,
+                        fontSize: 14,
                         fontWeight: FontWeight.bold,
                         color: AppColors.textDark,
                       ),
@@ -392,7 +396,7 @@ class AccessControlScreen extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
-                        fontSize: 13,
+                        fontSize: 12,
                         color: AppColors.textGrey,
                         fontWeight: FontWeight.w500,
                       ),
@@ -404,7 +408,7 @@ class AccessControlScreen extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
-                          fontSize: 11,
+                          fontSize: 10.5,
                           color: AppColors.textGrey,
                         ),
                       ),

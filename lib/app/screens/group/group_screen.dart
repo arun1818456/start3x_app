@@ -16,7 +16,14 @@ class GroupScreen extends StatelessWidget {
         (Get.arguments is Map && Get.arguments['showBackButton'] == true);
     final bool isWide = kIsWeb && MediaQuery.of(context).size.width >= Breakpoints.mobile;
 
-    return Scaffold(
+    return Obx(() => PopScope(
+      canPop: !controller.isSelectionMode,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop && controller.isSelectionMode) {
+          controller.clearMessageSelection();
+        }
+      },
+      child: Scaffold(
       backgroundColor: const Color(0xFFF4F6F9),
       body: SafeArea(
         top: false,
@@ -27,8 +34,10 @@ class GroupScreen extends StatelessWidget {
               color: const Color(0xFFF4F6F9),
               child: Column(
           children: [
-            // --- Header ---
-            _buildHeader(controller, canBack),
+            // --- Header (Normal or Selection AppBar) ---
+            Obx(() => controller.isSelectionMode
+                ? _buildSelectionHeader(context, controller)
+                : _buildHeader(controller, canBack)),
 
             // --- Chat Messages Area ---
             Expanded(
@@ -44,11 +53,14 @@ class GroupScreen extends StatelessWidget {
 
                   return ListView.builder(
                     controller: controller.scrollController,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 14.0, vertical: 12.0),
+                    padding: const EdgeInsets.symmetric(vertical: 12.0),
                     itemCount: controller.messages.length,
                     itemBuilder: (context, index) {
-                      return _buildChatBubble(controller, controller.messages[index]);
+                      return _buildChatBubble(
+                        context,
+                        controller,
+                        controller.messages[index],
+                      );
                     },
                   );
                 },
@@ -73,13 +85,17 @@ class GroupScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    Text(
-                      '${controller.typingUser.value} is typing...',
-                      style: const TextStyle(
-                        color: AppColors.primaryBlue,
-                        fontSize: 12,
-                        fontStyle: FontStyle.italic,
-                        fontWeight: FontWeight.w500,
+                    Expanded(
+                      child: Text(
+                        '${controller.typingUser.value} is typing...',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: AppColors.primaryBlue,
+                          fontSize: 12,
+                          fontStyle: FontStyle.italic,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                     ),
                   ],
@@ -95,83 +111,155 @@ class GroupScreen extends StatelessWidget {
     ),
   ),
 ),
-);
+),
+));
 }
+
+  Widget _buildSelectionHeader(BuildContext context, GroupController controller) {
+    return Container(
+      width: double.infinity,
+      color: AppColors.primaryBlue,
+      padding: const EdgeInsets.only(
+        top: 42,
+        bottom: 10,
+        left: 6,
+        right: 8,
+      ),
+      child: Row(
+        children: [
+          IconButton(
+            onPressed: controller.clearMessageSelection,
+            icon: const Icon(
+              Icons.close_rounded,
+              color: AppColors.whiteColor,
+              size: 22,
+            ),
+            tooltip: 'Cancel Selection',
+          ),
+          const SizedBox(width: 4),
+          Expanded(
+            child: Text(
+              '${controller.selectedMessageIds.length} selected',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                color: AppColors.whiteColor,
+                fontSize: 17,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          IconButton(
+            onPressed: controller.selectAllDeletableMessages,
+            icon: const Icon(
+              Icons.select_all_rounded,
+              color: AppColors.whiteColor,
+              size: 22,
+            ),
+            tooltip: 'Select All',
+          ),
+          IconButton(
+            onPressed: () => controller.confirmDeleteSelectedMessages(context),
+            icon: const Icon(
+              Icons.delete_rounded,
+              color: AppColors.whiteColor,
+              size: 22,
+            ),
+            tooltip: 'Delete Selected',
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget _buildHeader(GroupController controller, bool canBack) {
     return Container(
       width: double.infinity,
       color: AppColors.primaryBlue,
       padding: EdgeInsets.only(
-        top: 48,
-        bottom: 14,
-        left: canBack ? 12 : 16,
-        right: 12,
+        top: 42,
+        bottom: 10,
+        left: canBack ? 10 : 14,
+        right: 10,
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(
-            children: [
-              if (canBack) ...[
-                IconButton(
-                  onPressed: () => Get.back(),
-                  icon: const Icon(
-                    Icons.arrow_back_ios_new_rounded,
-                    color: AppColors.whiteColor,
-                    size: 20,
-                  ),
-                  tooltip: 'Back',
-                ),
-                const SizedBox(width: 4),
-              ],
-              const Icon(
-                Icons.forum_rounded,
-                color: AppColors.whiteColor,
-                size: 24,
-              ),
-              const SizedBox(width: 8),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Text(
-                    'Group Chat',
-                    style: TextStyle(
+          Expanded(
+            child: Row(
+              children: [
+                if (canBack) ...[
+                  IconButton(
+                    onPressed: () => Get.back(),
+                    icon: const Icon(
+                      Icons.arrow_back_ios_new_rounded,
                       color: AppColors.whiteColor,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
+                      size: 18,
                     ),
+                    tooltip: 'Back',
                   ),
-                  Row(
+                  const SizedBox(width: 2),
+                ],
+                const Icon(
+                  Icons.forum_rounded,
+                  color: AppColors.whiteColor,
+                  size: 21,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Obx(() {
-                        final isConnected = controller.socketController.isSocketConnected.value;
-                        return Container(
-                          width: 8,
-                          height: 8,
-                          margin: const EdgeInsets.only(right: 6),
-                          decoration: BoxDecoration(
-                            color: isConnected ? const Color(0xFF4ADE80) : Colors.orangeAccent,
-                            shape: BoxShape.circle,
+                      const Text(
+                        'Group Chat',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: AppColors.whiteColor,
+                          fontSize: 17,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Row(
+                        children: [
+                          Obx(() {
+                            final isConnected =
+                                controller.socketController.isSocketConnected.value;
+                            return Container(
+                              width: 8,
+                              height: 8,
+                              margin: const EdgeInsets.only(right: 6),
+                              decoration: BoxDecoration(
+                                color: isConnected
+                                    ? const Color(0xFF4ADE80)
+                                    : Colors.orangeAccent,
+                                shape: BoxShape.circle,
+                              ),
+                            );
+                          }),
+                          Flexible(
+                            child: Obx(() {
+                              final isConnected =
+                                  controller.socketController.isSocketConnected.value;
+                              return Text(
+                                isConnected ? 'Live Connected' : 'Connecting...',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 12,
+                                ),
+                              );
+                            }),
                           ),
-                        );
-                      }),
-                      Obx(() {
-                        final isConnected = controller.socketController.isSocketConnected.value;
-                        return Text(
-                          isConnected ? 'Live Connected' : 'Connecting...',
-                          style: const TextStyle(
-                            color: Colors.white70,
-                            fontSize: 12,
-                          ),
-                        );
-                      }),
+                        ],
+                      ),
                     ],
                   ),
-                ],
-              ),
-            ],
+                ),
+              ],
+            ),
           ),
           IconButton(
             onPressed: () => controller.fetchChatMessagesFromApi(),
@@ -187,36 +275,77 @@ class GroupScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildChatBubble(GroupController controller, GroupMessageModel item) {
+  Widget _buildChatBubble(
+    BuildContext context,
+    GroupController controller,
+    GroupMessageModel item,
+  ) {
     final bool isMe = item.isMe;
+    final bool canDelete = controller.canDeleteMessage(item);
 
-    return Align(
-      alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
-      child: Container(
-        margin: EdgeInsets.only(
-          top: 4,
-          bottom: 6,
-          left: isMe ? 50 : 0,
-          right: isMe ? 0 : 50,
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-        decoration: BoxDecoration(
-          color: isMe ? AppColors.primaryBlue : Colors.grey.shade200,
-          borderRadius: BorderRadius.only(
-            topLeft: const Radius.circular(16),
-            topRight: const Radius.circular(16),
-            bottomLeft: Radius.circular(isMe ? 16 : 3),
-            bottomRight: Radius.circular(isMe ? 3 : 16),
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.04),
-              blurRadius: 4,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Column(
+    return Obx(() {
+      final bool isSelected = controller.isMessageSelected(item);
+      final bool inSelectionMode = controller.isSelectionMode;
+
+      return GestureDetector(
+        onLongPress: canDelete ? () => controller.onMessageLongPress(item) : null,
+        onTap: (inSelectionMode && canDelete)
+            ? () => controller.onMessageTap(item)
+            : null,
+        behavior: HitTestBehavior.translucent,
+        child: Container(
+          width: double.infinity,
+          color: isSelected
+              ? AppColors.primaryBlue.withValues(alpha: 0.14)
+              : Colors.transparent,
+          padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 1.5),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              if (inSelectionMode && canDelete) ...[
+                Padding(
+                  padding: const EdgeInsets.only(right: 8.0),
+                  child: Icon(
+                    isSelected
+                        ? Icons.check_circle_rounded
+                        : Icons.radio_button_unchecked_rounded,
+                    color: isSelected
+                        ? AppColors.primaryBlue
+                        : Colors.grey.shade400,
+                    size: 20,
+                  ),
+                ),
+              ],
+              Expanded(
+                child: Align(
+                  alignment:
+                      isMe ? Alignment.centerRight : Alignment.centerLeft,
+                  child: Container(
+                    margin: EdgeInsets.only(
+                      top: 2.5,
+                      bottom: 4.5,
+                      left: isMe ? 44 : 0,
+                      right: isMe ? 0 : 44,
+                    ),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: isMe ? AppColors.primaryBlue : Colors.grey.shade200,
+                      borderRadius: BorderRadius.only(
+                        topLeft: const Radius.circular(14),
+                        topRight: const Radius.circular(14),
+                        bottomLeft: Radius.circular(isMe ? 14 : 3),
+                        bottomRight: Radius.circular(isMe ? 3 : 14),
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.04),
+                          blurRadius: 4,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Column(
           crossAxisAlignment:
               isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
@@ -226,16 +355,20 @@ class GroupScreen extends StatelessWidget {
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(
-                    item.senderName,
-                    style: TextStyle(
-                      color: item.senderName.toLowerCase() == 'admin'
-                          ? Colors.orange.shade800
-                          : item.messageType == 'welcome'
-                              ? Colors.purple.shade700
-                              : AppColors.primaryBlue,
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
+                  Flexible(
+                    child: Text(
+                      item.senderName,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: item.senderName.toLowerCase() == 'admin'
+                            ? Colors.orange.shade800
+                            : item.messageType == 'welcome'
+                                ? Colors.purple.shade700
+                                : AppColors.primaryBlue,
+                        fontSize: 11.5,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                   if (item.senderName.toLowerCase() == 'admin') ...[
@@ -250,7 +383,7 @@ class GroupScreen extends StatelessWidget {
                         'ADMIN',
                         style: TextStyle(
                           color: Colors.orange.shade900,
-                          fontSize: 9,
+                          fontSize: 8.5,
                           fontWeight: FontWeight.w800,
                         ),
                       ),
@@ -258,7 +391,7 @@ class GroupScreen extends StatelessWidget {
                   ],
                 ],
               ),
-              const SizedBox(height: 3),
+              const SizedBox(height: 2),
             ],
 
             // Message Text
@@ -267,8 +400,8 @@ class GroupScreen extends StatelessWidget {
                 item.messageText,
                 style: TextStyle(
                   color: isMe ? Colors.white : AppColors.textDark,
-                  fontSize: 14.5,
-                  height: 1.35,
+                  fontSize: 13.5,
+                  height: 1.3,
                 ),
               ),
 
@@ -279,7 +412,13 @@ class GroupScreen extends StatelessWidget {
                 return Padding(
                   padding: const EdgeInsets.only(top: 4.0),
                   child: GestureDetector(
-                    onTap: () => controller.openLeadDetails(lead),
+                    onTap: () {
+                      if (controller.isSelectionMode) {
+                        controller.onMessageTap(item);
+                      } else {
+                        controller.openLeadDetails(lead);
+                      }
+                    },
                     behavior: HitTestBehavior.opaque,
                     child: Container(
                       padding: const EdgeInsets.symmetric(
@@ -349,8 +488,14 @@ class GroupScreen extends StatelessWidget {
             ],
           ],
         ),
-      ),
-    );
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    });
   }
 
   Widget _buildWhatsAppInputBar(BuildContext context, GroupController controller) {

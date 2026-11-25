@@ -497,6 +497,29 @@ class _MemberProgressDialog extends StatelessWidget {
                       ],
                     ),
                   ),
+                  if (controller.getUserData().role == 'admin' &&
+                      member.id != null &&
+                      member.id!.isNotEmpty) ...[
+                    IconButton(
+                      icon: const Icon(
+                        Icons.notifications_none_rounded,
+                        color: AppColors.primaryBlue,
+                        size: 21,
+                      ),
+                      tooltip: 'View Notifications',
+                      onPressed: () {
+                        Get.toNamed(
+                          AppRoutes.notificationsScreen,
+                          arguments: {
+                            'userId': member.id,
+                            'userName': displayName,
+                          },
+                        );
+                      },
+                      padding: const EdgeInsets.only(right: 8),
+                      constraints: const BoxConstraints(),
+                    ),
+                  ],
                   IconButton(
                     icon: const Icon(Icons.close_rounded,
                         color: AppColors.textGrey),

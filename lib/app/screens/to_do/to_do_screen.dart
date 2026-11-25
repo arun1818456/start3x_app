@@ -19,13 +19,13 @@ class ToDoScreen extends StatelessWidget {
             child: Container(
               color: AppColors.whiteColor,
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 10.0),
+                padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 8.0),
                 child: Column(
             children: [
               _buildTopHeader(context, controller),
-              const SizedBox(height: 16),
+              const SizedBox(height: 10),
               _buildSearchBar(controller),
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
               Expanded(
                 child: RefreshIndicator(
                   onRefresh: controller.fetchTasksFromApi,
@@ -44,7 +44,7 @@ class ToDoScreen extends StatelessWidget {
                                 "Today's To-Do List",
                                 style: const TextStyle(
                                   color: AppColors.primaryBlue,
-                                  fontSize: 16,
+                                  fontSize: 14.5,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -93,14 +93,14 @@ class ToDoScreen extends StatelessWidget {
                               physics: const NeverScrollableScrollPhysics(),
                               itemCount: todayList.length,
                               separatorBuilder: (context, index) =>
-                                  const SizedBox(height: 12),
+                                  const SizedBox(height: 9),
                               itemBuilder: (context, index) {
                                 return _buildTaskCard(todayList[index]);
                               },
                             );
                           },
                         ),
-                        const SizedBox(height: 22),
+                        const SizedBox(height: 14),
 
                         // --- Tomorrow's To-Do Section ---
                         Obx(() {
@@ -111,7 +111,7 @@ class ToDoScreen extends StatelessWidget {
                                 "Tomorrow's To-Do List",
                                 style: const TextStyle(
                                   color: AppColors.primaryBlue,
-                                  fontSize: 16,
+                                  fontSize: 14.5,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -160,14 +160,14 @@ class ToDoScreen extends StatelessWidget {
                               physics: const NeverScrollableScrollPhysics(),
                               itemCount: tomorrowList.length,
                               separatorBuilder: (context, index) =>
-                                  const SizedBox(height: 12),
+                                  const SizedBox(height: 9),
                               itemBuilder: (context, index) {
                                 return _buildTaskCard(tomorrowList[index]);
                               },
                             );
                           },
                         ),
-                        const SizedBox(height: 22),
+                        const SizedBox(height: 14),
 
                         // --- Other Dates To-Do Section ---
                         Obx(() {
@@ -178,7 +178,7 @@ class ToDoScreen extends StatelessWidget {
                                 "Other Dates To-Do List",
                                 style: const TextStyle(
                                   color: AppColors.primaryBlue,
-                                  fontSize: 16,
+                                  fontSize: 14.5,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -227,14 +227,14 @@ class ToDoScreen extends StatelessWidget {
                               physics: const NeverScrollableScrollPhysics(),
                               itemCount: otherList.length,
                               separatorBuilder: (context, index) =>
-                                  const SizedBox(height: 12),
+                                  const SizedBox(height: 9),
                               itemBuilder: (context, index) {
                                 return _buildTaskCard(otherList[index]);
                               },
                             );
                           },
                         ),
-                        const SizedBox(height: 24),
+                        const SizedBox(height: 16),
                       ],
                     ),
                   ),
@@ -251,51 +251,60 @@ class ToDoScreen extends StatelessWidget {
 }
 
   Widget _buildTopHeader(BuildContext context, TaskController controller) {
-    return Stack(
-      alignment: Alignment.center,
+    return Row(
       children: [
-        const Align(
-          alignment: Alignment.center,
+        const SizedBox(width: 90),
+        const Expanded(
           child: Text(
             'To-do',
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: AppTextStyles.headerTitle,
           ),
         ),
-        Align(
-          alignment: Alignment.centerRight,
-          child: GestureDetector(
-            onTap: () => controller.showSortBottomSheet(context),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              decoration: BoxDecoration(
-                color: Colors.grey.shade200,
-                borderRadius: BorderRadius.circular(18),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Obx(() {
-                    String sortLabel = controller.selectedSort.value;
-                    if (sortLabel.contains('Earliest')) sortLabel = 'Earliest';
-                    if (sortLabel.contains('Latest')) sortLabel = 'Latest';
-                    if (sortLabel.contains('Rank')) sortLabel = 'Rank';
-                    if (sortLabel.contains('Name')) sortLabel = 'Name';
-                    return Text(
-                      sortLabel,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                        color: AppColors.textDark,
-                      ),
-                    );
-                  }),
-                  const SizedBox(width: 4),
-                  const Icon(
-                    Icons.tune_rounded,
-                    size: 15,
-                    color: AppColors.textDark,
-                  ),
-                ],
+        SizedBox(
+          width: 90,
+          child: Align(
+            alignment: Alignment.centerRight,
+            child: GestureDetector(
+              onTap: () => controller.showSortBottomSheet(context),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade200,
+                  borderRadius: BorderRadius.circular(18),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Flexible(
+                      child: Obx(() {
+                        String sortLabel = controller.selectedSort.value;
+                        if (sortLabel.contains('Earliest')) sortLabel = 'Earliest';
+                        if (sortLabel.contains('Latest')) sortLabel = 'Latest';
+                        if (sortLabel.contains('Rank')) sortLabel = 'Rank';
+                        if (sortLabel.contains('Name')) sortLabel = 'Name';
+                        return Text(
+                          sortLabel,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: AppColors.textDark,
+                          ),
+                        );
+                      }),
+                    ),
+                    const SizedBox(width: 4),
+                    const Icon(
+                      Icons.tune_rounded,
+                      size: 15,
+                      color: AppColors.textDark,
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -335,25 +344,27 @@ class ToDoScreen extends StatelessWidget {
         Get.toNamed(AppRoutes.callingScreen, arguments: item.lead);
       },
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         decoration: BoxDecoration(
           color: AppColors.darkCardBg,
-          borderRadius: BorderRadius.circular(18),
+          borderRadius: BorderRadius.circular(14),
         ),
         child: Row(
           children: [
             // Rank Number
-            SizedBox(
-              width: 32,
+            ConstrainedBox(
+              constraints: const BoxConstraints(minWidth: 26, maxWidth: 44),
               child: Text(
                 item.rank,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
                 style: AppTextStyles.rankText,
               ),
             ),
             Container(
-              height: 38,
+              height: 34,
               width: 1,
-              margin: const EdgeInsets.symmetric(horizontal: 10),
+              margin: const EdgeInsets.symmetric(horizontal: 8),
               color: Colors.white24,
             ),
 
@@ -379,82 +390,95 @@ class ToDoScreen extends StatelessWidget {
               ),
             ),
 
+            const SizedBox(width: 8),
+
             // Status, Date, Time & Reminder
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                if (item.isOverdue) ...[
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
-                    margin: const EdgeInsets.only(bottom: 2),
-                    decoration: BoxDecoration(
-                      color: Colors.red.shade900,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: const Text(
-                      'OVERDUE',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 9,
-                        fontWeight: FontWeight.w800,
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 132),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  if (item.isOverdue) ...[
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+                      margin: const EdgeInsets.only(bottom: 2),
+                      decoration: BoxDecoration(
+                        color: Colors.red.shade900,
+                        borderRadius: BorderRadius.circular(4),
                       ),
+                      child: const Text(
+                        'OVERDUE',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 9,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
+                  ],
+                  Text(
+                    item.status,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: item.isOverdue
+                          ? Colors.red.shade300
+                          : item.status.toLowerCase().contains('meeting')
+                              ? const Color(0xFF60A5FA)
+                              : item.status.toLowerCase().contains('callback')
+                                  ? const Color(0xFFFFCC00)
+                                  : AppColors.whiteColor,
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 1),
+                  Text(
+                    item.date,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: Color(0xFFFFCC00),
+                      fontSize: 11,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  Text(
+                    item.time,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: Color(0xFFFFCC00),
+                      fontSize: 11,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: 3),
+                  RichText(
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    text: TextSpan(
+                      children: [
+                        const TextSpan(
+                          text: 'Reminder: ',
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 10.5,
+                          ),
+                        ),
+                        TextSpan(
+                          text: item.reminderTime,
+                          style: const TextStyle(
+                            color: Color(0xFFFFCC00),
+                            fontSize: 10.5,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
-                Text(
-                  item.status,
-                  style: TextStyle(
-                    color: item.isOverdue
-                        ? Colors.red.shade300
-                        : item.status.toLowerCase().contains('meeting')
-                            ? const Color(0xFF60A5FA)
-                            : item.status.toLowerCase().contains('callback')
-                                ? const Color(0xFFFFCC00)
-                                : AppColors.whiteColor,
-                    fontSize: 11,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 1),
-                Text(
-                  item.date,
-                  style: const TextStyle(
-                    color: Color(0xFFFFCC00),
-                    fontSize: 11,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                Text(
-                  item.time,
-                  style: const TextStyle(
-                    color: Color(0xFFFFCC00),
-                    fontSize: 11,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 3),
-                RichText(
-                  text: TextSpan(
-                    children: [
-                      const TextSpan(
-                        text: 'Reminder: ',
-                        style: TextStyle(
-                          color: Colors.white70,
-                          fontSize: 10.5,
-                        ),
-                      ),
-                      TextSpan(
-                        text: item.reminderTime,
-                        style: const TextStyle(
-                          color: Color(0xFFFFCC00),
-                          fontSize: 10.5,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+              ),
             ),
           ],
         ),

@@ -5,6 +5,7 @@ import 'package:socket_io_client/socket_io_client.dart';
 import 'package:start3x_app/constants/api_constant.dart';
 import 'package:start3x_app/constants/local_keys.dart';
 import 'package:start3x_app/mixin/base_class.dart';
+import 'package:start3x_app/services/api_handler.dart';
 import 'package:start3x_app/app/screens/group/group_controller.dart';
 
 class MySocketController extends GetxController with BaseClass {
@@ -28,6 +29,7 @@ class MySocketController extends GetxController with BaseClass {
         debugPrint("-----------Socket Re-Connected-----------");
         socket.value!.connect();
       } else {
+        joinUserRoom();
         joinChat();
       }
     } else {
@@ -40,6 +42,7 @@ class MySocketController extends GetxController with BaseClass {
 
       socket.value!.onConnect((_) {
         debugPrint("-----------Socket Connected-----------");
+        joinUserRoom();
         joinChat();
 
         if (timer.value != null) {
@@ -108,6 +111,28 @@ class MySocketController extends GetxController with BaseClass {
       }
     });
 
+    // Listen for deleted messages in real-time
+    socket.value!.on("message_deleted", (data) {
+      debugPrint(">> message_deleted >> $data");
+      if (data != null && data is Map) {
+        final mapData = Map<String, dynamic>.from(data);
+        if (Get.isRegistered<GroupController>()) {
+          Get.find<GroupController>().onSocketMessageDeleted(mapData);
+        }
+      }
+    });
+
+    // Listen for batch deleted messages in real-time
+    socket.value!.on("messages_deleted", (data) {
+      debugPrint(">> messages_deleted >> $data");
+      if (data != null && data is Map) {
+        final mapData = Map<String, dynamic>.from(data);
+        if (Get.isRegistered<GroupController>()) {
+          Get.find<GroupController>().onSocketMessagesDeleted(mapData);
+        }
+      }
+    });
+
     // Listen for typing indicator
     socket.value!.on("user_typing", (data) {
       debugPrint(">> user_typing >> $data");
@@ -134,6 +159,29 @@ class MySocketController extends GetxController with BaseClass {
         );
       }
     });
+
+    // Single-device session expired (logged in from another phone)
+    socket.value!.on("session_expired", (data) {
+      debugPrint(">> session_expired >> $data");
+      final msg = (data is Map && data["message"] != null)
+          ? data["message"].toString()
+          : "Your account was logged in on another device. Please login again.";
+      forceLogoutToLogin(
+        title: "Logged Out",
+        description: msg,
+      );
+    });
+  }
+
+  /// Join personal user room for single-device session enforcement
+  void joinUserRoom() {
+    if (storage.hasData(LocalKeys.userData)) {
+      final userData = getUserData();
+      socket.value?.emit("join_user", {
+        "userId": userData.id ?? '',
+        "token": userData.token ?? '',
+      });
+    }
   }
 
   /// Join passkey room (supports targetPasskey when Admin opens a client)
@@ -154,6 +202,7 @@ class MySocketController extends GetxController with BaseClass {
         "userId": userData.id ?? '',
         "userName": sender,
         "role": userData.role ?? 'user',
+        "token": userData.token ?? '',
       };
       debugPrint("-----------Socket Joining Chat Room: $data-----------");
       socket.value?.emit("join_chat", data);
@@ -187,6 +236,7 @@ class MySocketController extends GetxController with BaseClass {
       "senderId": userData.id ?? '',
       "senderName": sender,
       "role": userData.role ?? 'user',
+      "token": userData.token ?? '',
       "messageText": messageText,
       "messageType": messageType,
       if (leadId != null && leadId.isNotEmpty) "leadId": leadId,
@@ -195,6 +245,27 @@ class MySocketController extends GetxController with BaseClass {
     };
     debugPrint(">>>> Socket send_message: $data");
     socket.value?.emit("send_message", data);
+  }
+
+  /// Delete chat message via socket (optional helper alongside HTTP DELETE)
+  void deleteChatMessage({
+    required String messageId,
+    String? passkey,
+  }) {
+    if (socket.value == null || !socket.value!.connected) return;
+    final userData = getUserData();
+    final bool isAdmin = userData.role == 'admin';
+    final activePasskey = (passkey != null && passkey.isNotEmpty)
+        ? passkey
+        : (!isAdmin && userData.passkey != null && userData.passkey!.isNotEmpty)
+            ? userData.passkey!
+            : (storage.read('clientPasskey')?.toString() ?? 'default');
+
+    socket.value?.emit("delete_message", {
+      "messageId": messageId,
+      "passkey": activePasskey,
+      "token": userData.token ?? '',
+    });
   }
 
   /// Send typing status to team

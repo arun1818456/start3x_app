@@ -31,7 +31,7 @@ class ClientSetupScreen extends StatelessWidget {
             controller.isFromMenu ? 'Business Details' : 'Details Setup',
             style: const TextStyle(
               color: Colors.white,
-              fontSize: 20,
+              fontSize: 17.5,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -41,7 +41,7 @@ class ClientSetupScreen extends StatelessWidget {
             child: ConstrainedBox(
               constraints: BoxConstraints(maxWidth: isWide ? 760 : double.infinity),
               child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 20),
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
                 child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -50,12 +50,12 @@ class ClientSetupScreen extends StatelessWidget {
                       ? 'View and update your business details below.'
                       : 'Please fill the required client details to proceed.',
                   style: const TextStyle(
-                    fontSize: 14,
+                    fontSize: 12.5,
                     color: AppColors.textGrey,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
 
                 // SECTION 1: CLIENT INFO
                 _buildSectionCard(
@@ -74,19 +74,19 @@ class ClientSetupScreen extends StatelessWidget {
                         keyboardType: TextInputType.phone),
                     _buildFormRow('Targeted Location:',
                         controller.targetedLocationController, 'Enter Location'),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 8),
                     const Text(
                       'Full Address:',
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: 12.5,
                         fontWeight: FontWeight.w600,
                         color: AppColors.textDark,
                       ),
                     ),
-                    const SizedBox(height: 6),
+                    const SizedBox(height: 5),
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 4),
+                          horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
                         color: Colors.grey.shade100,
                         borderRadius: BorderRadius.circular(10),
@@ -96,19 +96,19 @@ class ClientSetupScreen extends StatelessWidget {
                         controller: controller.fullAddressController,
                         maxLines: 3,
                         style: const TextStyle(
-                            fontSize: 14, color: AppColors.textDark),
+                            fontSize: 13, color: AppColors.textDark),
                         decoration: const InputDecoration(
                           border: InputBorder.none,
                           hintText: 'Enter complete address here...',
                           hintStyle: TextStyle(
-                              fontSize: 13, color: Colors.black38),
+                              fontSize: 12, color: Colors.black38),
                         ),
                       ),
                     ),
                   ],
                 ),
 
-                const SizedBox(height: 20),
+                const SizedBox(height: 12),
 
                 // SECTION 2: ON-GRID PRICES
                 _buildSectionCard(
@@ -126,7 +126,7 @@ class ClientSetupScreen extends StatelessWidget {
                   ],
                 ),
 
-                const SizedBox(height: 20),
+                const SizedBox(height: 12),
 
                 // SECTION 3: HYBRID PRICES
                 _buildSectionCard(
@@ -144,7 +144,7 @@ class ClientSetupScreen extends StatelessWidget {
                   ],
                 ),
 
-                const SizedBox(height: 20),
+                const SizedBox(height: 12),
 
                 // SECTION 4: HARDWARE SPECS
                 _buildSectionCard(
@@ -157,7 +157,7 @@ class ClientSetupScreen extends StatelessWidget {
                   ],
                 ),
 
-                const SizedBox(height: 28),
+                const SizedBox(height: 18),
 
                 // SUBMIT BUTTON
                 CustomButton(
@@ -166,11 +166,11 @@ class ClientSetupScreen extends StatelessWidget {
                       : 'SAVE CLIENT DETAILS',
                   color: AppColors.primaryBlue,
                   radius: 12,
-                  buttonHeight: 52,
+                  buttonHeight: 46,
                   onPressed: controller.submitClientInfo,
                 ),
 
-                const SizedBox(height: 20),
+                const SizedBox(height: 14),
               ],
             ),
           ),
@@ -187,10 +187,10 @@ class ClientSetupScreen extends StatelessWidget {
   }) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(13),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(14),
         border: Border.all(color: Colors.grey.shade200),
         boxShadow: [
           BoxShadow(
@@ -206,13 +206,13 @@ class ClientSetupScreen extends StatelessWidget {
           Text(
             title,
             style: const TextStyle(
-              fontSize: 15,
+              fontSize: 13.5,
               fontWeight: FontWeight.bold,
               color: AppColors.primaryBlue,
               letterSpacing: 0.5,
             ),
           ),
-          const Divider(height: 20),
+          const Divider(height: 16),
           ...children,
         ],
       ),
@@ -226,40 +226,41 @@ class ClientSetupScreen extends StatelessWidget {
     TextInputType keyboardType = TextInputType.text,
   }) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6.0),
+      padding: const EdgeInsets.symmetric(vertical: 4.5),
       child: Row(
         children: [
           SizedBox(
-            width: 140,
+            width: 108,
             child: Text(
               label,
               style: const TextStyle(
-                fontSize: 14,
+                fontSize: 12.5,
                 fontWeight: FontWeight.w600,
                 color: AppColors.textDark,
               ),
             ),
           ),
+          const SizedBox(width: 8),
           Expanded(
             child: Container(
-              height: 42,
-              padding: const EdgeInsets.symmetric(horizontal: 12),
+              height: 38,
+              padding: const EdgeInsets.symmetric(horizontal: 10),
               decoration: BoxDecoration(
                 color: Colors.grey.shade100,
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(9),
                 border: Border.all(color: Colors.grey.shade300),
               ),
               child: TextField(
                 controller: controller,
                 keyboardType: keyboardType,
-                style: const TextStyle(fontSize: 14, color: AppColors.textDark),
+                style: const TextStyle(fontSize: 13, color: AppColors.textDark),
                 decoration: InputDecoration(
                   border: InputBorder.none,
                   hintText: hintText,
                   hintStyle:
-                      const TextStyle(fontSize: 13, color: Colors.black38),
+                      const TextStyle(fontSize: 12, color: Colors.black38),
                   isDense: true,
-                  contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                  contentPadding: const EdgeInsets.symmetric(vertical: 8),
                 ),
               ),
             ),

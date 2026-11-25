@@ -39,6 +39,7 @@ export 'package:start3x_app/app/models/lead_model.dart';
 export 'package:start3x_app/app/models/lead_response_model.dart';
 export 'package:start3x_app/app/models/to_do_item_model.dart';
 export 'package:start3x_app/app/models/user_model.dart';
+export 'package:start3x_app/app/models/notification_model.dart';
 
 // App Screens & Controllers
 export 'package:start3x_app/admin/access_control/access_control_controller.dart';
@@ -75,6 +76,8 @@ export 'package:start3x_app/app/screens/to_do/task_controller.dart';
 export 'package:start3x_app/app/screens/to_do/to_do_screen.dart';
 export 'package:start3x_app/app/screens/team/team_controller.dart';
 export 'package:start3x_app/app/screens/team/team_screen.dart';
+export 'package:start3x_app/app/screens/notifications/notifications_controller.dart';
+export 'package:start3x_app/app/screens/notifications/notifications_screen.dart';
 
 // App Routes
 export 'package:start3x_app/routes/routes.dart';

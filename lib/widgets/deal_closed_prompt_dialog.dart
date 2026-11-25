@@ -367,21 +367,28 @@ class DealClosedPromptHelper {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Row(
-                    children: [
-                      Icon(Icons.stars_rounded,
-                          color: Color(0xFFF59E0B), size: 26),
-                      SizedBox(width: 8),
-                      Text(
-                        'Select Closed Deals',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.textDark,
+                  const Expanded(
+                    child: Row(
+                      children: [
+                        Icon(Icons.stars_rounded,
+                            color: Color(0xFFF59E0B), size: 26),
+                        SizedBox(width: 8),
+                        Flexible(
+                          child: Text(
+                            'Select Closed Deals',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.textDark,
+                            ),
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
+                  const SizedBox(width: 8),
                   Obx(() {
                     final allSelected =
                         selectedLeadIds.length == batchOf4.length;
@@ -531,7 +538,8 @@ class DealClosedPromptHelper {
                               ),
 
                               // Deal Closed badge when selected
-                              if (isSelected)
+                              if (isSelected) ...[
+                                const SizedBox(width: 6),
                                 Container(
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 8, vertical: 3),
@@ -548,6 +556,7 @@ class DealClosedPromptHelper {
                                     ),
                                   ),
                                 ),
+                              ],
                             ],
                           ),
                         ),
@@ -576,6 +585,8 @@ class DealClosedPromptHelper {
                       ),
                       child: const Text(
                         'None / Skip',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           color: AppColors.textGrey,
                           fontSize: 14,
@@ -659,6 +670,8 @@ class DealClosedPromptHelper {
     final storage = GetStorage();
     final callerName = _resolveCallerName(storage);
     final formattedDate = _getFormattedCurrentDateTime();
+    final uData = storage.read(LocalKeys.userData);
+    final currentUserId = uData?['_id']?.toString() ?? uData?['id']?.toString() ?? '';
 
     int successCount = 0;
 
@@ -679,6 +692,7 @@ class DealClosedPromptHelper {
             "callDate": formattedDate,
             "isDone": true,
             "isMissed": false,
+            "userId": currentUserId,
             "userName": callerName,
             "callerName": callerName,
           },
@@ -774,6 +788,9 @@ class DealClosedPromptHelper {
 
   static Future<dynamic> _makeHttpRequest(
       REQUEST requestType, String url, Map<String, dynamic> body) async {
-    return await httpRequest(requestType, url, body);
+    final storage = GetStorage();
+    final uData = storage.read(LocalKeys.userData);
+    final jwt = uData?['token']?.toString() ?? '';
+    return await httpRequest(requestType, url, body, token: jwt);
   }
 }

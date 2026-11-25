@@ -15,7 +15,7 @@ class MyApp extends StatelessWidget {
         }
       },
       child: GetMaterialApp(
-        title: 'Start3x App',
+        title: 'Start 3x',
         initialRoute: kIsWeb ? AppRoutes.webHomeScreen : AppRoutes.splashRoute,
         getPages: AppPages.routes,
         defaultTransition: Transition.fade,

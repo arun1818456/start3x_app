@@ -53,8 +53,9 @@ class GroupMessageModel {
     final sId = json['senderId']?.toString() ?? '';
 
     bool me = false;
-    if (currentUserId.isNotEmpty && sId.isNotEmpty && currentUserId == sId) {
-      me = true;
+    if (currentUserId.isNotEmpty && sId.isNotEmpty) {
+      me = (currentUserId == sId) ||
+          (isCurrentUserAdmin && sender.trim().toLowerCase() == 'admin');
     } else if (isCurrentUserAdmin && sender.trim().toLowerCase() == 'admin') {
       me = true;
     } else if (currentUserName.isNotEmpty &&

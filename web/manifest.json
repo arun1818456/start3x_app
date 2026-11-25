@@ -1,6 +1,6 @@
 {
-    "name": "start3x_app",
-    "short_name": "start3x_app",
+    "name": "Start 3x",
+    "short_name": "Start 3x",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

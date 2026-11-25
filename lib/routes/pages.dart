@@ -70,6 +70,10 @@ class AppPages {
       page: () => const TeamScreen(),
     ),
     GetPage(
+      name: AppRoutes.notificationsScreen,
+      page: () => const NotificationsScreen(),
+    ),
+    GetPage(
       name: AppRoutes.webHomeScreen,
       page: () => const WebHomeScreen(),
     ),

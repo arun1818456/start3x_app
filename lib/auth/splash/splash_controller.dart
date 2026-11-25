@@ -17,8 +17,11 @@ class SplashController extends GetxController with BaseClass {
   }
 
   void _navigateToNextScreen() {
-    _timer = Timer(const Duration(seconds: 3), () {
+    _timer = Timer(const Duration(seconds: 2), () async {
       if (isLoggedIn()) {
+        final bool sessionValid = await _verifyActiveSession();
+        if (!sessionValid) return;
+
         _syncDeviceToken();
         UserDataModel userData = getUserData();
         if (userData.role == "admin") {
@@ -36,14 +39,38 @@ class SplashController extends GetxController with BaseClass {
     });
   }
 
+  Future<bool> _verifyActiveSession() async {
+    try {
+      final jwt = getUserData().token ?? "";
+      if (jwt.isEmpty) return true;
+
+      final res = await httpRequest(
+        REQUEST.get,
+        userDetailsApiEndPoint,
+        {},
+        token: jwt,
+      );
+      if (res == null || (res is Map && res.isEmpty)) {
+        // 401 handler already triggered forceLogoutToLogin
+        return false;
+      }
+      return true;
+    } catch (_) {
+      // Allow offline fallback if network temporarily unreachable
+      return true;
+    }
+  }
+
   void _syncDeviceToken() async {
     try {
       final token = await getDeviceToken();
-      if (token.isNotEmpty) {
+      final jwt = getUserData().token ?? "";
+      if (token.isNotEmpty && jwt.isNotEmpty) {
         await httpRequest(
           REQUEST.put,
           updateDeviceTokenApiEndPoint,
           {"deviceToken": token},
+          token: jwt,
         );
       }
     } catch (e) {

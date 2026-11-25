@@ -23,8 +23,8 @@ class ClientsScreen extends StatelessWidget {
                   // --- Header ---
                   Container(
                     padding: EdgeInsets.symmetric(
-                      horizontal: isWide ? 28.0 : 16.0,
-                      vertical: 16.0,
+                      horizontal: isWide ? 28.0 : 14.0,
+                      vertical: 12.0,
                     ),
                     decoration: BoxDecoration(
                       color: Colors.white,
@@ -38,8 +38,8 @@ class ClientsScreen extends StatelessWidget {
                   // --- Filter & Search Controls ---
                   Padding(
                     padding: EdgeInsets.symmetric(
-                      horizontal: isWide ? 28.0 : 16.0,
-                      vertical: 16.0,
+                      horizontal: isWide ? 28.0 : 14.0,
+                      vertical: 10.0,
                     ),
                     child: _buildSearchBar(controller),
                   ),
@@ -101,12 +101,12 @@ class ClientsScreen extends StatelessWidget {
 
                         return ListView.separated(
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 16.0,
-                            vertical: 10.0,
+                            horizontal: 14.0,
+                            vertical: 8.0,
                           ),
                           itemCount: list.length,
                           separatorBuilder: (context, index) =>
-                              const SizedBox(height: 12),
+                              const SizedBox(height: 9),
                           itemBuilder: (context, index) {
                             return _buildClientItemCard(list[index]);
                           },
@@ -139,7 +139,7 @@ class ClientsScreen extends StatelessWidget {
           padding: EdgeInsets.zero,
           constraints: const BoxConstraints(),
         ),
-        const SizedBox(width: 14),
+        const SizedBox(width: 12),
 
         // Title
         const Expanded(
@@ -149,7 +149,7 @@ class ClientsScreen extends StatelessWidget {
               Text(
                 'My Clientele',
                 style: TextStyle(
-                  fontSize: 22,
+                  fontSize: 18.5,
                   fontWeight: FontWeight.bold,
                   color: AppColors.textDark,
                 ),
@@ -157,47 +157,11 @@ class ClientsScreen extends StatelessWidget {
               Text(
                 'Browse accounts & view lead distribution',
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 11.5,
                   color: AppColors.textGrey,
                 ),
               ),
             ],
-          ),
-        ),
-
-        // Sorted by Button
-        MouseRegion(
-          cursor: SystemMouseCursors.click,
-          child: GestureDetector(
-            onTap: () => controller.showSortBottomSheet(context),
-            behavior: HitTestBehavior.opaque,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-              decoration: BoxDecoration(
-                color: Colors.grey.shade100,
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: Colors.grey.shade300),
-              ),
-              child: const Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    'Sorted by',
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.textDark,
-                    ),
-                  ),
-                  SizedBox(width: 6),
-                  Icon(
-                    Icons.tune_rounded,
-                    size: 16,
-                    color: AppColors.textDark,
-                  ),
-                ],
-              ),
-            ),
           ),
         ),
       ],
@@ -206,23 +170,23 @@ class ClientsScreen extends StatelessWidget {
 
   Widget _buildSearchBar(ClientsController controller) {
     return Container(
-      height: 44,
+      height: 40,
       decoration: BoxDecoration(
         color: Colors.grey.shade100,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(10),
         border: Border.all(color: Colors.grey.shade200),
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 14),
+      padding: const EdgeInsets.symmetric(horizontal: 12),
       child: TextField(
         onChanged: controller.updateSearch,
-        style: const TextStyle(fontSize: 14),
+        style: const TextStyle(fontSize: 13),
         decoration: const InputDecoration(
-          icon: Icon(Icons.search_rounded, color: AppColors.primaryBlue, size: 20),
+          icon: Icon(Icons.search_rounded, color: AppColors.primaryBlue, size: 19),
           hintText: 'Search by client name, passkey...',
-          hintStyle: TextStyle(fontSize: 13, color: AppColors.textGrey),
+          hintStyle: TextStyle(fontSize: 12.5, color: AppColors.textGrey),
           border: InputBorder.none,
           isDense: true,
-          contentPadding: EdgeInsets.symmetric(vertical: 12),
+          contentPadding: EdgeInsets.symmetric(vertical: 10),
         ),
       ),
     );
@@ -237,34 +201,36 @@ class ClientsScreen extends StatelessWidget {
         },
         behavior: HitTestBehavior.opaque,
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
           decoration: BoxDecoration(
             color: AppColors.darkCardBg,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(14),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.05),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
+                blurRadius: 8,
+                offset: const Offset(0, 3),
               ),
             ],
           ),
           child: Row(
             children: [
               // Rank
-              SizedBox(
-                width: 32,
+              ConstrainedBox(
+                constraints: const BoxConstraints(minWidth: 26, maxWidth: 44),
                 child: Text(
                   item.rank,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: AppTextStyles.rankText,
                 ),
               ),
 
               // Divider
               Container(
-                height: 38,
+                height: 32,
                 width: 1,
-                margin: const EdgeInsets.symmetric(horizontal: 14),
+                margin: const EdgeInsets.symmetric(horizontal: 10),
                 color: Colors.white24,
               ),
 
@@ -294,7 +260,7 @@ class ClientsScreen extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
-                          fontSize: 11,
+                          fontSize: 10.5,
                           color: Colors.white54,
                         ),
                       ),
@@ -303,19 +269,21 @@ class ClientsScreen extends StatelessWidget {
                 ),
               ),
 
+              const SizedBox(width: 8),
+
               // Status Badge
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
                   color: item.isActive.value
                       ? Colors.green.withValues(alpha: 0.2)
                       : Colors.red.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(
                   item.isActive.value ? 'Active' : 'Inactive',
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 11,
                     fontWeight: FontWeight.w600,
                     color: item.isActive.value
                         ? Colors.greenAccent

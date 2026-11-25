@@ -41,7 +41,7 @@ class InsightFolderScreen extends StatelessWidget {
       ),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+          padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 10.0),
           child: Column(
             children: [
               Expanded(
@@ -62,22 +62,22 @@ class InsightFolderScreen extends StatelessWidget {
                       child: ListView(
                         physics: const AlwaysScrollableScrollPhysics(),
                         children: [
-                          const SizedBox(height: 120),
+                          const SizedBox(height: 100),
                           Center(
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Icon(
                                   Icons.folder_open_rounded,
-                                  size: 50,
+                                  size: 44,
                                   color: Colors.grey.shade400,
                                 ),
-                                const SizedBox(height: 12),
+                                const SizedBox(height: 10),
                                 Text(
                                   'No leads found in $title',
                                   style: const TextStyle(
                                     color: AppColors.textGrey,
-                                    fontSize: 15,
+                                    fontSize: 14,
                                     fontWeight: FontWeight.w500,
                                   ),
                                 ),
@@ -96,7 +96,7 @@ class InsightFolderScreen extends StatelessWidget {
                       physics: const AlwaysScrollableScrollPhysics(),
                       itemCount: folderLeads.length,
                       separatorBuilder: (context, index) =>
-                          const SizedBox(height: 12),
+                          const SizedBox(height: 9),
                       itemBuilder: (context, index) {
                         final lead = folderLeads[index];
                         return LeadCardWidget(

@@ -19,21 +19,21 @@ class InsightsScreen extends StatelessWidget {
             child: Container(
               color: AppColors.whiteColor,
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 10.0),
+                padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 8.0),
                 child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const SizedBox(height: 8),
+              const SizedBox(height: 4),
               const Text(
                 'Insights',
                 style: AppTextStyles.headerTitle,
               ),
-              const SizedBox(height: 14),
+              const SizedBox(height: 10),
               Align(
                 alignment: Alignment.centerRight,
                 child: _buildFilterButton(context, controller),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
               Expanded(
                 child: Obx(
                   () {
@@ -50,7 +50,7 @@ class InsightsScreen extends StatelessWidget {
                       child: ListView.separated(
                         itemCount: controller.insightItems.length,
                         separatorBuilder: (context, index) =>
-                            const SizedBox(height: 10),
+                            const SizedBox(height: 8),
                         itemBuilder: (context, index) {
                           return _buildInsightCard(controller.insightItems[index]);
                         },
@@ -148,25 +148,25 @@ class InsightsScreen extends StatelessWidget {
         );
       },
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
         decoration: BoxDecoration(
           color: AppColors.primaryBlue,
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
           children: [
             const Icon(
               Icons.folder_open_rounded,
               color: AppColors.whiteColor,
-              size: 28,
+              size: 24,
             ),
-            const SizedBox(width: 14),
+            const SizedBox(width: 12),
             Expanded(
               child: Text(
                 item.title,
                 style: const TextStyle(
                   color: AppColors.whiteColor,
-                  fontSize: 15,
+                  fontSize: 14,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -175,7 +175,7 @@ class InsightsScreen extends StatelessWidget {
               item.count,
               style: const TextStyle(
                 color: AppColors.whiteColor,
-                fontSize: 16,
+                fontSize: 14.5,
                 fontWeight: FontWeight.bold,
               ),
             ),

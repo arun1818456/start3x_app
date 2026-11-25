@@ -288,9 +288,11 @@ class FinalScreenController extends GetxController with BaseClass {
           "reminder": selectedReminder.value,
           "scheduledDate": scheduledDateVal,
           "callDate": formattedCallDate,
+          "userId": userData.id ?? "",
           "userName": callerName,
           "callerName": callerName,
         },
+        token: userData.token ?? "",
       );
 
       hideCircularLoader();

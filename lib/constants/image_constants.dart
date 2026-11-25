@@ -1,7 +1,7 @@
 class AppImages {
   static const String path = 'assets/images';
-  static const String splashLogo = '$path/xxx app-23.png';
-  static const String logo = '$path/xxx app-23.png';
+  static const String splashLogo = '$path/full_logo.png';
+  static const String logo = '$path/full_logo.png';
   static const String googleLogo = '$path/google-logo.png';
 
   // Web Marketing Images (from start3x Web)

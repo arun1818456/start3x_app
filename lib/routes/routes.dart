@@ -15,6 +15,7 @@ abstract class AppRoutes {
   static const groupScreen = '/groupScreen';
   static const insightsScreen = '/insightsScreen';
   static const teamScreen = '/teamScreen';
+  static const notificationsScreen = '/notificationsScreen';
 
   // Web Marketing Landing Page & Web Features
   static const webHomeScreen = '/webHomeScreen';

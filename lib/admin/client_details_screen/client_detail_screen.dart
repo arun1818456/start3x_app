@@ -43,10 +43,10 @@ class ClientDetailScreen extends StatelessWidget {
       width: double.infinity,
       color: AppColors.darkCardBg,
       padding: EdgeInsets.only(
-        top: isWide ? 24 : 44,
-        bottom: 20,
-        left: 20,
-        right: 20,
+        top: isWide ? 24 : 38,
+        bottom: 14,
+        left: 16,
+        right: 16,
       ),
       child: Column(
         children: [
@@ -57,12 +57,12 @@ class ClientDetailScreen extends StatelessWidget {
               IconButton(
                 onPressed: () => Get.back(),
                 icon: const CircleAvatar(
-                  radius: 18,
+                  radius: 16,
                   backgroundColor: AppColors.whiteColor,
                   child: Icon(
                     Icons.arrow_back_ios_new_rounded,
                     color: AppColors.blackColor,
-                    size: 16,
+                    size: 15,
                   ),
                 ),
                 tooltip: 'Back',
@@ -83,7 +83,7 @@ class ClientDetailScreen extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
                         color: AppColors.whiteColor,
-                        fontSize: 22,
+                        fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -93,7 +93,7 @@ class ClientDetailScreen extends StatelessWidget {
                         'Passkey: ${controller.client.passkey}',
                         style: const TextStyle(
                           color: Colors.white70,
-                          fontSize: 12,
+                          fontSize: 11.5,
                           fontWeight: FontWeight.w400,
                         ),
                       ),
@@ -169,11 +169,11 @@ class ClientDetailScreen extends StatelessWidget {
             ],
           ),
 
-          const SizedBox(height: 18),
+          const SizedBox(height: 12),
 
           // Action Buttons: Call | Whatsapp | Alt Num
           Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               _buildActionButton(
                 icon: Icons.phone_rounded,
@@ -181,14 +181,12 @@ class ClientDetailScreen extends StatelessWidget {
                 label: 'Call',
                 onTap: () => controller.makePhoneCall(),
               ),
-              const SizedBox(width: 40),
               _buildActionButton(
                 icon: Icons.chat_bubble_rounded,
                 bgColor: const Color(0xFF25D366),
                 label: 'Whatsapp',
                 onTap: () => controller.openWhatsApp(),
               ),
-              const SizedBox(width: 40),
               _buildActionButton(
                 icon: Icons.add_call,
                 bgColor: AppColors.primaryBlue,
@@ -217,20 +215,20 @@ class ClientDetailScreen extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             CircleAvatar(
-              radius: 22,
+              radius: 19,
               backgroundColor: bgColor,
               child: Icon(
                 icon,
                 color: AppColors.whiteColor,
-                size: 20,
+                size: 18,
               ),
             ),
-            const SizedBox(height: 6),
+            const SizedBox(height: 5),
             Text(
               label,
               style: const TextStyle(
                 color: AppColors.whiteColor,
-                fontSize: 13,
+                fontSize: 11.5,
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -244,13 +242,13 @@ class ClientDetailScreen extends StatelessWidget {
       BuildContext context, ClientDetailController controller, bool isWide) {
     return SingleChildScrollView(
       padding: EdgeInsets.symmetric(
-        horizontal: isWide ? 36 : 18,
-        vertical: 24,
+        horizontal: isWide ? 36 : 14,
+        vertical: 14,
       ),
       child: Container(
         decoration: BoxDecoration(
           color: AppColors.darkCardBg,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.08),
@@ -259,7 +257,7 @@ class ClientDetailScreen extends StatelessWidget {
             ),
           ],
         ),
-        padding: EdgeInsets.all(isWide ? 32 : 22),
+        padding: EdgeInsets.all(isWide ? 32 : 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -268,19 +266,19 @@ class ClientDetailScreen extends StatelessWidget {
               'Assign New Lead',
               style: TextStyle(
                 color: Colors.white,
-                fontSize: 20,
+                fontSize: 17,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 3),
             const Text(
               'Fill in the lead details to assign to this client account',
               style: TextStyle(
                 color: Colors.white60,
-                fontSize: 13,
+                fontSize: 12,
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
 
             // Form inputs (Two-column grid on desktop, single column on mobile)
             if (isWide) ...[
@@ -388,74 +386,74 @@ class ClientDetailScreen extends StatelessWidget {
               ),
             ] else ...[
               _buildFieldLabel('Lead Name'),
-              const SizedBox(height: 6),
+              const SizedBox(height: 5),
               _buildDarkTextField(
                 controller: controller.nameController,
                 hintText: 'Enter lead name',
                 icon: Icons.person_outline_rounded,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 11),
               _buildFieldLabel('Phone Number'),
-              const SizedBox(height: 6),
+              const SizedBox(height: 5),
               _buildDarkTextField(
                 controller: controller.phoneController,
                 hintText: 'Enter phone number',
                 icon: Icons.phone_rounded,
                 keyboardType: TextInputType.phone,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 11),
               _buildFieldLabel('Address / Location'),
-              const SizedBox(height: 6),
+              const SizedBox(height: 5),
               _buildDarkTextField(
                 keyboardType: TextInputType.text,
                 controller: controller.addressController,
                 hintText: 'Enter address / location',
                 icon: Icons.location_on_outlined,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 11),
               _buildFieldLabel('KW (System Size)'),
-              const SizedBox(height: 6),
+              const SizedBox(height: 5),
               _buildDarkTextField(
                 controller: controller.kwController,
                 hintText: 'Enter KW capacity',
                 icon: Icons.electric_bolt_rounded,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 11),
               _buildFieldLabel('Electricity Bill (Monthly)'),
-              const SizedBox(height: 6),
+              const SizedBox(height: 5),
               _buildDarkTextField(
                 controller: controller.electricityBillController,
                 hintText: 'Enter bill amount',
                 icon: Icons.receipt_long_rounded,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 11),
               _buildFieldLabel('Schedule Date & Time'),
-              const SizedBox(height: 6),
+              const SizedBox(height: 5),
               _buildDatePickerPill(context, controller),
             ],
 
-            const SizedBox(height: 18),
+            const SizedBox(height: 12),
 
             // Text Note Field
             _buildFieldLabel('Notes / Remarks'),
-            const SizedBox(height: 6),
+            const SizedBox(height: 5),
             _buildDarkTextField(
               controller: controller.textController,
               hintText: 'Enter additional text note...',
               icon: Icons.notes_rounded,
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: 20),
 
             // Submit Button
             SizedBox(
               width: double.infinity,
-              height: 52,
+              height: 46,
               child: ElevatedButton(
                 onPressed: controller.submitAssignLead,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primaryBlue,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(12),
                   ),
                   elevation: 2,
                 ),
@@ -463,7 +461,7 @@ class ClientDetailScreen extends StatelessWidget {
                   'Assign Lead',
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 16,
+                    fontSize: 15,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -483,10 +481,10 @@ class ClientDetailScreen extends StatelessWidget {
         onTap: () => controller.selectDateTime(context),
         child: Container(
           width: double.infinity,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
           decoration: BoxDecoration(
             color: const Color(0xFF05161C),
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(12),
             border: Border.all(color: Colors.white12),
           ),
           child: Row(
@@ -494,9 +492,9 @@ class ClientDetailScreen extends StatelessWidget {
               const Icon(
                 Icons.calendar_month_rounded,
                 color: AppColors.primaryBlue,
-                size: 20,
+                size: 18,
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 10),
               Expanded(
                 child: Obx(
                   () => Text(
@@ -506,7 +504,7 @@ class ClientDetailScreen extends StatelessWidget {
                               'Select date & Time'
                           ? Colors.white38
                           : Colors.white,
-                      fontSize: 14,
+                      fontSize: 13,
                       fontWeight: FontWeight.w400,
                     ),
                   ),
@@ -515,7 +513,7 @@ class ClientDetailScreen extends StatelessWidget {
               const Icon(
                 Icons.arrow_drop_down_rounded,
                 color: Colors.white54,
-                size: 26,
+                size: 22,
               ),
             ],
           ),
@@ -529,7 +527,7 @@ class ClientDetailScreen extends StatelessWidget {
       label,
       style: const TextStyle(
         color: Colors.white,
-        fontSize: 14,
+        fontSize: 12.5,
         fontWeight: FontWeight.w500,
       ),
     );
@@ -544,19 +542,19 @@ class ClientDetailScreen extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: const Color(0xFF05161C),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(color: Colors.white12),
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 1),
       child: TextField(
         controller: controller,
         keyboardType: keyboardType,
-        style: const TextStyle(color: Colors.white, fontSize: 14),
+        style: const TextStyle(color: Colors.white, fontSize: 13),
         decoration: InputDecoration(
-          icon: Icon(icon, color: AppColors.primaryBlue, size: 20),
+          icon: Icon(icon, color: AppColors.primaryBlue, size: 18),
           border: InputBorder.none,
           hintText: hintText,
-          hintStyle: const TextStyle(color: Colors.white38, fontSize: 14),
+          hintStyle: const TextStyle(color: Colors.white38, fontSize: 13),
         ),
       ),
     );

@@ -9,6 +9,7 @@ const String signUpApiEndPoint = "/api/user/create";
 const String createUserApiEP = "/api/user/create";
 const String googleLoginApiEndPoint = "/api/user/google";
 const String updateDeviceTokenApiEndPoint = "/api/user/update-device-token";
+const String userDetailsApiEndPoint = "/api/user/details";
 
 // Web Google Sheet Endpoints
 const String freeCallLeads = "https://script.google.com/macros/s/AKfycbyKHuFsVlIbDfSXtyjLh39A9cN5rwZkVa--3_vWBdHa4xryWLyz9VCV1bCgjcLA0LpF/exec";
@@ -26,6 +27,7 @@ const String getPasskeyDetailsApiEndPoint = "/api/passkey/details/";
 
 // Lead API Endpoints
 const String createLeadApiEndPoint = "/api/lead/create";
+const String webEnquiryNotificationApiEndPoint = "/api/lead/web-enquiry";
 const String getLeadsApiEndPoint = "/api/lead/get";
 const String updateLeadApiEndPoint = "/api/lead/update/";
 const String deleteLeadApiEndPoint = "/api/lead/delete/";
@@ -40,8 +42,14 @@ const String deleteResponseApiEndPoint = "/api/response/delete/";
 const String sendChatMessageApiEndPoint = "/api/chat/send";
 const String getChatMessagesApiEndPoint = "/api/chat/get";
 const String deleteChatMessageApiEndPoint = "/api/chat/delete/";
+const String deleteMultipleChatMessagesApiEndPoint = "/api/chat/delete-multiple";
 
 // Insight API Endpoints
 const String getInsightsSummaryApiEndPoint = "/api/insight/get";
 const String getInsightFolderLeadsApiEndPoint = "/api/insight/get-leads";
+
+// Notification API Endpoints
+const String getNotificationsApiEndPoint = "/api/v1/notifications";
+const String deleteAllNotificationsApiEndPoint = "/api/v1/deleteAll";
+const String deleteNotificationApiEndPoint = "/api/v1/delete/";
 

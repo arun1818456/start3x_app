@@ -180,16 +180,16 @@ class BottomBar extends StatelessWidget with BaseClass {
 
   Widget _buildFloatingBottomNav(BottomController controller) {
     return Container(
-      margin: const EdgeInsets.only(left: 20, right: 20, bottom: 12, top: 6),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      margin: const EdgeInsets.only(left: 16, right: 16, bottom: 10, top: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
       decoration: BoxDecoration(
         color: AppColors.primaryBlue,
-        borderRadius: BorderRadius.circular(35),
+        borderRadius: BorderRadius.circular(30),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primaryBlue.withValues(alpha: 0.3),
-            blurRadius: 15,
-            offset: const Offset(0, 8),
+            color: AppColors.primaryBlue.withValues(alpha: 0.25),
+            blurRadius: 12,
+            offset: const Offset(0, 6),
           ),
         ],
       ),
@@ -246,14 +246,14 @@ class BottomBar extends StatelessWidget with BaseClass {
           Icon(
             isSelected ? selectedIcon : icon,
             color: isSelected ? Colors.white : Colors.white70,
-            size: 24,
+            size: 22,
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 2),
           Text(
             label,
             style: TextStyle(
               color: isSelected ? Colors.white : Colors.white70,
-              fontSize: 12,
+              fontSize: 11,
               fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
             ),
           ),

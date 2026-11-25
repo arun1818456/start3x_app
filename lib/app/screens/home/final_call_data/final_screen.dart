@@ -49,7 +49,7 @@ class FinalScreen extends StatelessWidget {
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(
-                    horizontal: 20.0, vertical: 24.0),
+                    horizontal: 16.0, vertical: 16.0),
                 child: SingleChildScrollView(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -57,10 +57,10 @@ class FinalScreen extends StatelessWidget {
                       // Text Response Box with Lead Name & Block Option
                       Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 14, vertical: 12),
+                            horizontal: 12, vertical: 10),
                         decoration: BoxDecoration(
                           color: AppColors.whiteColor,
-                          borderRadius: BorderRadius.circular(16),
+                          borderRadius: BorderRadius.circular(14),
                           border: Border.all(
                             color: Colors.grey.shade300,
                             width: 1,
@@ -74,22 +74,22 @@ class FinalScreen extends StatelessWidget {
                               maxLines: 4,
                               style: const TextStyle(
                                 color: AppColors.textDark,
-                                fontSize: 15,
-                                height: 1.4,
+                                fontSize: 14,
+                                height: 1.35,
                               ),
                               decoration: const InputDecoration(
                                 hintText:
                                     'Write the last response to help with the\nnext call..',
                                 hintStyle: TextStyle(
                                   color: Colors.grey,
-                                  fontSize: 15,
-                                  height: 1.4,
+                                  fontSize: 13.5,
+                                  height: 1.35,
                                 ),
                                 border: InputBorder.none,
                               ),
                             ),
                             const Divider(height: 1, color: Color(0xFFE0E0E0)),
-                            const SizedBox(height: 10),
+                            const SizedBox(height: 8),
                             Text(
                               controller.lead.name.isNotEmpty
                                   ? controller.lead.name
@@ -98,14 +98,14 @@ class FinalScreen extends StatelessWidget {
                               overflow: TextOverflow.ellipsis,
                               style: const TextStyle(
                                 color: AppColors.textDark,
-                                fontSize: 16,
+                                fontSize: 14.5,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
                           ],
                         ),
                       ),
-                      const SizedBox(height: 18),
+                      const SizedBox(height: 12),
 
                       // Select follow-up date Card (If Got a callback or Got a meeting)
                       if (controller.selectedOutcome == 'Got a callback' ||
@@ -117,10 +117,10 @@ class FinalScreen extends StatelessWidget {
                             child: Container(
                               width: double.infinity,
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 14, vertical: 14),
+                                  horizontal: 12, vertical: 12),
                               decoration: BoxDecoration(
                                 color: AppColors.whiteColor,
-                                borderRadius: BorderRadius.circular(16),
+                                borderRadius: BorderRadius.circular(14),
                                 border: Border.all(
                                   color: Colors.grey.shade300,
                                   width: 1,
@@ -131,9 +131,9 @@ class FinalScreen extends StatelessWidget {
                                   const Icon(
                                     Icons.calendar_month_outlined,
                                     color: AppColors.textDark,
-                                    size: 24,
+                                    size: 20,
                                   ),
-                                  const SizedBox(width: 12),
+                                  const SizedBox(width: 10),
                                   Expanded(
                                     child: Text(
                                       dt != null && dt.isNotEmpty
@@ -141,7 +141,7 @@ class FinalScreen extends StatelessWidget {
                                           : 'Select follow-up date',
                                       style: const TextStyle(
                                         color: AppColors.textDark,
-                                        fontSize: 16,
+                                        fontSize: 14,
                                         fontWeight: FontWeight.w600,
                                       ),
                                     ),
@@ -149,14 +149,14 @@ class FinalScreen extends StatelessWidget {
                                   const Icon(
                                     Icons.arrow_drop_down_rounded,
                                     color: Colors.grey,
-                                    size: 24,
+                                    size: 22,
                                   ),
                                 ],
                               ),
                             ),
                           );
                         }),
-                        const SizedBox(height: 18),
+                        const SizedBox(height: 12),
                       ],
 
                       // Select Reminder Tile Card
@@ -168,10 +168,10 @@ class FinalScreen extends StatelessWidget {
                           child: Container(
                             width: double.infinity,
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 14, vertical: 14),
+                                horizontal: 12, vertical: 12),
                             decoration: BoxDecoration(
                               color: AppColors.whiteColor,
-                              borderRadius: BorderRadius.circular(16),
+                              borderRadius: BorderRadius.circular(14),
                               border: Border.all(
                                 color: Colors.grey.shade300,
                                 width: 1,
@@ -182,9 +182,9 @@ class FinalScreen extends StatelessWidget {
                                 const Icon(
                                   Icons.notifications_active_outlined,
                                   color: AppColors.primaryBlue,
-                                  size: 24,
+                                  size: 20,
                                 ),
-                                const SizedBox(width: 12),
+                                const SizedBox(width: 10),
                                 Expanded(
                                   child: Column(
                                     crossAxisAlignment:
@@ -194,7 +194,7 @@ class FinalScreen extends StatelessWidget {
                                         'Select Reminder',
                                         style: TextStyle(
                                           color: Colors.grey,
-                                          fontSize: 12,
+                                          fontSize: 11.5,
                                           fontWeight: FontWeight.w500,
                                         ),
                                       ),
@@ -203,7 +203,7 @@ class FinalScreen extends StatelessWidget {
                                         reminderVal,
                                         style: const TextStyle(
                                           color: AppColors.textDark,
-                                          fontSize: 15,
+                                          fontSize: 14,
                                           fontWeight: FontWeight.w600,
                                         ),
                                       ),
@@ -213,7 +213,7 @@ class FinalScreen extends StatelessWidget {
                                 const Icon(
                                   Icons.keyboard_arrow_down_rounded,
                                   color: Colors.grey,
-                                  size: 24,
+                                  size: 22,
                                 ),
                               ],
                             ),

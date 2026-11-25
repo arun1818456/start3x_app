@@ -523,9 +523,11 @@ class CallingController extends GetxController with BaseClass {
           "scheduledDate": lead.scheduledDate,
           "isDone": true,
           "isMissed": false,
+          "userId": userData.id ?? "",
           "userName": callerName,
           "callerName": callerName,
         },
+        token: userData.token ?? "",
       );
 
       hideCircularLoader();
@@ -584,9 +586,11 @@ class CallingController extends GetxController with BaseClass {
           "callDate": formattedCallDate,
           "isMissed": true,
           "isDone": false,
+          "userId": userData.id ?? "",
           "userName": callerName,
           "callerName": callerName,
         },
+        token: userData.token ?? "",
       );
 
       hideCircularLoader();
@@ -668,23 +672,29 @@ class CallingController extends GetxController with BaseClass {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Row(
-                      children: [
-                        Icon(
-                          Icons.edit_note_rounded,
-                          color: AppColors.primaryBlue,
-                          size: 26,
-                        ),
-                        SizedBox(width: 8),
-                        Text(
-                          'Edit Lead Details',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.textDark,
+                    const Expanded(
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.edit_note_rounded,
+                            color: AppColors.primaryBlue,
+                            size: 26,
                           ),
-                        ),
-                      ],
+                          SizedBox(width: 8),
+                          Flexible(
+                            child: Text(
+                              'Edit Lead Details',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.textDark,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                     IconButton(
                       onPressed: () => Navigator.pop(ctx),
@@ -826,6 +836,7 @@ class CallingController extends GetxController with BaseClass {
                                       REQUEST.put,
                                       "$updateLeadApiEndPoint${lead.id}",
                                       body,
+                                      token: getUserData().token ?? "",
                                     );
 
                                     if (res != null &&

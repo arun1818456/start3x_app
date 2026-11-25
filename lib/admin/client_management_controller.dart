@@ -55,6 +55,20 @@ class ClientManagementController extends GetxController with BaseClass {
       yesButtonText: "Logout",
       noButtonText: "Cancel",
       onTapYes: () async {
+        try {
+          final jwt = getUserData().token ?? "";
+          if (jwt.isNotEmpty) {
+            await httpRequest(
+              REQUEST.post,
+              logoutApiEndPoint,
+              {},
+              token: jwt,
+            );
+          }
+        } catch (_) {}
+        if (Get.isRegistered<MySocketController>()) {
+          Get.find<MySocketController>().disconnectSocket();
+        }
         await storage.erase();
         if (Get.isRegistered<ClientManagementController>()) {
           Get.delete<ClientManagementController>(force: true);

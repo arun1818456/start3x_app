@@ -5,12 +5,17 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
+import 'package:start3x_app/admin/client_management_controller.dart';
 import 'package:start3x_app/constants/api_constant.dart';
+import 'package:start3x_app/constants/local_keys.dart';
 import 'package:start3x_app/routes/routes.dart';
 import 'package:start3x_app/services/app_exception.dart';
+import 'package:start3x_app/services/socket_controller.dart';
 import 'package:start3x_app/widgets/common_dialogs.dart';
 
 enum REQUEST { get, post, put, patch, delete }
+
+bool _isHandlingAuthLogout = false;
 
 Uri getUrl(String methodName) {
   if (methodName.contains("http")) {
@@ -29,6 +34,22 @@ dynamic safeDecode(String body) {
   }
 }
 
+String _resolveStoredToken(String url, String explicitToken) {
+  if (explicitToken.isNotEmpty) return explicitToken;
+  if (url.contains("http")) return "";
+  if (url.contains(loginApiEndPoint) ||
+      url.contains(signUpApiEndPoint) ||
+      url.contains(googleLoginApiEndPoint)) {
+    return "";
+  }
+  try {
+    final uData = GetStorage().read(LocalKeys.userData);
+    return uData?['token']?.toString() ?? "";
+  } catch (_) {
+    return "";
+  }
+}
+
 Future<dynamic> httpRequest(
   REQUEST requestType,
   String url,
@@ -38,64 +59,37 @@ Future<dynamic> httpRequest(
   dynamic responseJson;
   data = jsonEncode(data);
   dynamic value;
+  final resolvedToken = _resolveStoredToken(url, token);
+
   if (kDebugMode) {
     log(
-      "$requestType ${data != "{}" ? "DataSend:- $data" : ""} Token:- ${token.isNotEmpty} \n Url \u{1F449} ${getUrl(url)}",
+      "$requestType ${data != "{}" ? "DataSend:- $data" : ""} Token:- ${resolvedToken.isNotEmpty} \n Url \u{1F449} ${getUrl(url)}",
     );
   }
+
+  final Map<String, String> authHeaders = resolvedToken.isEmpty
+      ? {"Content-Type": "application/json"}
+      : {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer $resolvedToken",
+        };
 
   try {
     switch (requestType) {
       case REQUEST.get:
-        value = await http.get(
-          getUrl(url),
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer $token",
-          },
-        );
+        value = await http.get(getUrl(url), headers: authHeaders);
         break;
       case REQUEST.post:
-        value = await http.post(
-          getUrl(url),
-          headers: token.isEmpty
-              ? {"Content-Type": "application/json"}
-              : {
-                  "Content-Type": "application/json",
-                  "Authorization": "Bearer $token",
-                },
-          body: data,
-        );
+        value = await http.post(getUrl(url), headers: authHeaders, body: data);
         break;
       case REQUEST.put:
-        value = await http.put(
-          getUrl(url),
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer $token",
-          },
-          body: data,
-        );
+        value = await http.put(getUrl(url), headers: authHeaders, body: data);
         break;
       case REQUEST.patch:
-        value = await http.patch(
-          getUrl(url),
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer $token",
-          },
-          body: data,
-        );
+        value = await http.patch(getUrl(url), headers: authHeaders, body: data);
         break;
       case REQUEST.delete:
-        value = await http.delete(
-          getUrl(url),
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer $token",
-          },
-          body: data,
-        );
+        value = await http.delete(getUrl(url), headers: authHeaders, body: data);
         break;
     }
 
@@ -104,25 +98,33 @@ Future<dynamic> httpRequest(
       final prettyString = const JsonEncoder.withIndent('  ').convert(decoded);
       log("Response \u{1F449} ${value.statusCode} $prettyString");
     }
-    if (value.statusCode == 401 &&
-        (jsonDecode(value.body)["message"].toString() ==
-                "Please authenticate" ||
-            jsonDecode(value.body)["message"].toString() == "Invalid token")) {
-      showAuthDialog(
-        title: "Session Expired",
-        description: "Your session has expired. Please login again.",
-      );
-      return {};
+
+    if (value.statusCode == 401) {
+      final decoded = jsonDecode(value.body);
+      final msg = decoded["message"]?.toString() ?? "Session expired";
+      final bool isSessionExpired = decoded["sessionExpired"] == true ||
+          msg == "Please authenticate" ||
+          msg == "Invalid token" ||
+          msg.toLowerCase().contains("another device");
+      if (isSessionExpired) {
+        forceLogoutToLogin(
+          title: "Session Expired",
+          description: decoded["sessionExpired"] == true
+              ? msg
+              : "Your session has expired. Please login again.",
+        );
+        return {};
+      }
     } else if (value.statusCode == 404 &&
         jsonDecode(value.body)["message"].toString() == "User not found") {
-      showAuthDialog(
+      forceLogoutToLogin(
         title: "User Not Found",
         description: "Please Contact Admin",
       );
       return {};
-    } else {
-      responseJson = returnResponse(value);
     }
+
+    responseJson = returnResponse(value);
   } on http.ClientException catch (_) {
     // Works on both web and mobile (replaces SocketException + InternetAddress)
     _showNoInternetDialog();
@@ -173,26 +175,51 @@ dynamic returnResponse(http.Response response) {
   }
 }
 
-void showAuthDialog({required String title, required String description}) {
-  if (Get.isDialogOpen == true) return;
+Future<void> forceLogoutToLogin({
+  required String title,
+  required String description,
+}) async {
+  if (_isHandlingAuthLogout) return;
+  _isHandlingAuthLogout = true;
 
-  Get.dialog(
-    AlertDialog(
-      title: Text(title),
-      content: Text(description),
-      actions: [
-        TextButton(
-          onPressed: () async {
-            await GetStorage().erase();
-            Get.back();
-            Get.toNamed(AppRoutes.loginScreen);
-          },
-          child: const Text("OK"),
+  try {
+    if (Get.isRegistered<MySocketController>()) {
+      Get.find<MySocketController>().disconnectSocket();
+    }
+    await GetStorage().erase();
+    if (Get.isRegistered<ClientManagementController>()) {
+      Get.delete<ClientManagementController>(force: true);
+    }
+  } catch (_) {}
+
+  if (Get.currentRoute != AppRoutes.loginScreen) {
+    Get.offAllNamed(AppRoutes.loginScreen);
+  }
+
+  Future.delayed(const Duration(milliseconds: 150), () {
+    if (Get.context != null && Get.isDialogOpen != true) {
+      Get.dialog(
+        AlertDialog(
+          title: Text(title),
+          content: Text(description),
+          actions: [
+            TextButton(
+              onPressed: () {
+                if (Get.isDialogOpen == true) Get.back();
+              },
+              child: const Text("OK"),
+            ),
+          ],
         ),
-      ],
-    ),
-    barrierDismissible: false,
-  );
+        barrierDismissible: false,
+      );
+    }
+    _isHandlingAuthLogout = false;
+  });
+}
+
+void showAuthDialog({required String title, required String description}) {
+  forceLogoutToLogin(title: title, description: description);
 }
 
 String getMessage(http.Response response) {

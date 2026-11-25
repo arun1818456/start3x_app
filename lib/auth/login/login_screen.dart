@@ -154,11 +154,11 @@ class LoginScreen extends StatelessWidget {
           child: SingleChildScrollView(
             child: Column(
               children: [
-                const SizedBox(height: 30),
+                const SizedBox(height: 18),
 
                 // Circular White Container around Logo
                 Container(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     shape: BoxShape.circle,
@@ -172,17 +172,17 @@ class LoginScreen extends StatelessWidget {
                   ),
                   child: Image.asset(
                     AppImages.logo,
-                    height: 60,
-                    width: 60,
+                    height: 48,
+                    width: 48,
                     fit: BoxFit.contain,
                     errorBuilder: (context, error, stackTrace) => const Icon(
                       Icons.account_balance_wallet_rounded,
-                      size: 45,
+                      size: 38,
                       color: AppColors.primaryBlue,
                     ),
                   ),
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 8),
 
                 // Welcome Text
                 Obx(
@@ -190,9 +190,9 @@ class LoginScreen extends StatelessWidget {
                     controller.isSignUp.value ? "Create Account" : "Welcome",
                     style: const TextStyle(
                       color: Colors.white,
-                      fontSize: 24,
+                      fontSize: 21,
                       fontWeight: FontWeight.bold,
-                      letterSpacing: 1,
+                      letterSpacing: 0.8,
                     ),
                   ),
                 ),
@@ -202,32 +202,32 @@ class LoginScreen extends StatelessWidget {
                         ? "Sign up for a new account"
                         : "Login to your account",
                     style:
-                        const TextStyle(color: Colors.white70, fontSize: 13),
+                        const TextStyle(color: Colors.white70, fontSize: 12),
                   ),
                 ),
 
-                const SizedBox(height: 20),
+                const SizedBox(height: 14),
 
                 // Modern Form Card
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 25),
+                  padding: const EdgeInsets.symmetric(horizontal: 18),
                   child: Container(
-                    padding: const EdgeInsets.all(25),
+                    padding: const EdgeInsets.all(18),
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(35),
+                      borderRadius: BorderRadius.circular(26),
                       boxShadow: [
                         BoxShadow(
                           color: Colors.black.withValues(alpha: 0.06),
-                          blurRadius: 30,
-                          offset: const Offset(0, 15),
+                          blurRadius: 24,
+                          offset: const Offset(0, 12),
                         ),
                       ],
                     ),
                     child: _buildFormContent(controller, isWeb: false),
                   ),
                 ),
-                const SizedBox(height: 30),
+                const SizedBox(height: 20),
               ],
             ),
           ),
@@ -377,7 +377,7 @@ class LoginScreen extends StatelessWidget {
           return const SizedBox.shrink();
         }),
 
-        const SizedBox(height: 15),
+        const SizedBox(height: 12),
 
         // Action Button (LOGIN / SIGN UP)
         Obx(
@@ -385,14 +385,14 @@ class LoginScreen extends StatelessWidget {
             text: controller.isSignUp.value ? "SIGN UP" : "LOGIN",
             color: AppColors.primaryBlue,
             radius: 12,
-            buttonHeight: 52,
+            buttonHeight: 46,
             onPressed: controller.isSignUp.value
                 ? controller.onTapSignUpButton
                 : controller.onTapLoginButton,
           ),
         ),
 
-        const SizedBox(height: 10),
+        const SizedBox(height: 8),
 
         // OR Divider
         Row(
@@ -403,11 +403,12 @@ class LoginScreen extends StatelessWidget {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 15),
+              padding: const EdgeInsets.symmetric(horizontal: 12),
               child: Text(
                 "OR",
                 style: TextStyle(
                   color: Colors.grey[400],
+                  fontSize: 12,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -420,13 +421,13 @@ class LoginScreen extends StatelessWidget {
           ],
         ),
 
-        const SizedBox(height: 10),
+        const SizedBox(height: 8),
 
         // Google Login Button
         OutlinedButton(
           onPressed: controller.onTapGoogleLogin,
           style: OutlinedButton.styleFrom(
-            fixedSize: const Size(double.maxFinite, 52),
+            fixedSize: const Size(double.maxFinite, 46),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
@@ -439,24 +440,29 @@ class LoginScreen extends StatelessWidget {
             children: [
               Image.asset(
                 AppImages.googleLogo,
-                height: 25,
-                width: 25,
+                height: 22,
+                width: 22,
                 errorBuilder: (context, error, stackTrace) =>
-                    const Icon(Icons.g_mobiledata, size: 25),
+                    const Icon(Icons.g_mobiledata, size: 22),
               ),
               const SizedBox(width: 8),
-              Text(
-                "Continue with Google",
-                style: TextStyle(
-                  color: Colors.grey[800],
-                  fontWeight: FontWeight.bold,
+              Flexible(
+                child: Text(
+                  "Continue with Google",
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 13.5,
+                    color: Colors.grey[800],
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ],
           ),
         ),
 
-        const SizedBox(height: 12),
+        const SizedBox(height: 8),
 
         // Toggle Sign Up Mode Button
         Center(
@@ -469,7 +475,7 @@ class LoginScreen extends StatelessWidget {
                     : "New User? Create Account",
                 style: const TextStyle(
                   color: AppColors.primaryBlue,
-                  fontSize: 14,
+                  fontSize: 13,
                   fontWeight: FontWeight.bold,
                 ),
               ),
